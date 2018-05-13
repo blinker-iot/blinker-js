@@ -1,0 +1,9 @@
+__vm/
+Debug/
+*.vcxproj
+*.filters
+.vs/
+*.sln
+.vscode/
+*.pyc
+Blinker/__pycache__
