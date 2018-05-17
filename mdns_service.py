@@ -69,7 +69,7 @@ def mDNSinit(type, port):
     zeroconf = Zeroconf()
     zeroconf.register_service(info)
 
-    # print('mDNS responder init!')
+    print('mDNS responder init!')
 
 get_type = sys.argv[1]
 get_port = int(sys.argv[2])
