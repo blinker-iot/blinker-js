@@ -45,6 +45,8 @@ class BlinkerLinuxWS extends EventEmitter {
 
         this._wss = null;
         this._debug = null;
+
+        this.addListener('wsRead', parse);
     }
 
     setDebug(level) {
@@ -59,7 +61,6 @@ class BlinkerLinuxWS extends EventEmitter {
         //     BlinkerDebug.log('wsRead received');
         //     // parse(message);
         // });
-        this.addListener('wsRead', parse);
 
         mDNSinit(this.options.type)
         this._wss = new WebSocket.Server({ port: wsPort });
@@ -103,7 +104,7 @@ function isDebugAll() {
 }
 
 function parse(msg) {
-    data = JSON.parse(body);
+    data = JSON.parse(msg);
 
     BlinkerDebug.log('parse data: ', data);
 }
