@@ -5,12 +5,30 @@ const EventEmitter = require('events');
 
 // const LinuxWS = new BlinkerLinuxWS(null);
 // const LinuxWS = new BlinkerLinuxWS({type:'DiyLinux'});
-
+const BLINKER_VERSION                   = '0.1.0';
+const BLINKER_CMD_ON                    = 'on';
+const BLINKER_CMD_OFF                   = 'off';
+const BLINKER_CMD_JOYSTICK              = 'joy';
 const BLINKER_CMD_BUTTON_TAP            = 'tap';
 const BLINKER_CMD_BUTTON_PRESSED        = 'press';
 const BLINKER_CMD_BUTTON_RELEASED       = 'pressup';
+const BLINKER_CMD_NEWLINE               = '\n'
+const BLINKER_CMD_INTERSPACE            = ' '
+const BLINKER_CMD_GET                   = 'get'
+const BLINKER_CMD_STATE                 = 'state'
+const BLINKER_CMD_ONLINE                = 'online'
+const BLINKER_CMD_CONNECTED             = 'connected'
+const BLINKER_CMD_VERSION               = 'version'
+const BLINKER_CMD_NOTICE                = 'notice'
+const BLINKER_CMD_NOTFOUND              = 'device not found'
+const BLINKER_JOYSTICK_VALUE_DEFAULT    = '128';
+
 
 var Buttons = {};
+var Sliders = {};
+var Toggles = {};
+var RGBs = {};
+var JOY = {};
 
 var debug = null;
 
@@ -53,7 +71,8 @@ class Blinker extends EventEmitter {
         if (this.options.type == 'BLINKER_WIFI') {
             this._conn1 = new BlinkerLinuxWS(null);
         }
-        // bProto.setProto(this);
+
+        bProto.setProto(this);
     }
 
     setDebug(level) {
@@ -74,19 +93,73 @@ class Blinker extends EventEmitter {
         }
     }
 
+    print(msg) {
+        if (this.options.type == 'BLINKER_WIFI') {
+            BlinkerDebug.log('Blinker ws print: ', msg);
+
+            this._conn1.response(msg);
+        }
+    }
+
     button(name, cb) {
         if (name in Buttons) {
             return
         }
         else {
-            var data = [BLINKER_CMD_BUTTON_RELEASED, cb];
-            // Buttons[name] = BLINKER_CMD_BUTTON_RELEASED;
-            // Buttons[name] = cb;
-            Buttons[name] = data;
+            // var data = [BLINKER_CMD_BUTTON_RELEASED, cb];
+            // Buttons[name] = data;
+            Buttons[name] = cb;
 
-            BlinkerDebug.log('Buttons[name][0]: ', Buttons[name][0]);
-            bProto.on(name, Buttons[name][1]);
+            // BlinkerDebug.log('Buttons[name][0]: ', Buttons[name][0]);
+            // bProto.on(name, Buttons[name][1]);
+            bProto.on(name, cb);
         }
+    }
+
+    slider(name, cb) {
+        if (name in Sliders) {
+            return
+        }
+        else {
+            // var data = ['0', cb];
+            // Sliders[name] = data;
+            Sliders[name] = cb;
+
+            // BlinkerDebug.log('Sliders[name][0]: ', Sliders[name][0]);
+            // bProto.on(name, Sliders[name][1]);
+            bProto.on(name, cb);
+        }
+    }
+
+    toggle(name, cb) {
+        if (name in Toggles) {
+            return
+        }
+        else {
+            // var data = [BLINKER_CMD_OFF, cb];
+            // Toggles[name] = data;
+            Toggles[name] = cb;
+
+            // BlinkerDebug.log('Toggles[name][0]: ', Toggles[name][0]);
+            // bProto.on(name, Toggles[name][1]);
+            bProto.on(name, cb);
+        }
+    }
+
+    rgb(name, cb) {
+        if (name in RGBs) {
+            return
+        }
+        else {
+            RGBs[name] = cb;
+            bProto.on(name, cb);
+        }
+    }
+
+    joystick(cb) {
+        JOY[BLINKER_CMD_JOYSTICK] = cb;
+
+        bProto.on(BLINKER_CMD_JOYSTICK, cb);
     }
 }
 
@@ -102,67 +175,54 @@ function isDebugAll() {
     return debug
 }
 
-// LinuxWS.init();
-// LinuxWS.setDebug('BLINKER_DEBUG_ALL');
-
-// LinuxWS.on('wsRead', function(message) {
-//     // BlinkerDebug.log('wsRead received1: ', message);
-//     parse(message);
-// });
-
 function parse(msg) {
     data = JSON.parse(msg);
 
     BlinkerDebug.log('parse data: ', msg);
 
-    for(var key in data){  
-        if(key == 'ButtonKey') {
+    for (var key in data){  
+        if (key in Buttons) {
             var value = data[key];
             BlinkerDebug.log(value);
-            if (value != BLINKER_CMD_BUTTON_RELEASED) {
-                bProto.emit(key, value);
+            bProto.emit(key, value);
+        }
+        else if (key in Sliders) {
+            var value = data[key];
+            BlinkerDebug.log(value);
+            bProto.emit(key, value);
+        }
+        else if (key in Toggles) {
+            var value = data[key];
+            BlinkerDebug.log(value);
+            bProto.emit(key, value);
+        }
+        else if (key in RGBs) {
+            var value = data[key];
+            bProto.emit(key, value);
+        }
+        else if (key in JOY) {
+            var value = data[key];
+            bProto.emit(key, value);
+        }
+        else if (key == BLINKER_CMD_GET) {
+            var value = data[key];
+            BlinkerDebug.log('have key ', key);
+            BlinkerDebug.log('have value ', value);
+
+            if (value == BLINKER_CMD_VERSION) {
+                // var conCMD = {BLINKER_CMD_VERSION:BLINKER_VERSION};
+                var conCMD = {};
+                conCMD[BLINKER_CMD_VERSION] = BLINKER_VERSION;
+                bProto._proto.print(JSON.stringify(conCMD));
+            }
+            else if (value == BLINKER_CMD_STATE) {
+                if (bProto._proto.options.type == 'BLINKER_WIFI') {
+                    // var conCMD = {BLINKER_CMD_STATE:BLINKER_CMD_CONNECTED};
+                    var conCMD = {};
+                    conCMD[BLINKER_CMD_STATE] = BLINKER_CMD_CONNECTED;
+                    bProto._proto.print(JSON.stringify(conCMD));
+                }
             }
         }
     }
-
-    // if (data['ButtonKey']) {
-    //     BlinkerDebug.log('have key');
-    // }
-    // else {
-    //     BlinkerDebug.log('no key');
-    // }
-
-    // if ('ButtonKey' in data) {
-    //     BlinkerDebug.log('have key');
-    // }
-    // else {
-    //     BlinkerDebug.log('no key');
-    // }
 }
-
-// function wInit(name, wType) {
-//     if (wType == 'W_BUTTON') {
-//         if (name in Buttons) {
-//             return
-//         }
-//         else {
-//             Buttons[name] = BLINKER_CMD_BUTTON_RELEASED;
-//         }
-//     }
-// }
-
-// function button(name) {
-//     if (!(name in Buttons)) {
-//         wInit(name, 'W_BUTTON');
-//     }
-
-//     if (Buttons[name] == BLINKER_CMD_BUTTON_RELEASED) {
-//         return false;
-//     }
-//     else {
-//         if (Buttons[name] == BLINKER_CMD_BUTTON_TAP) {
-//             Buttons[name] = BLINKER_CMD_BUTTON_RELEASED;
-//         }
-//         return true; 
-//     }
-// }

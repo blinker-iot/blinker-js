@@ -39,10 +39,15 @@ class ProtoWS extends EventEmitter {
         super();
 
         this._proto = null;
+        this._conn = null;
     }
 
     setProto(proto) {
         this._proto = proto;
+    }
+
+    setConn(conn) {
+        this._conn = conn;
     }
 
     read(message) {
@@ -84,6 +89,7 @@ class BlinkerLinuxWS extends EventEmitter {
         BlinkerDebug.log('ws://' + getIPAdress() + ':' + wsPort);
 
         this._wss.on('connection', function connection(ws) {
+            proto_ws.setConn(ws);
 
             ws.on('message', function incoming(message) {
                 if (isDebugAll()) {
@@ -106,6 +112,10 @@ class BlinkerLinuxWS extends EventEmitter {
                 BlinkerDebug.log('Device connected!');
             }
         });
+    }
+
+    response(msg) {
+        proto_ws._conn.send(msg);
     }
 }
 
