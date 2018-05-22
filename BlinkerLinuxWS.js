@@ -1,4 +1,5 @@
 const BlinkerDebug = require('./BlinkerDebug');
+
 const EventEmitter = require('events');
 const WebSocket = require('/usr/lib/node_modules/ws');
 const wsPort = 81;
@@ -33,6 +34,25 @@ function getIPAdress() {
     }
 }
 
+class ProtoWS extends EventEmitter {
+    constructor (options) {
+        super();
+
+        this._proto = null;
+    }
+
+    setProto(proto) {
+        this._proto = proto;
+    }
+
+    read(message) {
+        // BlinkerDebug.log('this._proto.test!');
+        this._proto.emit('wsRead', message);
+    }
+}
+
+const proto_ws = new ProtoWS();
+
 class BlinkerLinuxWS extends EventEmitter {
     constructor (options) {
         super();
@@ -44,9 +64,10 @@ class BlinkerLinuxWS extends EventEmitter {
         this.options = options;
 
         this._wss = null;
+        this._ws = null;
         this._debug = null;
 
-        this.addListener('wsRead', parse);
+        proto_ws.setProto(this);
     }
 
     setDebug(level) {
@@ -57,22 +78,19 @@ class BlinkerLinuxWS extends EventEmitter {
     }
     
     init() {
-        // this.on('wsRead', function() {
-        //     BlinkerDebug.log('wsRead received');
-        //     // parse(message);
-        // });
-
         mDNSinit(this.options.type)
         this._wss = new WebSocket.Server({ port: wsPort });
         BlinkerDebug.log('websocket Server init');
         BlinkerDebug.log('ws://' + getIPAdress() + ':' + wsPort);
 
         this._wss.on('connection', function connection(ws) {
-            ws.on('message', function incoming(message) {
-                BlinkerDebug.log('received: ', message);
 
-                this.emit('wsRead', message);
-            });
+            ws.on('message', function incoming(message) {
+                if (isDebugAll()) {
+                    BlinkerDebug.log('received: ', message);
+                }
+                proto_ws.read(message);
+            });            
 
             ws.on('close', function close() {
                 if (isDebugAll()) {
@@ -104,7 +122,7 @@ function isDebugAll() {
 }
 
 function parse(msg) {
-    data = JSON.parse(msg);
+    // data = JSON.parse(msg);
 
-    BlinkerDebug.log('parse data: ', data);
+    BlinkerDebug.log('parse data: ', msg);
 }
