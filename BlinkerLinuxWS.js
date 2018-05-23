@@ -54,6 +54,14 @@ class ProtoWS extends EventEmitter {
         // BlinkerDebug.log('this._proto.test!');
         this._proto.emit('wsRead', message);
     }
+
+    connected() {
+        this._proto.emit('wsConnected');
+    }
+
+    disconnected() {
+        this._proto.emit('wsDisconnected');
+    }
 }
 
 const proto_ws = new ProtoWS();
@@ -90,6 +98,10 @@ class BlinkerLinuxWS extends EventEmitter {
 
         this._wss.on('connection', function connection(ws) {
             proto_ws.setConn(ws);
+            if (isDebugAll()) {
+                BlinkerDebug.log('Device connected!');
+            }
+            proto_ws.connected();
 
             ws.on('message', function incoming(message) {
                 if (isDebugAll()) {
@@ -102,15 +114,12 @@ class BlinkerLinuxWS extends EventEmitter {
                 if (isDebugAll()) {
                     BlinkerDebug.log('Device disconnected');
                 }
+                proto_ws.disconnected();
             });
 
             var conCMD = {'state':'connected'};
 
             ws.send(JSON.stringify(conCMD));
-            
-            if (isDebugAll()) {
-                BlinkerDebug.log('Device connected!');
-            }
         });
     }
 

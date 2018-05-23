@@ -5,10 +5,17 @@ const EventEmitter = require('events');
 
 // const LinuxWS = new BlinkerLinuxWS(null);
 // const LinuxWS = new BlinkerLinuxWS({type:'DiyLinux'});
+const BLINKER_CONNECTING                = 'CONNECTING';
+const BLINKER_CONNECTED                 = 'CONNECTED';
+const BLINKER_DISCONNECTED              = 'DISCONNECTED';
 const BLINKER_VERSION                   = '0.1.0';
 const BLINKER_CMD_ON                    = 'on';
 const BLINKER_CMD_OFF                   = 'off';
 const BLINKER_CMD_JOYSTICK              = 'joy';
+const BLINKER_CMD_GYRO                  = 'gyro';
+const BLINKER_CMD_AHRS                  = 'ahrs';
+const BLINKER_CMD_GPS                   = 'gps';
+const BLINKER_CMD_VIBRATE               = 'vibrate';
 const BLINKER_CMD_BUTTON_TAP            = 'tap';
 const BLINKER_CMD_BUTTON_PRESSED        = 'press';
 const BLINKER_CMD_BUTTON_RELEASED       = 'pressup';
@@ -29,6 +36,8 @@ var Sliders = {};
 var Toggles = {};
 var RGBs = {};
 var JOY = {};
+var AHRS = {};
+var GPS = {};
 
 var debug = null;
 
@@ -37,6 +46,11 @@ class BlinkerProto extends EventEmitter {
         super();
 
         this._proto = null;
+        this._state = BLINKER_CONNECTING;
+    }
+
+    setState(state) {
+        this._state = state;
     }
 
     setProto(proto) {
@@ -46,6 +60,15 @@ class BlinkerProto extends EventEmitter {
     read(message) {
         // BlinkerDebug.log('this._proto.test!');
         this._proto.emit('wsRead', message);
+    }
+
+    connected() {
+        if (this._state == BLINKER_CONNECTED) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
 
@@ -90,14 +113,25 @@ class Blinker extends EventEmitter {
                 BlinkerDebug.log('Blinker ws read: ', message);
                 parse(message);
             });
+            this._conn1.on('wsConnected', function() {
+                bProto.setState(BLINKER_CONNECTED);
+            });
+            this._conn1.on('wsDisconnected', function() {
+                bProto.setState(BLINKER_DISCONNECTED);
+            });
         }
     }
 
     print(msg) {
         if (this.options.type == 'BLINKER_WIFI') {
             BlinkerDebug.log('Blinker ws print: ', msg);
-
-            this._conn1.response(msg);
+            if (bProto.connected()) {
+                this._conn1.response(msg);
+                BlinkerDebug.log('Succese...');
+            }
+            else {
+                BlinkerDebug.log('Faile... Disconnected');
+            }
         }
     }
 
@@ -161,6 +195,45 @@ class Blinker extends EventEmitter {
 
         bProto.on(BLINKER_CMD_JOYSTICK, cb);
     }
+
+    ahrs(cb) {
+        AHRS[BLINKER_CMD_AHRS] = cb;
+
+        bProto.on(BLINKER_CMD_AHRS, cb);
+    }
+
+    attachAhrs() {
+        if (this.options.type == 'BLINKER_WIFI') {
+            this._conn1.once('wsConnected', function() {
+                var conCMD = {};
+                conCMD[BLINKER_CMD_AHRS] = BLINKER_CMD_ON;
+                bProto._proto.print(JSON.stringify(conCMD));
+            });
+        }
+    }
+
+    detachAhrs() {
+        if (this.options.type == 'BLINKER_WIFI') {
+            this._conn1.once('wsDisconnected', function() {
+                var conCMD = {};
+                conCMD[BLINKER_CMD_AHRS] = BLINKER_CMD_OFF;
+                bProto._proto.print(JSON.stringify(conCMD));
+            });
+        }
+    }
+
+    gps(cb) {
+        GPS[BLINKER_CMD_GPS] = cb;
+
+        bProto.on(BLINKER_CMD_GPS, cb);
+        if (this.options.type == 'BLINKER_WIFI') {
+            this._conn1.once('wsConnected', function() {
+                var conCMD = {};
+                conCMD[BLINKER_CMD_GET] = BLINKER_CMD_GPS;
+                bProto._proto.print(JSON.stringify(conCMD));
+            });
+        }
+    }
 }
 
 module.exports = Blinker;
@@ -201,6 +274,14 @@ function parse(msg) {
             bProto.emit(key, value);
         }
         else if (key in JOY) {
+            var value = data[key];
+            bProto.emit(key, value);
+        }
+        else if (key in AHRS) {
+            var value = data[key];
+            bProto.emit(key, value);
+        }
+        else if (key in GPS) {
             var value = data[key];
             bProto.emit(key, value);
         }
