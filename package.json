@@ -1,0 +1,25 @@
+{  
+    "name": "blinker",  
+    "version": "0.1.0",  
+    "main": "./Blinker.js",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/blinker-iot/blinker-js.git"
+    },
+    "description": "Blinker node.js library for hardware. Works with Raspberry Pi, Banana Pi, linux.",
+    "keywords": [
+        "blinker",
+        "ble",
+        "wifi",
+        "mqtt"
+    ],
+    "author": {
+        "name": "i3water",
+        "email": "i3water@sina.com"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/blinker-iot/blinker-js/issues"
+    },
+    "homepage": "https://github.com/blinker-iot/blinker-js"
+}

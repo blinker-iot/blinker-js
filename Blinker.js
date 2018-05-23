@@ -1,6 +1,6 @@
-const BlinkerLinuxWS = require('./BlinkerLinuxWS');
-const BlinkerDebug = require('./BlinkerDebug');
-const Utility = require('./BlinkerUtility');
+const BlinkerLinuxWS = require('./lib/BlinkerLinuxWS');
+const BlinkerDebug = require('./lib/BlinkerDebug');
+const Utility = require('./lib/BlinkerUtility');
 ut = new Utility();
 
 const EventEmitter = require('events');
@@ -260,6 +260,10 @@ class Blinker extends EventEmitter {
         var conCMD = {};
         conCMD[BLINKER_CMD_VIBRATE] = ms;
         bProto._proto.print(JSON.stringify(conCMD));
+    }
+
+    log(msg1, msg2, msg3, msg4, msg5, msg6) {
+        BlinkerDebug.log(msg1, msg2, msg3, msg4, msg5, msg6);
     }
 }
 
