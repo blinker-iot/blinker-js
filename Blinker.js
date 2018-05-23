@@ -89,7 +89,7 @@ class Blinker extends EventEmitter {
         this._conn1 = null;
         this._conn2 = null;
 
-        BlinkerDebug.log('this.options.type: ', this.options.type);
+        // BlinkerDebug.log('this.options.type: ', this.options.type);
 
         if (this.options.type == 'BLINKER_WIFI') {
             this._conn1 = new BlinkerLinuxWS(null);
@@ -233,6 +233,20 @@ class Blinker extends EventEmitter {
                 bProto._proto.print(JSON.stringify(conCMD));
             });
         }
+    }
+
+    vibrate(ms = 200) {
+        // if (this.options.type == 'BLINKER_WIFI') {
+        //     this._conn1.once('wsConnected', function() {
+        //         var conCMD = {};
+        //         conCMD[BLINKER_CMD_VIBRATE] = ms;
+        //         bProto._proto.print(JSON.stringify(conCMD));
+        //     });
+        // }
+
+        var conCMD = {};
+        conCMD[BLINKER_CMD_VIBRATE] = ms;
+        bProto._proto.print(JSON.stringify(conCMD));
     }
 }
 

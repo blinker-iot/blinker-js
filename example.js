@@ -13,7 +13,8 @@ Blinker.toggle('ToggleKey', toggle1);
 Blinker.rgb('RGBKey', rgb1);
 Blinker.joystick(joy1);
 // Blinker.ahrs(ahrs1);
-Blinker.gps(gps1);
+// Blinker.gps(gps1);
+Blinker.vibrate(500);
 
 function button1(msg) {
     BlinkerDebug.log('Button pressed! ', msg);

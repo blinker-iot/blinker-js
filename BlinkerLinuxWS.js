@@ -2,6 +2,7 @@ const BlinkerDebug = require('./BlinkerDebug');
 
 const EventEmitter = require('events');
 const WebSocket = require('/usr/lib/node_modules/ws');
+// const mdns = require('/usr/lib/node_modules/mdns-js');
 const wsPort = 81;
 var debug = null;
 
@@ -19,6 +20,17 @@ function mDNSinit(type) {
             BlinkerDebug.info('stderr : ', stderr);
         }
     });
+
+
+    // console.log('should advertise a http service on port 9876');
+    // var service = mdns.createAdvertisement(mdns.tcp('_' + type), wsPort, {
+    //     name: type,
+    //     txt:{
+    //         'deviceType': type
+    //     }
+    // });
+    // service.start();
+    // BlinkerDebug.log('mDNS responder init!');
 }
 
 function getIPAdress() {
