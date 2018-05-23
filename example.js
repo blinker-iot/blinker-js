@@ -1,6 +1,4 @@
 const BlinkerDebug = require('./BlinkerDebug');
-const Utility = require('./BlinkerUtility');
-ut = new Utility();
 const blinker = require('./Blinker');
 
 const Blinker = new blinker();
@@ -64,6 +62,6 @@ function gps1(msg) {
 function read1(msg) {
     BlinkerDebug.log('Blinker read! ', msg);
     var conCMD = {};
-    conCMD['millis'] = ut.millis();
+    conCMD['millis'] = Blinker.millis();
     Blinker.print(JSON.stringify(conCMD));
 }

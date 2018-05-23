@@ -1,5 +1,7 @@
 const BlinkerLinuxWS = require('./BlinkerLinuxWS');
 const BlinkerDebug = require('./BlinkerDebug');
+const Utility = require('./BlinkerUtility');
+ut = new Utility();
 
 const EventEmitter = require('events');
 
@@ -99,6 +101,10 @@ class Blinker extends EventEmitter {
         }
 
         bProto.setProto(this);
+    }
+
+    millis() {
+        return ut.millis();
     }
 
     setDebug(level) {
