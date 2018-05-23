@@ -2,16 +2,39 @@ const BlinkerDebug = require('./BlinkerDebug');
 
 const EventEmitter = require('events');
 const WebSocket = require('/usr/lib/node_modules/ws');
-// const mdns = require('/usr/lib/node_modules/mdns-js');
+const mdns = require('/usr/lib/node_modules/mdns-js');
 const wsPort = 81;
 var debug = null;
+var deviceName = null;
 
 function mDNSinit(type) {
     var exec = require('child_process').exec;
 
-    exec('sudo python3 mdns_service.py ' + type + ' ' + wsPort + ' ',function(error,stdout,stderr){
-        if(stdout.length >1){
-            // BlinkerDebug.log(stdout);
+    // exec('sudo python3 mdns_service.py ' + type + ' ' + wsPort + ' ',function(error,stdout,stderr){
+    //     if(stdout.length >1){
+    //         // BlinkerDebug.log(stdout);
+    //         BlinkerDebug.log('mDNS responder init!');
+    //     } else {
+    //         BlinkerDebug.log('mDNS responder init failed!');
+    //     }
+    //     if(error) {
+    //         BlinkerDebug.info('stderr : ', stderr);
+    //     }
+    // });
+
+    exec('sudo python3 macAddr.py ',function(error,stdout,stderr){
+        if (stdout.length > 1) {
+            macAddr = stdout.slice(0, 12);
+            // BlinkerDebug.log(macAddr);
+            deviceName = macAddr;
+            // BlinkerDebug.log('mDNS responder init!');
+            var service = mdns.createAdvertisement(mdns.tcp('_' + type), wsPort, {
+                name: deviceName,
+                txt:{
+                    'deviceType': type
+                }
+            });
+            service.start();
             BlinkerDebug.log('mDNS responder init!');
         } else {
             BlinkerDebug.log('mDNS responder init failed!');
@@ -24,7 +47,7 @@ function mDNSinit(type) {
 
     // console.log('should advertise a http service on port 9876');
     // var service = mdns.createAdvertisement(mdns.tcp('_' + type), wsPort, {
-    //     name: type,
+    //     name: deviceName,
     //     txt:{
     //         'deviceType': type
     //     }

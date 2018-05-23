@@ -5,9 +5,9 @@ const EventEmitter = require('events');
 
 // const LinuxWS = new BlinkerLinuxWS(null);
 // const LinuxWS = new BlinkerLinuxWS({type:'DiyLinux'});
-const BLINKER_CONNECTING                = 'CONNECTING';
-const BLINKER_CONNECTED                 = 'CONNECTED';
-const BLINKER_DISCONNECTED              = 'DISCONNECTED';
+const BLINKER_CONNECTING                = 'connecting';
+const BLINKER_CONNECTED                 = 'connected';
+const BLINKER_DISCONNECTED              = 'disconnected';
 const BLINKER_VERSION                   = '0.1.0';
 const BLINKER_CMD_ON                    = 'on';
 const BLINKER_CMD_OFF                   = 'off';
@@ -28,6 +28,7 @@ const BLINKER_CMD_CONNECTED             = 'connected'
 const BLINKER_CMD_VERSION               = 'version'
 const BLINKER_CMD_NOTICE                = 'notice'
 const BLINKER_CMD_NOTFOUND              = 'device not found'
+const BLINKER_CMD_READ                  = 'read';
 const BLINKER_JOYSTICK_VALUE_DEFAULT    = '128';
 
 
@@ -38,6 +39,7 @@ var RGBs = {};
 var JOY = {};
 var AHRS = {};
 var GPS = {};
+var READ = {};
 
 var debug = null;
 
@@ -51,6 +53,7 @@ class BlinkerProto extends EventEmitter {
 
     setState(state) {
         this._state = state;
+        this._proto.emit(state);
     }
 
     setProto(proto) {
@@ -133,6 +136,18 @@ class Blinker extends EventEmitter {
                 BlinkerDebug.log('Faile... Disconnected');
             }
         }
+    }
+
+    notify(msg) {
+        var conCMD = {};
+        conCMD[BLINKER_CMD_NOTICE] = msg;
+        bProto._proto.print(JSON.stringify(conCMD));
+    }
+
+    read(cb) {
+        READ[BLINKER_CMD_READ] = cb;
+
+        bProto.on(BLINKER_CMD_READ, cb);
     }
 
     button(name, cb) {
@@ -236,14 +251,6 @@ class Blinker extends EventEmitter {
     }
 
     vibrate(ms = 200) {
-        // if (this.options.type == 'BLINKER_WIFI') {
-        //     this._conn1.once('wsConnected', function() {
-        //         var conCMD = {};
-        //         conCMD[BLINKER_CMD_VIBRATE] = ms;
-        //         bProto._proto.print(JSON.stringify(conCMD));
-        //     });
-        // }
-
         var conCMD = {};
         conCMD[BLINKER_CMD_VIBRATE] = ms;
         bProto._proto.print(JSON.stringify(conCMD));
@@ -272,32 +279,39 @@ function parse(msg) {
             var value = data[key];
             BlinkerDebug.log(value);
             bProto.emit(key, value);
+            return;
         }
         else if (key in Sliders) {
             var value = data[key];
             BlinkerDebug.log(value);
             bProto.emit(key, value);
+            return;
         }
         else if (key in Toggles) {
             var value = data[key];
             BlinkerDebug.log(value);
             bProto.emit(key, value);
+            return;
         }
         else if (key in RGBs) {
             var value = data[key];
             bProto.emit(key, value);
+            return;
         }
         else if (key in JOY) {
             var value = data[key];
             bProto.emit(key, value);
+            return;
         }
         else if (key in AHRS) {
             var value = data[key];
             bProto.emit(key, value);
+            return;
         }
         else if (key in GPS) {
             var value = data[key];
             bProto.emit(key, value);
+            return;
         }
         else if (key == BLINKER_CMD_GET) {
             var value = data[key];
@@ -318,6 +332,18 @@ function parse(msg) {
                     bProto._proto.print(JSON.stringify(conCMD));
                 }
             }
+            return;
         }
+        else {
+            if (bProto._proto.options.type == 'BLINKER_WIFI') {
+                bProto.emit(BLINKER_CMD_READ, msg);
+                return;
+            }
+        }
+    }
+
+    if (bProto._proto.options.type == 'BLINKER_WIFI') {
+        bProto.emit(BLINKER_CMD_READ, msg);
+        return;
     }
 }

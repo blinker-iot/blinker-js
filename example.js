@@ -1,4 +1,6 @@
 const BlinkerDebug = require('./BlinkerDebug');
+const Utility = require('./BlinkerUtility');
+ut = new Utility();
 const blinker = require('./Blinker');
 
 const Blinker = new blinker();
@@ -14,7 +16,12 @@ Blinker.rgb('RGBKey', rgb1);
 Blinker.joystick(joy1);
 // Blinker.ahrs(ahrs1);
 // Blinker.gps(gps1);
-Blinker.vibrate(500);
+Blinker.on('connected', function() {
+    Blinker.vibrate(500);
+    Blinker.notify('!connected');
+});
+
+Blinker.read(read1);
 
 function button1(msg) {
     BlinkerDebug.log('Button pressed! ', msg);
@@ -52,4 +59,11 @@ function gps1(msg) {
     BlinkerDebug.log('GPS read! ', msg);
     BlinkerDebug.log('LAT read! ', msg[0].toString());
     BlinkerDebug.log('LANG read! ', msg[1].toString());
+}
+
+function read1(msg) {
+    BlinkerDebug.log('Blinker read! ', msg);
+    var conCMD = {};
+    conCMD['millis'] = ut.millis();
+    Blinker.print(JSON.stringify(conCMD));
 }
