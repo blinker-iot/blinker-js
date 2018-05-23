@@ -1,7 +1,6 @@
 const blinker = require('/usr/lib/node_modules/blinker');
 const Blinker = new blinker('BLINKER_WIFI');
 
-Blinker.setDebug('BLINKER_DEBUG_ALL');
 Blinker.begin();
 
 Blinker.rgb('RGBKey', rgb1);
@@ -19,4 +18,5 @@ function read1(msg) {
     var conCMD = {};
     conCMD['millis'] = Blinker.millis();
     Blinker.print(JSON.stringify(conCMD));
+    Blinker.vibrate();
 }
