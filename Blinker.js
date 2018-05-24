@@ -1,4 +1,5 @@
 const BlinkerLinuxWS = require('./lib/BlinkerLinuxWS');
+const BlinkerMQTT = require('./lib/BlinkerMQTT');
 const BlinkerDebug = require('./lib/BlinkerDebug');
 const Utility = require('./lib/BlinkerUtility');
 ut = new Utility();
@@ -42,6 +43,7 @@ var JOY = {};
 var AHRS = {};
 var GPS = {};
 var READ = {};
+var sendBuf = {};
 
 var debug = null;
 
@@ -51,6 +53,8 @@ class BlinkerProto extends EventEmitter {
 
         this._proto = null;
         this._state = BLINKER_CONNECTING;
+
+        this._isFormat = false;
     }
 
     setState(state) {
@@ -80,24 +84,30 @@ class BlinkerProto extends EventEmitter {
 const bProto = new BlinkerProto();
 
 class Blinker extends EventEmitter {
-    constructor (options) {
+    constructor (type = 'BLINKER_WIFI') {
         super();
 
-        options = Object.assign({
-            type : 'BLINKER_WIFI'
-        }, options);
+        // options = Object.assign({
+        //     type : 'BLINKER_WIFI'
+        // }, options);
 
-        this.options = options;
+        this._type = type;
 
         this._debug = null;
 
         this._conn1 = null;
         this._conn2 = null;
+        this._dataFrom = null;
 
-        // BlinkerDebug.log('this.options.type: ', this.options.type);
+        // BlinkerDebug.log('this._type: ', this._type);
 
-        if (this.options.type == 'BLINKER_WIFI') {
+        if (this._type == 'BLINKER_WIFI') {
             this._conn1 = new BlinkerLinuxWS(null);
+        }
+        else if (this._type == 'BLINKER_MQTT') {
+            this._conn1 = new BlinkerMQTT();
+            this._dataFrom = 'BLINKER_MQTT';
+            this._conn2 = new BlinkerLinuxWS({type : 'DiyArduinoMQTT'});
         }
 
         bProto.setProto(this);
@@ -114,8 +124,8 @@ class Blinker extends EventEmitter {
         }
     }
 
-    begin() {
-        if (this.options.type == 'BLINKER_WIFI') {
+    begin(auth) {
+        if (this._type == 'BLINKER_WIFI') {
             // this._conn1.setDebug('BLINKER_DEBUG_ALL');
             this._conn1.init();
             this._conn1.on('wsRead', function(message) {
@@ -131,10 +141,52 @@ class Blinker extends EventEmitter {
                 bProto.setState(BLINKER_DISCONNECTED);
             });
         }
+        else if (this._type == 'BLINKER_MQTT') {
+            this._conn1.init(auth);
+            this._conn1.on('mInit', function(name) {
+                bProto._proto._conn2.init(name);
+                bProto._proto._conn2.on('wsRead', function(message) {
+                    if (isDebugAll()) {
+                        BlinkerDebug.log('Blinker ws read: ', message);
+                    }
+                    bProto._proto._dataFrom = 'BLINKER_WIFI';
+                    parse(message);
+                });
+                bProto._proto._conn2.on('wsConnected', function() {
+                    bProto.setState(BLINKER_CONNECTED);
+                });
+                bProto._proto._conn2.on('wsDisconnected', function() {
+                    bProto.setState(BLINKER_DISCONNECTED);
+                });
+            });
+            this._conn1.on('mRead', function(message) {
+                if (isDebugAll()) {
+                    BlinkerDebug.log('Blinker ws read: ', message);
+                }
+                bProto._proto._dataFrom = 'BLINKER_MQTT';
+                parse(message);
+            });
+            this._conn1.on('mConnected', function() {
+                bProto.setState(BLINKER_CONNECTED);
+            });
+            this._conn1.on('mDisconnected', function() {
+                bProto.setState(BLINKER_DISCONNECTED);
+            });
+        }
     }
 
-    print(msg) {
-        if (this.options.type == 'BLINKER_WIFI') {
+    beginFormat() {
+        bProto._isFormat = true;
+        sendBuf = {};
+    }
+
+    endFormat() {
+        bProto._isFormat = false;
+        this._print(JSON.stringify(sendBuf));
+    }
+
+    _print(msg) {
+        if (this._type == 'BLINKER_WIFI') {
             if (isDebugAll()) {
                 BlinkerDebug.log('Blinker ws print: ', msg);
             }
@@ -150,6 +202,69 @@ class Blinker extends EventEmitter {
                 }
             }
         }
+        else if (this._type == 'BLINKER_MQTT') {
+            if (isDebugAll()) {
+                BlinkerDebug.log('Blinker mqtt pub: ', msg);
+            }
+            if (bProto.connected()) {
+                this._conn1.pub(msg);
+                if (isDebugAll()) {
+                    BlinkerDebug.log('Succese...');
+                }
+            }
+            else {
+                if (isDebugAll()) {
+                    BlinkerDebug.log('Faile... Disconnected');
+                }
+            }
+        }
+    }
+
+    print(msg) {
+        if (bProto._isFormat) {
+            if (isJsonString(msg)) {
+                msg = JSON.parse(msg);
+
+                for (var key in msg) {
+                    sendBuf[key] = msg[key];
+                }
+            }
+        }
+        else {
+            this._print(msg);
+        }
+        // if (this._type == 'BLINKER_WIFI') {
+        //     if (isDebugAll()) {
+        //         BlinkerDebug.log('Blinker ws print: ', msg);
+        //     }
+        //     if (bProto.connected()) {
+        //         this._conn1.response(msg + BLINKER_CMD_NEWLINE);
+        //         if (isDebugAll()) {
+        //             BlinkerDebug.log('Succese...');
+        //         }
+        //     }
+        //     else {
+        //         if (isDebugAll()) {
+        //             BlinkerDebug.log('Faile... Disconnected');
+        //         }
+        //     }
+        // }
+        // else if (this._type == 'BLINKER_MQTT') {
+        //     if (isDebugAll()) {
+        //         BlinkerDebug.log('Blinker mqtt pub: ', msg);
+        //     }
+        //     if (bProto.connected()) {
+        //         this._conn1.pub(msg);
+        //         if (isDebugAll()) {
+        //             BlinkerDebug.log('Succese...');
+        //         }
+        //     }
+        //     else {
+        //         if (isDebugAll()) {
+        //             BlinkerDebug.log('Faile... Disconnected');
+        //         }
+        //     }
+        // }
     }
 
     notify(msg) {
@@ -235,7 +350,7 @@ class Blinker extends EventEmitter {
         var conCMD = {};
         conCMD[BLINKER_CMD_AHRS] = BLINKER_CMD_ON;
 
-        if (this.options.type == 'BLINKER_WIFI') {
+        if (this._type == 'BLINKER_WIFI') {
             if (bProto.connected()) {
                 bProto._proto.print(JSON.stringify(conCMD));
             }
@@ -251,7 +366,7 @@ class Blinker extends EventEmitter {
         var conCMD = {};
         conCMD[BLINKER_CMD_AHRS] = BLINKER_CMD_OFF;
 
-        if (this.options.type == 'BLINKER_WIFI') {
+        if (this._type == 'BLINKER_WIFI') {
             if (bProto.connected()) {
                 bProto._proto.print(JSON.stringify(conCMD));
             }
@@ -271,7 +386,7 @@ class Blinker extends EventEmitter {
         var conCMD = {};
         conCMD[BLINKER_CMD_GET] = BLINKER_CMD_GPS;
 
-        if (this.options.type == 'BLINKER_WIFI') {
+        if (this._type == 'BLINKER_WIFI') {
             if (bProto.connected()) {
                 bProto._proto.print(JSON.stringify(conCMD));
             }
@@ -306,6 +421,15 @@ function isDebugAll() {
     return debug
 }
 
+function isJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
 function parse(msg) {
     data = JSON.parse(msg);
 
@@ -316,19 +440,19 @@ function parse(msg) {
     for (var key in data){  
         if (key in Buttons) {
             var value = data[key];
-            BlinkerDebug.log(value);
+            // BlinkerDebug.log(value);
             bProto.emit(key, value);
             return;
         }
         else if (key in Sliders) {
             var value = data[key];
-            BlinkerDebug.log(value);
+            // BlinkerDebug.log(value);
             bProto.emit(key, value);
             return;
         }
         else if (key in Toggles) {
             var value = data[key];
-            BlinkerDebug.log(value);
+            // BlinkerDebug.log(value);
             bProto.emit(key, value);
             return;
         }
@@ -354,8 +478,8 @@ function parse(msg) {
         }
         else if (key == BLINKER_CMD_GET) {
             var value = data[key];
-            BlinkerDebug.log('have key ', key);
-            BlinkerDebug.log('have value ', value);
+            // BlinkerDebug.log('have key ', key);
+            // BlinkerDebug.log('have value ', value);
 
             if (value == BLINKER_CMD_VERSION) {
                 // var conCMD = {BLINKER_CMD_VERSION:BLINKER_VERSION};
@@ -364,24 +488,30 @@ function parse(msg) {
                 bProto._proto.print(JSON.stringify(conCMD));
             }
             else if (value == BLINKER_CMD_STATE) {
-                if (bProto._proto.options.type == 'BLINKER_WIFI') {
+                if (bProto._proto._type == 'BLINKER_WIFI') {
                     // var conCMD = {BLINKER_CMD_STATE:BLINKER_CMD_CONNECTED};
                     var conCMD = {};
                     conCMD[BLINKER_CMD_STATE] = BLINKER_CMD_CONNECTED;
+                    bProto._proto.print(JSON.stringify(conCMD));
+                }
+                else if (bProto._proto._type == 'BLINKER_MQTT') {
+                    // var conCMD = {BLINKER_CMD_STATE:BLINKER_CMD_CONNECTED};
+                    var conCMD = {};
+                    conCMD[BLINKER_CMD_STATE] = BLINKER_CMD_ONLINE;
                     bProto._proto.print(JSON.stringify(conCMD));
                 }
             }
             return;
         }
         else {
-            if (bProto._proto.options.type == 'BLINKER_WIFI') {
-                bProto.emit(BLINKER_CMD_READ, msg);
-                return;
-            }
+            // if (bProto._proto._type == 'BLINKER_WIFI') {
+            bProto.emit(BLINKER_CMD_READ, msg);
+            return;
+            // }
         }
     }
 
-    if (bProto._proto.options.type == 'BLINKER_WIFI') {
+    if (bProto._proto._type == 'BLINKER_WIFI') {
         bProto.emit(BLINKER_CMD_READ, msg);
         return;
     }
