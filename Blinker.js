@@ -107,7 +107,7 @@ class Blinker extends EventEmitter {
         else if (this._type == 'BLINKER_MQTT') {
             this._conn1 = new BlinkerMQTT();
             this._dataFrom = 'BLINKER_MQTT';
-            this._conn2 = new BlinkerLinuxWS({type : 'DiyArduinoMQTT'});
+            this._conn2 = new BlinkerLinuxWS({type : 'DiyLinuxMQTT'});
         }
 
         bProto.setProto(this);
