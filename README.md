@@ -9,3 +9,4 @@ Blinker node.js library for hardware. Works with Raspberry Pi, Banana Pi, linux.
 # Reference/参考
 * [EN-英文](https://github.com/blinker-iot/blinker-doc/wiki/Blinker-Node.js-library-reference)  
 * [CN-中文](https://github.com/blinker-iot/blinker-doc/wiki/Blinker-Node.js-%E5%BA%93%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C)  
+* [CN-中文/官网](https://doc.blinker.app/?file=003-%E7%A1%AC%E4%BB%B6%E5%BC%80%E5%8F%91/04-JavaScript%E6%94%AF%E6%8C%81)  
