@@ -107,7 +107,7 @@ class Blinker extends EventEmitter {
         else if (this._type == 'BLINKER_MQTT') {
             this._conn1 = new BlinkerMQTT();
             this._dataFrom = 'BLINKER_MQTT';
-            this._conn2 = new BlinkerLinuxWS({type : 'DiyLinuxMQTT'});
+            this._conn2 = new BlinkerLinuxWS({type : 'DiyArduinoMQTT'});
         }
 
         bProto.setProto(this);
@@ -126,7 +126,7 @@ class Blinker extends EventEmitter {
 
     begin(auth) {
         if (this._type == 'BLINKER_WIFI') {
-            // this._conn1.setDebug('BLINKER_DEBUG_ALL');
+            this._conn1.setDebug(this._debug);
             this._conn1.init();
             this._conn1.on('wsRead', function(message) {
                 if (isDebugAll()) {
@@ -142,8 +142,10 @@ class Blinker extends EventEmitter {
             });
         }
         else if (this._type == 'BLINKER_MQTT') {
+            this._conn1.setDebug(this._debug);
             this._conn1.init(auth);
             this._conn1.on('mInit', function(name) {
+                bProto._proto._conn2.setDebug(bProto._proto._debug);
                 bProto._proto._conn2.init(name);
                 bProto._proto._conn2.on('wsRead', function(message) {
                     if (isDebugAll()) {
@@ -174,6 +176,10 @@ class Blinker extends EventEmitter {
             });
         }
     }
+
+    // connected(cb) {
+
+    // }
 
     beginFormat() {
         bProto._isFormat = true;
