@@ -1,9 +1,1 @@
-__vm/
-Debug/
-*.vcxproj
-*.filters
-.vs/
-*.sln
-.vscode/
-*.pyc
-Blinker/__pycache__
+node_modules
