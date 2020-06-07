@@ -31,6 +31,10 @@ export class Device {
         })
     }
 
+    register(){
+
+    }
+
     connectBroker() {
         if (this.config.broker == 'aliyun') {
             this.host = 'public.iot-as-mqtt.cn-shanghai.aliyuncs.com'

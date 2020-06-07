@@ -11,6 +11,8 @@
   "dependencies": {
     "@types/node": "^13.9.5",
     "axios": "^0.19.2",
+    "commander": "^5.1.0",
+    "getmac": "^5.5.0",
     "mqtt": "^3.0.0",
     "qrcode-terminal": "^0.12.0",
     "ws": "^7.2.3"
