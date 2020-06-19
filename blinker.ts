@@ -93,7 +93,7 @@ export class Device {
                 for (const key in data) {
                     // 处理组件数据
                     if (this.widgetKeyList.indexOf(key) > -1) {
-                        this.widgetDict[key].change.next(data[key])
+                        this.widgetDict[key].stateChange.next(data[key])
                     } else {
                         otherData = Object.assign(otherData, data[key])
                     }
@@ -119,7 +119,7 @@ export class Device {
         this.mqttClient.publish(this.pubtopic, format(this.clientId, toDevice, sendMessage))
     }
 
-    addWidget(widget: Widget) {
+    addWidget(widget) {
         widget.device = this;
         this.widgetKeyList.push(widget.key);
         this.widgetDict[widget.key] = widget;
