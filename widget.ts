@@ -66,29 +66,76 @@ export class TextWidget extends Widget {
     }
 }
 
-// export class NumberWidget extends Widget {
+export class NumberWidget extends Widget {
 
-//     constructor(key) {
-//         super(key)
-//     }
+    constructor(key) {
+        super(key)
+    }
 
-//     text(text) {
-//         this.state['tex'] = text
-//         return this
-//     }
+    text(text) {
+        this.state['tex'] = text
+        return this
+    }
 
-//     text1(text) {
-//         this.state['tex1'] = text
-//         return this
-//     }
+    value(value) {
+        this.state['val'] = value
+        return this
+    }
 
-//     icon(icon) {
-//         this.state['ico'] = icon
-//         return this
-//     }
+    unit(unit) {
+        this.state['uni'] = unit
+        return this
+    }
 
-//     color(color) {
-//         this.state['clr'] = color
-//         return this
-//     }
-// }
+    icon(icon) {
+        this.state['ico'] = icon
+        return this
+    }
+
+    color(color) {
+        this.state['clr'] = color
+        return this
+    }
+
+    max(max) {
+        this.state['max'] = max
+        return this
+    }
+}
+
+export class RangeWidget extends Widget {
+
+    constructor(key) {
+        super(key)
+    }
+
+    text(text) {
+        this.state['tex'] = text
+        return this
+    }
+
+    value(value) {
+        this.state['val'] = value
+        return this
+    }
+
+    unit(unit) {
+        this.state['uni'] = unit
+        return this
+    }
+
+    icon(icon) {
+        this.state['ico'] = icon
+        return this
+    }
+
+    color(color) {
+        this.state['clr'] = color
+        return this
+    }
+
+    max(max) {
+        this.state['max'] = max
+        return this
+    }
+}

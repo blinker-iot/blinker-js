@@ -34,7 +34,7 @@ export class BlinkerDevice {
 
     heartbeat = new Subject()
 
-    builtinSwitch = new Subject()
+    builtinSwitch = new BuiltinSwitch();
 
     widgets = new Subject()
 
@@ -51,6 +51,7 @@ export class BlinkerDevice {
             this.config = resp.data.detail
             if (this.config.broker == 'aliyun')
                 this.connectBroker_Aliyun()
+            this.addWidget(this.builtinSwitch)
         })
     }
 
@@ -95,7 +96,9 @@ export class BlinkerDevice {
                     if (this.widgetKeyList.indexOf(key) > -1) {
                         this.widgetDict[key].stateChange.next(data[key])
                     } else {
-                        otherData = Object.assign(otherData, data[key])
+                        let temp={};
+                        temp[key]=data[key]
+                        otherData = Object.assign(otherData, temp)
                     }
                 }
                 if (JSON.stringify(otherData) != '{}')
@@ -119,17 +122,31 @@ export class BlinkerDevice {
         this.mqttClient.publish(this.pubtopic, format(this.clientId, toDevice, sendMessage))
     }
 
-    addWidget(widget) {
+    addWidget(widget): Widget | any {
         widget.device = this;
         this.widgetKeyList.push(widget.key);
         this.widgetDict[widget.key] = widget;
         return widget
     }
 
-    processWidgets(data) {
-        // if(data[])
+}
+
+export class BuiltinSwitch {
+    key = 'switch';
+    state = '';
+    stateChange = new Subject;
+
+    setState(state) {
+        this.state = state
+        return this
     }
 
+    update() {
+        let message = {}
+        message[this.key] = this.state
+        this.device.sendMessage(message)
+    }
+    device: BlinkerDevice;
 }
 
 function format(deviceId, toDevice, data) {
