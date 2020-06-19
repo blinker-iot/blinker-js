@@ -1,6 +1,8 @@
 import * as mqtt from 'mqtt';
 import axios from 'axios';
-// import Rx from 'rxjs/Rx';
+import { Subject } from 'rxjs';
+import { throws } from 'assert';
+import { Widget } from './widget';
 
 const host = 'https://iot.diandeng.tech';
 const url = host + '/api/v1/user/device/diy/auth?authKey='
@@ -28,6 +30,17 @@ export class Device {
     password;
     uuid;
 
+    subject_dataRead = new Subject()
+
+    subject_heartbeat = new Subject()
+
+    subject_builtinSwitch = new Subject()
+
+    subject_widgets = new Subject()
+
+    widgetKeyList = []
+    widgetDict = {}
+
     constructor(authkey) {
         this.init(authkey)
     }
@@ -50,7 +63,7 @@ export class Device {
         this.pubtopic = `/${this.config.productKey}/${this.config.deviceName}/s`;
         this.uuid = this.config.uuid;
 
-        this.mqttClient = mqtt.connect('mqtt://' + this.config.host + ':' + this.config.port, {
+        this.mqttClient = mqtt.connect(this.config.host + ':' + this.config.port, {
             clientId: this.config.deviceName,
             username: this.config.iotId,
             password: this.config.iotToken
@@ -70,10 +83,23 @@ export class Device {
             } catch (error) {
                 console.log(error);
             }
-            console.log(data);
-            if (JSON.stringify(data) == '{"get":"state"}') {
-                console.log(format(this.clientId, fromDevice, "{'state':'online'}"));
+            // console.log(data);
+            // this.subject_widgets.next
+            if (typeof data['get'] != 'undefined') {
+                this.subject_heartbeat.next(data);
                 this.mqttClient.publish(this.pubtopic, format(this.clientId, fromDevice, `{"state":"online"}`))
+            } else {
+                let otherData = {}
+                for (const key in data) {
+                    // 处理组件数据
+                    if (this.widgetKeyList.indexOf(key) > -1) {
+                        this.widgetDict[key].change.next(data[key])
+                    } else {
+                        otherData = Object.assign(otherData, data[key])
+                    }
+                }
+                if (JSON.stringify(otherData) != '{}')
+                    this.subject_dataRead.next(otherData)
             }
         })
 
@@ -84,6 +110,24 @@ export class Device {
 
     connectBroker_Blinker() {
 
+    }
+
+    sendMessage(message: String | Object, toDevice = this.uuid) {
+        let sendMessage: String;
+        if (typeof message == 'object') sendMessage = JSON.stringify(message)
+        else sendMessage = message
+        this.mqttClient.publish(this.pubtopic, format(this.clientId, toDevice, sendMessage))
+    }
+
+    addWidget(widget: Widget) {
+        widget.device = this;
+        this.widgetKeyList.push(widget.key);
+        this.widgetDict[widget.key] = widget;
+        return widget
+    }
+
+    processWidgets(data) {
+        // if(data[])
     }
 
 }
