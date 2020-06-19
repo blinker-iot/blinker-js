@@ -1,14 +1,23 @@
-// import { connect } from 'mqtt';
-// import axios from './node_modules/axios';
-const axios = require('axios');
-var mqtt = require('mqtt');
+import * as mqtt from 'mqtt';
+import axios from 'axios';
+// import Rx from 'rxjs/Rx';
+
 const host = 'https://iot.diandeng.tech';
 const url = host + '/api/v1/user/device/diy/auth?authKey='
 
 export class Device {
     mqttClient;
 
-    config;
+    config: {
+        broker: string,
+        deviceName: string,
+        host: string,
+        iotId: string,
+        iotToken: string,
+        port: string,
+        productKey: string,
+        uuid: string
+    };
     host;
     port;
     subtopic;
@@ -27,36 +36,29 @@ export class Device {
         axios.get(url + authkey).then(resp => {
             console.log(resp.data);
             this.config = resp.data.detail
-            this.connectBroker()
+            if (this.config.broker == 'aliyun')
+                this.connectBroker_Aliyun()
         })
     }
 
-    register(){
+    register() {
 
     }
 
-    connectBroker() {
-        if (this.config.broker == 'aliyun') {
-            this.host = 'public.iot-as-mqtt.cn-shanghai.aliyuncs.com'
-            this.port = 1883;
-            this.subtopic = `/${this.config.productKey}/${this.config.deviceName}/r`;
-            this.pubtopic = `/${this.config.productKey}/${this.config.deviceName}/s`;
-            this.clientId = this.config.deviceName;
-            this.username = this.config.iotId;
-            this.deviceName = this.config.deviceName
-            this.password = this.config.iotToken
-            this.uuid = this.config.uuid
-        }
+    connectBroker_Aliyun() {
+        this.subtopic = `/${this.config.productKey}/${this.config.deviceName}/r`;
+        this.pubtopic = `/${this.config.productKey}/${this.config.deviceName}/s`;
+        this.uuid = this.config.uuid;
 
-        this.mqttClient = mqtt.connect('mqtt://' + this.host + ':' + this.port, {
-            clientId: this.clientId,
-            username: this.username,
-            password: this.password,
+        this.mqttClient = mqtt.connect('mqtt://' + this.config.host + ':' + this.config.port, {
+            clientId: this.config.deviceName,
+            username: this.config.iotId,
+            password: this.config.iotToken
         });
 
         this.mqttClient.on('connect', () => {
-            this.mqttClient.subscribe(this.subtopic);
             console.log('blinker connected');
+            this.mqttClient.subscribe(this.subtopic);
         })
 
         this.mqttClient.on('message', (topic, message) => {
@@ -78,6 +80,10 @@ export class Device {
         this.mqttClient.on('error', (err) => {
             console.log(err);
         })
+    }
+
+    connectBroker_Blinker() {
+
     }
 
 }
