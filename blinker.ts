@@ -7,7 +7,7 @@ import { Widget } from './widget';
 const host = 'https://iot.diandeng.tech';
 const url = host + '/api/v1/user/device/diy/auth?authKey='
 
-export class Device {
+export class BlinkerDevice {
     mqttClient;
 
     config: {
@@ -30,13 +30,13 @@ export class Device {
     password;
     uuid;
 
-    subject_dataRead = new Subject()
+    dataRead = new Subject()
 
-    subject_heartbeat = new Subject()
+    heartbeat = new Subject()
 
-    subject_builtinSwitch = new Subject()
+    builtinSwitch = new Subject()
 
-    subject_widgets = new Subject()
+    widgets = new Subject()
 
     widgetKeyList = []
     widgetDict = {}
@@ -86,7 +86,7 @@ export class Device {
             // console.log(data);
             // this.subject_widgets.next
             if (typeof data['get'] != 'undefined') {
-                this.subject_heartbeat.next(data);
+                this.heartbeat.next(data);
                 this.mqttClient.publish(this.pubtopic, format(this.clientId, fromDevice, `{"state":"online"}`))
             } else {
                 let otherData = {}
@@ -99,7 +99,7 @@ export class Device {
                     }
                 }
                 if (JSON.stringify(otherData) != '{}')
-                    this.subject_dataRead.next(otherData)
+                    this.dataRead.next(otherData)
             }
         })
 

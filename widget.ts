@@ -1,5 +1,5 @@
 import { Subject } from "rxjs";
-import { Device } from "./blinker";
+import { BlinkerDevice } from "./blinker";
 
 export class Widget {
 
@@ -15,7 +15,7 @@ export class Widget {
         message[this.key] = this.state
         this.device.sendMessage(message)
     }
-    device: Device;
+    device: BlinkerDevice;
 }
 
 export class ButtonWidget extends Widget {
