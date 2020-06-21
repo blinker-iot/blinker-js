@@ -23,6 +23,11 @@ export class ButtonWidget extends Widget {
         super(key)
     }
 
+    turn(swi) {
+        this.state['swi'] = swi
+        return this
+    }
+
     text(text) {
         this.state['tex'] = text
         return this
@@ -137,5 +142,46 @@ export class RangeWidget extends Widget {
     max(max) {
         this.state['max'] = max
         return this
+    }
+}
+
+export class RGBWidget extends Widget {
+
+    constructor(key) {
+        super(key)
+    }
+
+    text(text) {
+        this.state['tex'] = text
+        return this
+    }
+
+    color(color) {
+        if (typeof color == 'string' && color.indexOf('#') == 0)
+            this.state = this.toRgb(color)
+        else if (color.length == 3 || color.length == 4)
+            this.state = color
+        return this
+    }
+
+    brightness(brightness) {
+        this.state[3] = brightness
+        return this
+    }
+
+    private toRgb(colorHex) {
+        let colorStr = colorHex.toLowerCase()
+        var colorArray = []
+        for (let i = 1; i < 7; i += 2) {
+            colorArray.push(parseInt('0x' + colorStr.slice(i, i + 2)))
+        }
+        return colorArray
+    }
+}
+
+export class JoystickWidget extends Widget {
+
+    constructor(key) {
+        super(key)
     }
 }
