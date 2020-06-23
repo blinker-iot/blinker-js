@@ -1,7 +1,6 @@
 import * as mqtt from 'mqtt';
 import axios from 'axios';
 import { Subject } from 'rxjs';
-import { throws } from 'assert';
 import { Widget } from './widget';
 
 const host = 'https://iot.diandeng.tech';
@@ -45,12 +44,16 @@ export class BlinkerDevice {
         this.init(authkey)
     }
 
-    init(authkey) {
-        axios.get(url + authkey).then(resp => {
+    init(authkey, protocol = "mqtts") {
+        axios.get(url + authkey + '&protocol=' + protocol).then(resp => {
             console.log(resp.data);
             this.config = resp.data.detail
-            if (this.config.broker == 'aliyun')
-                this.connectBroker_Aliyun()
+            if (this.config.broker == 'aliyun') {
+                this.initBroker_Aliyun()
+            } else if (this.config.broker == 'blinker') {
+                this.initBroker_Blinker()
+            }
+            this.connectBroker()
             this.addWidget(this.builtinSwitch)
         })
     }
@@ -59,11 +62,19 @@ export class BlinkerDevice {
 
     }
 
-    connectBroker_Aliyun() {
+    initBroker_Aliyun() {
         this.subtopic = `/${this.config.productKey}/${this.config.deviceName}/r`;
         this.pubtopic = `/${this.config.productKey}/${this.config.deviceName}/s`;
         this.uuid = this.config.uuid;
+    }
 
+    initBroker_Blinker() {
+        this.subtopic = `/device/${this.config.deviceName}/r`;
+        this.pubtopic = `/device/${this.config.deviceName}/s`;
+        this.uuid = this.config.uuid;
+    }
+
+    connectBroker() {
         this.mqttClient = mqtt.connect(this.config.host + ':' + this.config.port, {
             clientId: this.config.deviceName,
             username: this.config.iotId,
@@ -84,8 +95,6 @@ export class BlinkerDevice {
             } catch (error) {
                 console.log(error);
             }
-            // console.log(data);
-            // this.subject_widgets.next
             if (typeof data['get'] != 'undefined') {
                 this.heartbeat.next(data);
                 this.mqttClient.publish(this.pubtopic, format(this.clientId, fromDevice, `{"state":"online"}`))
@@ -96,8 +105,8 @@ export class BlinkerDevice {
                     if (this.widgetKeyList.indexOf(key) > -1) {
                         this.widgetDict[key].stateChange.next(data[key])
                     } else {
-                        let temp={};
-                        temp[key]=data[key]
+                        let temp = {};
+                        temp[key] = data[key]
                         otherData = Object.assign(otherData, temp)
                     }
                 }
@@ -111,15 +120,25 @@ export class BlinkerDevice {
         })
     }
 
-    connectBroker_Blinker() {
 
-    }
 
     sendMessage(message: String | Object, toDevice = this.uuid) {
         let sendMessage: String;
         if (typeof message == 'object') sendMessage = JSON.stringify(message)
         else sendMessage = message
         this.mqttClient.publish(this.pubtopic, format(this.clientId, toDevice, sendMessage))
+    }
+
+    saveTsData(){
+
+    }
+
+    saveObjectData(){
+
+    }
+
+    saveTextData(){
+        
     }
 
     addWidget(widget): Widget | any {

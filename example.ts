@@ -1,7 +1,7 @@
 import { BlinkerDevice } from './blinker';
 import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget } from './widget';
 
-let device = new BlinkerDevice('c8df42c8acbc');
+let device = new BlinkerDevice('749ab6b86e57');
 
 let button1 = device.addWidget(new ButtonWidget('btn-crf'));
 let button2 = device.addWidget(new ButtonWidget('btn-b9g'));
