@@ -1,15 +1,16 @@
 import { BlinkerDevice } from './blinker';
 import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget } from './widget';
 
-let device = new BlinkerDevice('749ab6b86e57');
+let device = new BlinkerDevice('c8df42c8acbc');
 
-let button1 = device.addWidget(new ButtonWidget('btn-crf'));
-let button2 = device.addWidget(new ButtonWidget('btn-b9g'));
-let text1 = device.addWidget(new TextWidget('tex-pnd'));
-let range1 = device.addWidget(new RangeWidget('ran-i89'));
-let number1 = device.addWidget(new NumberWidget('num-lnw'));
-let colorPicker1 = device.addWidget(new RGBWidget('col-a9t'));
-let joystick1 = device.addWidget(new JoystickWidget('joy-d32'));
+// 注册组件
+let button1: ButtonWidget = device.addWidget(new ButtonWidget('btn-crf'));
+let button2: ButtonWidget = device.addWidget(new ButtonWidget('btn-b9g'));
+let text1: TextWidget = device.addWidget(new TextWidget('tex-pnd'));
+let range1: RangeWidget = device.addWidget(new RangeWidget('ran-i89'));
+let number1: NumberWidget = device.addWidget(new NumberWidget('num-lnw'));
+let colorPicker1: RGBWidget = device.addWidget(new RGBWidget('col-a9t'));
+let joystick1: JoystickWidget = device.addWidget(new JoystickWidget('joy-d32'));
 
 let powerState = 'off';
 
@@ -27,38 +28,38 @@ device.heartbeat.subscribe(message => {
     colorPicker1.color(randomColor()).brightness(randomNumber(0, 255)).update()
 })
 
-device.builtinSwitch.stateChange.subscribe(state => {
-    console.log('builtinSwitch:', state);
+device.builtinSwitch.change.subscribe(message => {
+    console.log('builtinSwitch:', message);
     device.builtinSwitch.setState(powerState).update();
 })
 
-button1.stateChange.subscribe(action => {
-    console.log('button1:', action);
+button1.listen().subscribe(message => {
+    console.log('button1:', message.data);
     button1.turn(turnSwitch()).update();
-    text1.text('button1的动作').text1(action).update();
+    text1.text('button1的动作').text1(message.data).update();
 })
 
-button2.stateChange.subscribe(action => {
-    console.log('button2:', action);
-    text1.text('button2的动作').text1(action).update();
+button2.listen().subscribe(message => {
+    console.log('button2:', message);
+    text1.text('button2的动作').text1(message.data).update();
 })
 
-range1.stateChange.subscribe(value => {
-    console.log('range:', value);
+range1.listen().subscribe(message => {
+    console.log('range:', message.data);
 })
 
-colorPicker1.stateChange.subscribe(value => {
-    console.log('color:', value);
-    console.log('red:', value[0]);
-    console.log('green:', value[1]);
-    console.log('blue:', value[2]);
-    console.log('brightness:', value[3]);
+colorPicker1.listen().subscribe(message => {
+    console.log('color:', message.data);
+    console.log('red:', message.data[0]);
+    console.log('green:', message.data[1]);
+    console.log('blue:', message.data[2]);
+    console.log('brightness:', message.data[3]);
 })
 
-joystick1.stateChange.subscribe(value => {
-    console.log('joystick:', value);
-    console.log('x:', value[0]);
-    console.log('y:', value[1]);
+joystick1.listen().subscribe(message => {
+    console.log('joystick:', message.data);
+    console.log('x:', message.data[0]);
+    console.log('y:', message.data[1]);
 })
 
 

@@ -1,5 +1,5 @@
 import { Subject } from "rxjs";
-import { BlinkerDevice } from "./blinker";
+import { BlinkerDevice, Message } from "./blinker";
 
 export class Widget {
 
@@ -9,7 +9,23 @@ export class Widget {
 
     key: string;
     state = {};
-    stateChange = new Subject;
+
+    change = new Subject<Message>();
+    private change2 = new Subject<Message>();
+    changeSubscription;
+    listen() {
+        this.changeSubscription = this.change.subscribe(message => {
+            // console.log(message);
+            this.device.targetDevice = message.fromDevice
+            this.change2.next(message)
+        })
+        return this.change2
+    }
+
+    unlisten() {
+        this.changeSubscription.unsubscribe();
+    }
+
     update() {
         let message = {}
         message[this.key] = this.state
