@@ -15,3 +15,21 @@ let device = new BlinkerDevice('xxxxxxxxxxxx');
 ```
 ts-node example.ts
 ```
+
+## 组件支持  
+ButtonWidget  
+TextWidget  
+NumberWidget  
+RangeWidget  
+RGBWidget  
+JoystickWidget  
+
+## 已支持  
+基本MQTT通信  
+Layouter组件  
+
+## 即将支持  
+语音助手  
+专属设备  
+局域网ws通信  
+更多组件支持  

@@ -129,9 +129,12 @@ export class BlinkerDevice {
         let sendMessage: String;
         if (typeof message == 'object') sendMessage = JSON.stringify(message)
         else sendMessage = message
-console.log(formatMess2Device(this.config.deviceName, toDevice, sendMessage));
+        console.log(formatMess2Device(this.config.deviceName, toDevice, sendMessage));
 
-        this.mqttClient.publish(this.pubtopic, formatMess2Device(this.config.deviceName, toDevice, sendMessage))
+        setTimeout(() => {
+            this.mqttClient.publish(this.pubtopic, formatMess2Device(this.config.deviceName, toDevice, sendMessage))
+        }, 100);
+
     }
 
     // toDevice
@@ -200,6 +203,28 @@ function u8aToString(fileData) {
     for (var i = 0; i < fileData.length; i++) {
         dataString += String.fromCharCode(fileData[i]);
     }
-
     return dataString
+}
+
+function isJson(str) {
+    if (isNumber(str)) {
+        return false;
+    }
+    try {
+        JSON.parse(str);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+function isNumber(val) {
+    var regPos = /^\d+(\.\d+)?$/; //非负浮点数
+    var regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/; //负浮点数
+    if (regPos.test(val) || regNeg.test(val)) {
+        return true;
+    } else {
+        // console.log("不是数字");
+        return false;
+    }
 }
