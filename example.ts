@@ -25,7 +25,7 @@ device.heartbeat.subscribe(message => {
     number1.value(randomNumber()).unit('米').text('长度').color(randomColor()).update();
     button2.color(randomColor()).update();
     button1.color(randomColor()).update();
-    colorPicker1.color(randomColor()).brightness(randomNumber(0, 255)).update()
+    // colorPicker1.color(randomColor()).brightness(randomNumber(0, 255)).update()
 })
 
 device.builtinSwitch.change.subscribe(message => {

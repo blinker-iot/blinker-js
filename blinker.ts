@@ -125,16 +125,40 @@ export class BlinkerDevice {
         })
     }
 
-    sendMessage(message: String | Object, toDevice = this.targetDevice) {
-        let sendMessage: String;
+    sendTimers = {
+
+    };
+
+    messageDataCache = {
+
+    }
+
+    sendMessage(message: string | Object, toDevice = this.targetDevice) {
+        let sendMessage: string;
         if (typeof message == 'object') sendMessage = JSON.stringify(message)
         else sendMessage = message
-        console.log(formatMess2Device(this.config.deviceName, toDevice, sendMessage));
-
-        setTimeout(() => {
+        if (isJson(sendMessage)) {
+            if (typeof this.messageDataCache[toDevice] == 'undefined') this.messageDataCache[toDevice] = '';
+            let ob = this.messageDataCache[toDevice] == '' ? {} : JSON.parse(this.messageDataCache[toDevice]);
+            let ob2 = JSON.parse(sendMessage)
+            this.messageDataCache[toDevice] = JSON.stringify(Object.assign(ob, ob2))
+            if (typeof this.sendTimers[toDevice] != 'undefined') clearTimeout(this.sendTimers[toDevice]);
+            //检查设备是否是本地设备,是否已连接
+            // let deviceInLocal = false;
+            // if (this.islocalDevice(device)) {
+            //     if (this.lanDeviceList[toDevice].state == 'connected')
+            //         deviceInLocal = true
+            // }
+            this.sendTimers[toDevice] = setTimeout(() => {
+                this.mqttClient.publish(this.pubtopic, formatMess2Device(this.config.deviceName, toDevice, this.messageDataCache[toDevice]))
+                this.messageDataCache[toDevice] = '';
+                delete this.sendTimers[toDevice];
+            }, 100)
+        } else {
+            console.log('not json');
+            if (!isNumber(sendMessage)) sendMessage = `"${sendMessage}"`
             this.mqttClient.publish(this.pubtopic, formatMess2Device(this.config.deviceName, toDevice, sendMessage))
-        }, 100);
-
+        }
     }
 
     // toDevice
@@ -206,7 +230,7 @@ function u8aToString(fileData) {
     return dataString
 }
 
-function isJson(str) {
+function isJson(str: string) {
     if (isNumber(str)) {
         return false;
     }
@@ -218,7 +242,7 @@ function isJson(str) {
     }
 }
 
-function isNumber(val) {
+function isNumber(val: string) {
     var regPos = /^\d+(\.\d+)?$/; //非负浮点数
     var regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/; //负浮点数
     if (regPos.test(val) || regNeg.test(val)) {
