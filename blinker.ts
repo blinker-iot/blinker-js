@@ -2,6 +2,8 @@ import * as mqtt from 'mqtt';
 import axios from 'axios';
 import { Subject } from 'rxjs';
 import { Widget } from './widget';
+import bonjour from 'bonjour';
+// import { bonjour } from 'bonjour';
 
 const host = 'https://iot.diandeng.tech';
 const url = host + '/api/v1/user/device/diy/auth?authKey='
@@ -57,6 +59,14 @@ export class BlinkerDevice {
             }
             this.connectBroker()
             this.addWidget(this.builtinSwitch)
+
+            // 开启mdns服务
+            // bonjour().publish({
+            //     name: this.config.deviceName,
+            //     type: 'blinker',
+            //     host: this.config.deviceName + '.local',
+            //     port: 81
+            // })
         })
     }
 
@@ -187,6 +197,10 @@ export class BlinkerDevice {
         this.widgetKeyList.push(widget.key);
         this.widgetDict[widget.key] = widget;
         return widget
+    }
+
+    vibrate(time) {
+        this.sendMessage(`{"vibrate":${time}}`)
     }
 
 }
