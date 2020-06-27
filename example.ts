@@ -26,6 +26,7 @@ device.heartbeat.subscribe(message => {
     button2.color(randomColor()).update();
     button1.color(randomColor()).update();
     // colorPicker1.color(randomColor()).brightness(randomNumber(0, 255)).update()
+    device.vibrate();
 })
 
 device.builtinSwitch.change.subscribe(message => {

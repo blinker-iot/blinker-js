@@ -199,7 +199,7 @@ export class BlinkerDevice {
         return widget
     }
 
-    vibrate(time) {
+    vibrate(time = 500) {
         this.sendMessage(`{"vibrate":${time}}`)
     }
 
