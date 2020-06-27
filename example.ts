@@ -62,6 +62,23 @@ joystick1.listen().subscribe(message => {
     console.log('y:', message.data[1]);
 })
 
+setInterval(() => {
+    device.saveTsData(new Date, {
+        humi: randomNumber(),
+        temp: randomNumber(),
+    });
+}, 6000)
+
+
+setTimeout(() => {
+    device.saveTextData('text');
+    device.saveObjectData({
+        config: 111,
+        test: 'text'
+    });
+}, 60000);
+
+
 
 /*
 以下为测试用函数

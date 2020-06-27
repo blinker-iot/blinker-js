@@ -61,12 +61,12 @@ export class BlinkerDevice {
             this.addWidget(this.builtinSwitch)
 
             // 开启mdns服务
-            // bonjour().publish({
-            //     name: this.config.deviceName,
-            //     type: 'blinker',
-            //     host: this.config.deviceName + '.local',
-            //     port: 81
-            // })
+            bonjour().publish({
+                name: this.config.deviceName,
+                type: 'blinker',
+                host: this.config.deviceName + '.local',
+                port: 81
+            })
         })
     }
 
@@ -180,15 +180,15 @@ export class BlinkerDevice {
 
     }
     // toStorage
-    saveTsData() {
+    saveTsData(date: Date, data: any) {
 
     }
 
-    saveObjectData() {
+    saveObjectData(data: any) {
 
     }
 
-    saveTextData() {
+    saveTextData(data: string) {
 
     }
 
