@@ -64,7 +64,7 @@ joystick1.listen().subscribe(message => {
 })
 
 setInterval(() => {
-    device.saveTsData(new Date, {
+    device.saveTsData({
         humi: randomNumber(),
         temp: randomNumber(),
     });

@@ -135,13 +135,9 @@ export class BlinkerDevice {
         })
     }
 
-    sendTimers = {
+    sendTimers = {};
 
-    };
-
-    messageDataCache = {
-
-    }
+    messageDataCache = {}
 
     sendMessage(message: string | Object, toDevice = this.targetDevice) {
         let sendMessage: string;
@@ -173,15 +169,26 @@ export class BlinkerDevice {
 
     // toDevice
     sendMessage2Device(message, toDevice = this.targetDevice) {
-
+        this.sendMessage(message, toDevice)
     }
     // toGrounp
     sendMessage2Grounp(message, toGrounp) {
 
     }
     // toStorage
-    saveTsData(date: Date, data: any) {
-
+    storageCache = [];
+    tsDataTimer;
+    saveTsData(data: any) {
+        console.log(JSON.stringify(this.storageCache));
+        clearTimeout(this.tsDataTimer);
+        let currentData = Object.assign({ date: Math.floor((new Date).getTime() / 1000) }, data)
+        if (this.storageCache.length == 0 || currentData.date - this.storageCache[this.storageCache.length - 1].date > 5) {
+            this.storageCache.push(currentData)
+        }
+        this.tsDataTimer = setTimeout(() => {
+            this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ta', JSON.stringify(this.storageCache)))
+            this.storageCache = []
+        }, 60000);
     }
 
     saveObjectData(data: any) {
