@@ -180,7 +180,7 @@ export class BlinkerDevice {
     tsDataTimer;
     saveTsData(data: any) {
         if (this.config.broker != 'blinker') {
-            warn('saveTsData仅可用于blinker broker');
+            warn('saveTsData:仅可用于blinker broker');
             return
         }
         // console.log(JSON.stringify(this.storageCache));
@@ -198,25 +198,50 @@ export class BlinkerDevice {
     }
 
     sendTsData() {
-        console.log('send ts data:');
-        console.log(this.storageCache);
-        console.log(this.storageCache.length);
-        this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ts', JSON.stringify(this.storageCache)))
+        let data = JSON.stringify(this.storageCache)
+        if (data.length > 10240) {
+            warn('saveTsData:单次上传数据长度超过5120字节,请减少数据内容，或降低数据上传频率');
+            return
+        }
+        this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ts', data))
         this.storageCache = []
     }
-
+    objectDataTimer
     saveObjectData(data: any) {
         if (this.config.broker != 'blinker') {
-            warn('saveObjectData仅可用于blinker broker')
+            warn('saveObjectData:仅可用于blinker broker')
             return
         }
+        let dataCache;
+        if (typeof data == 'string') {
+            if (!isJson(data)) {
+                warn(`saveObjectData:数据不是对象`)
+                return
+            } else {
+                dataCache = JSON.parse(data)
+            }
+        } else {
+            dataCache = data
+        }
+        clearTimeout(this.objectDataTimer);
+        this.objectDataTimer = setTimeout(() => {
+            this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ot', JSON.stringify(dataCache)))
+        }, 5000);
     }
-
+    textDataTimer
     saveTextData(data: string) {
         if (this.config.broker != 'blinker') {
-            warn('saveTextData仅可用于blinker broker');
+            warn('saveTextData:仅可用于blinker broker');
             return
         }
+        if (data.length > 1024) {
+            warn('saveTextData:数据长度超过1024字节');
+            return
+        }
+        clearTimeout(this.textDataTimer);
+        this.textDataTimer = setTimeout(() => {
+            this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ot', data))
+        }, 5000);
     }
 
     addWidget(widget: Widget | any): Widget | any {
@@ -251,7 +276,7 @@ export class BuiltinSwitch {
 }
 
 function formatMess2Device(deviceId, toDevice, data) {
-    // 兼容阿里broker保留deviceType
+    // 兼容阿里broker保留deviceType和fromDevice  
     return `{"deviceType":"OwnApp","data":${data},"fromDevice":"${deviceId}","toDevice":"${toDevice}"}`
 }
 
@@ -294,6 +319,7 @@ function isNumber(val: string) {
     }
 }
 
+// 辅助调试
 function log(msg, { title = 'TITLE', color = 'white' } = {}) {
     const COLOR_CODE = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'].indexOf(color)
     if (COLOR_CODE >= 0) {
