@@ -68,7 +68,7 @@ setInterval(() => {
         humi: randomNumber(),
         temp: randomNumber(),
     });
-}, 6000)
+}, 5000)
 
 
 setTimeout(() => {

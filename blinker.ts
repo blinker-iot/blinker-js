@@ -179,24 +179,44 @@ export class BlinkerDevice {
     storageCache = [];
     tsDataTimer;
     saveTsData(data: any) {
-        console.log(JSON.stringify(this.storageCache));
+        if (this.config.broker != 'blinker') {
+            warn('saveTsData仅可用于blinker broker');
+            return
+        }
+        // console.log(JSON.stringify(this.storageCache));
         clearTimeout(this.tsDataTimer);
         let currentData = Object.assign({ date: Math.floor((new Date).getTime() / 1000) }, data)
-        if (this.storageCache.length == 0 || currentData.date - this.storageCache[this.storageCache.length - 1].date > 5) {
+        if (this.storageCache.length == 0 || currentData.date - this.storageCache[this.storageCache.length - 1].date >= 5) {
             this.storageCache.push(currentData)
         }
-        this.tsDataTimer = setTimeout(() => {
-            this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ta', JSON.stringify(this.storageCache)))
-            this.storageCache = []
-        }, 60000);
+        if (this.storageCache[this.storageCache.length - 1].date - this.storageCache[0].date >= 60 || this.storageCache.length >= 12) {
+            this.sendTsData()
+        } else
+            this.tsDataTimer = setTimeout(() => {
+                this.sendTsData()
+            }, 60000);
+    }
+
+    sendTsData() {
+        console.log('send ts data:');
+        console.log(this.storageCache);
+        console.log(this.storageCache.length);
+        this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ts', JSON.stringify(this.storageCache)))
+        this.storageCache = []
     }
 
     saveObjectData(data: any) {
-
+        if (this.config.broker != 'blinker') {
+            warn('saveObjectData仅可用于blinker broker')
+            return
+        }
     }
 
     saveTextData(data: string) {
-
+        if (this.config.broker != 'blinker') {
+            warn('saveTextData仅可用于blinker broker');
+            return
+        }
     }
 
     addWidget(widget: Widget | any): Widget | any {
@@ -272,4 +292,19 @@ function isNumber(val: string) {
         // console.log("不是数字");
         return false;
     }
+}
+
+function log(msg, { title = 'TITLE', color = 'white' } = {}) {
+    const COLOR_CODE = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'].indexOf(color)
+    if (COLOR_CODE >= 0) {
+        const TITLE_STR = title ? `\x1b[4${COLOR_CODE};30m ${title} \x1b[0m ` : ''
+        console.log(`${TITLE_STR}\x1b[3${COLOR_CODE}m${msg}\x1b[;0m`)
+    }
+    else {
+        console.log(title ? `${title} ${msg}` : msg)
+    }
+}
+
+function warn(msg) {
+    log(msg, { title: 'warn', color: 'yellow' })
 }
