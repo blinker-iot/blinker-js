@@ -3,6 +3,7 @@ import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, Joystic
 import { CONFIG } from './config';
 
 let device = new BlinkerDevice(CONFIG.KEY);
+// let device = new BlinkerDevice('您申请到的authkey');
 
 // 注册组件
 let button1: ButtonWidget = device.addWidget(new ButtonWidget('btn-crf'));
@@ -68,9 +69,10 @@ setInterval(() => {
     device.saveTsData({
         humi: randomNumber(),
         temp: randomNumber(),
+        pm25: randomNumber(),
+        pm10: randomNumber()
     });
 }, 5000)
-
 
 setTimeout(() => {
     device.saveTextData('text');

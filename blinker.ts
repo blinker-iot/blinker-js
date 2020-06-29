@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Subject } from 'rxjs';
 import { Widget } from './widget';
 import bonjour from 'bonjour';
+import * as WebSocket from 'ws';
 
 export interface Message {
     fromDevice?: string,
@@ -15,6 +16,8 @@ export class BlinkerDevice {
     protocol: string
 
     mqttClient: mqtt.MqttClient;
+
+    ws = new WebSocket.Server({ port: 81 });
 
     config: {
         broker: string,
@@ -205,7 +208,7 @@ export class BlinkerDevice {
     sendTsData() {
         let data = JSON.stringify(this.storageCache)
         if (data.length > 10240) {
-            warn('saveTsData:单次上传数据长度超过5120字节,请减少数据内容，或降低数据上传频率');
+            warn('saveTsData:单次上传数据长度超过10Kb,请减少数据内容，或降低数据上传频率');
             return
         }
         this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ts', data))
