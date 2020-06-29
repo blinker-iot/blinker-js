@@ -17,7 +17,7 @@ export class BlinkerDevice {
 
     mqttClient: mqtt.MqttClient;
 
-    ws = new WebSocket.Server({ port: 81 });
+    ws;
 
     config: {
         broker: string,
@@ -78,6 +78,13 @@ export class BlinkerDevice {
         })
     }
 
+    initWs() {
+        this.ws = new WebSocket.Server({ port: 81 });
+        this.ws.on('message', function incoming(data) {
+            warn(data)
+        });
+    }
+
     initBroker_Aliyun() {
         this.subtopic = `/${this.config.productKey}/${this.config.deviceName}/r`;
         this.pubtopic = `/${this.config.productKey}/${this.config.deviceName}/s`;
@@ -114,6 +121,13 @@ export class BlinkerDevice {
             if (typeof data['get'] != 'undefined') {
                 this.heartbeat.next(data);
                 this.mqttClient.publish(this.pubtopic, formatMess2Device(this.config.deviceName, fromDevice, `{"state":"online"}`))
+            } if (typeof data['set'] != 'undefined') {
+                console.log(data['set']);
+                if (typeof data['set']['timing'] != 'undefined') {
+                    // timing: [ { task: 0, ena: 1, tim: 240, act: [Array], day: '0110000' } ]
+                } else if (typeof data['set']['countdown:'] != 'undefined') {
+                    // { countdown: { run: 1, ttim: 10, act: [ [Object] ] } }
+                }
             } else {
                 let otherData = {}
                 for (const key in data) {
@@ -211,6 +225,7 @@ export class BlinkerDevice {
             warn('saveTsData:单次上传数据长度超过10Kb,请减少数据内容，或降低数据上传频率');
             return
         }
+        warn('sendTsData')
         this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ts', data))
         this.storageCache = []
     }

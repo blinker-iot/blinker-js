@@ -1,8 +1,8 @@
 import { BlinkerDevice } from './blinker';
 import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget } from './widget';
-import { CONFIG } from './config';
+// import { CONFIG } from './config';
 
-let device = new BlinkerDevice(CONFIG.KEY);
+let device = new BlinkerDevice('beef6d0ee2f2');
 // let device = new BlinkerDevice('您申请到的authkey');
 
 // 注册组件
@@ -65,22 +65,22 @@ joystick1.listen().subscribe(message => {
     console.log('y:', message.data[1]);
 })
 
-setInterval(() => {
-    device.saveTsData({
-        humi: randomNumber(),
-        temp: randomNumber(),
-        pm25: randomNumber(),
-        pm10: randomNumber()
-    });
-}, 5000)
+// setInterval(() => {
+//     device.saveTsData({
+//         humi: randomNumber(),
+//         temp: randomNumber(),
+//         pm25: randomNumber(),
+//         pm10: randomNumber()
+//     });
+// }, 5000)
 
-setTimeout(() => {
-    device.saveTextData('text');
-    device.saveObjectData({
-        config: 111,
-        test: 'text'
-    });
-}, 60000);
+// setTimeout(() => {
+//     device.saveTextData('text');
+//     device.saveObjectData({
+//         config: 111,
+//         test: 'text'
+//     });
+// }, 60000);
 
 
 
