@@ -3,10 +3,6 @@ import axios from 'axios';
 import { Subject } from 'rxjs';
 import { Widget } from './widget';
 import bonjour from 'bonjour';
-// import { bonjour } from 'bonjour';
-
-const host = 'https://iot.diandeng.tech';
-const url = host + '/api/v1/user/device/diy/auth?authKey='
 
 export interface Message {
     fromDevice?: string,
@@ -14,7 +10,11 @@ export interface Message {
 }
 
 export class BlinkerDevice {
-    mqttClient;
+
+    serverUrl: string
+    protocol: string
+
+    mqttClient: mqtt.MqttClient;
 
     config: {
         broker: string,
@@ -44,12 +44,17 @@ export class BlinkerDevice {
     widgetKeyList = []
     widgetDict = {}
 
-    constructor(authkey) {
+    constructor(authkey, options = {
+        host: 'https://iot.diandeng.tech',
+        protocol: "mqtts"
+    }) {
+        this.serverUrl = options.host + '/api/v1/user/device/diy/auth?authKey=';
+        this.protocol = options.protocol
         this.init(authkey)
     }
 
-    init(authkey, protocol = "mqtts") {
-        axios.get(url + authkey + '&protocol=' + protocol).then(resp => {
+    init(authkey) {
+        axios.get(this.serverUrl + authkey + '&protocol=' + this.protocol).then(resp => {
             console.log(resp.data);
             this.config = resp.data.detail
             if (this.config.broker == 'aliyun') {

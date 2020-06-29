@@ -1,7 +1,8 @@
 import { BlinkerDevice } from './blinker';
 import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget } from './widget';
+import { CONFIG } from './config';
 
-let device = new BlinkerDevice('c8df42c8acbc');
+let device = new BlinkerDevice(CONFIG.KEY);
 
 // 注册组件
 let button1: ButtonWidget = device.addWidget(new ButtonWidget('btn-crf'));
