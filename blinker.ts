@@ -122,7 +122,7 @@ export class BlinkerDevice {
                 this.heartbeat.next(data);
                 this.mqttClient.publish(this.pubtopic, formatMess2Device(this.config.deviceName, fromDevice, `{"state":"online"}`))
             } if (typeof data['set'] != 'undefined') {
-                console.log(data['set']);
+                // console.log(data['set']);
                 if (typeof data['set']['timing'] != 'undefined') {
                     // timing: [ { task: 0, ena: 1, tim: 240, act: [Array], day: '0110000' } ]
                 } else if (typeof data['set']['countdown:'] != 'undefined') {
@@ -225,7 +225,7 @@ export class BlinkerDevice {
             warn('saveTsData:单次上传数据长度超过10Kb,请减少数据内容，或降低数据上传频率');
             return
         }
-        warn('sendTsData')
+        tip('sendTsData')
         this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ts', data))
         this.storageCache = []
     }
@@ -248,6 +248,7 @@ export class BlinkerDevice {
         }
         clearTimeout(this.objectDataTimer);
         this.objectDataTimer = setTimeout(() => {
+            tip('saveObjectData')
             this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ot', JSON.stringify(dataCache)))
         }, 5000);
     }
@@ -263,6 +264,7 @@ export class BlinkerDevice {
         }
         clearTimeout(this.textDataTimer);
         this.textDataTimer = setTimeout(() => {
+            tip('saveTextData')
             this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ot', data))
         }, 5000);
     }
@@ -352,6 +354,10 @@ function log(msg, { title = 'TITLE', color = 'white' } = {}) {
     else {
         console.log(title ? `${title} ${msg}` : msg)
     }
+}
+
+function tip(msg) {
+    log(msg, { title: 'warn', color: 'white' })
 }
 
 function warn(msg) {
