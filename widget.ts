@@ -201,3 +201,20 @@ export class JoystickWidget extends Widget {
         super(key)
     }
 }
+
+export class VideoWidget extends Widget {
+
+    constructor(key) {
+        super(key)
+    }
+
+    url(addr: string) {
+        this.state['url'] = addr
+        return this
+    }
+
+    autoplay(swi: boolean) {
+        this.state['auto'] = swi
+        return this
+    }
+}
