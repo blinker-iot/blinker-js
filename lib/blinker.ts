@@ -320,7 +320,7 @@ export class BlinkerDevice {
         else
             return { timing: this.tempData['timing'] }
     }
-
+    countdownTimer;
     setCountdownData(data) {
         console.log(data);
         this.tempData['countdown'] = data;
@@ -328,8 +328,9 @@ export class BlinkerDevice {
         setTimeout(() => {
             this.processData(data.act[0])
         }, data.ttim * 60 * 1000);
-        setInterval(() => {
+        this.countdownTimer = setInterval(() => {
             this.tempData['countdown']['rtim']++;
+            if (this.tempData['countdown']['rtim'] == this.tempData['countdown']['ttim']) clearInterval(this.countdownTimer)
         }, 60 * 1000)
     }
 
