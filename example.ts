@@ -1,5 +1,5 @@
-import { BlinkerDevice } from './blinker';
-import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget } from './widget';
+import { BlinkerDevice } from './lib/blinker';
+import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget } from './lib/widget';
 // import { CONFIG } from './config';
 
 let device = new BlinkerDevice('beef6d0ee2f2');

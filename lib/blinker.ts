@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { Widget } from './widget';
 import bonjour from 'bonjour';
 import * as WebSocket from 'ws';
+import scheduleJob from 'node-schedule';
 
 export interface Message {
     fromDevice?: string,
@@ -47,6 +48,9 @@ export class BlinkerDevice {
     widgetKeyList = []
     widgetDict = {}
 
+    private tempData;
+    private tempDataPath;
+
     constructor(authkey, options = {
         host: 'https://iot.diandeng.tech',
         protocol: "mqtts"
@@ -75,6 +79,9 @@ export class BlinkerDevice {
                 host: this.config.deviceName + '.local',
                 port: 81
             })
+            // 加载暂存数据  
+            this.tempDataPath = `.${this.config.deviceName}.json`
+            this.tempData = loadJsonFile(this.tempDataPath)
         })
     }
 
@@ -119,16 +126,32 @@ export class BlinkerDevice {
                 console.log(error);
             }
             if (typeof data['get'] != 'undefined') {
-                this.heartbeat.next(data);
-                this.mqttClient.publish(this.pubtopic, formatMess2Device(this.config.deviceName, fromDevice, `{"state":"online"}`))
-            } if (typeof data['set'] != 'undefined') {
-                // console.log(data['set']);
+                if (data['get'] == 'state') {
+                    this.heartbeat.next(data);
+                    this.sendMessage(`{"state":"online"}`)
+                } else if (data['get'] == 'timing') {
+                    tip('反馈定时任务')
+                    console.log(this.getTimingData());
+
+                    this.sendMessage(this.getTimingData())
+                } else if (data['get'] == 'countdown') {
+                    tip('反馈倒计时任务')
+                    this.sendMessage(this.getCountdownData())
+                }
+            } else if (typeof data['set'] != 'undefined') {
                 if (typeof data['set']['timing'] != 'undefined') {
+                    tip('设定定时任务')
+                    this.setTimingData(data['set']['timing']);
+                    this.sendMessage(this.getTimingData())
                     // timing: [ { task: 0, ena: 1, tim: 240, act: [Array], day: '0110000' } ]
-                } else if (typeof data['set']['countdown:'] != 'undefined') {
+                } else if (typeof data['set']['countdown'] != 'undefined') {
+                    tip('设定倒计时任务')
+                    this.setCountdownData(data['set']['countdown']);
+                    this.sendMessage(this.getCountdownData())
                     // { countdown: { run: 1, ttim: 10, act: [ [Object] ] } }
                 }
             } else {
+                // tip(JSON.stringify(data));
                 let otherData = {}
                 for (const key in data) {
                     // 处理组件数据
@@ -219,7 +242,7 @@ export class BlinkerDevice {
             }, 60000);
     }
 
-    sendTsData() {
+    private sendTsData() {
         let data = JSON.stringify(this.storageCache)
         if (data.length > 10240) {
             warn('saveTsData:单次上传数据长度超过10Kb,请减少数据内容，或降低数据上传频率');
@@ -278,6 +301,32 @@ export class BlinkerDevice {
 
     vibrate(time = 500) {
         this.sendMessage(`{"vibrate":${time}}`)
+    }
+
+    setTimingData(data) {
+        console.log(data);
+
+        if (typeof this.tempData['timing'] == 'undefined') this.tempData['timing'] = []
+        this.tempData['timing'] = data;
+    }
+
+    getTimingData() {
+        if (typeof this.tempData['timing'] == 'undefined')
+            return { timing: [] }
+        else
+            return { timing: this.tempData['timing'] }
+    }
+
+    setCountdownData(data) {
+        console.log(data);
+        this.tempData['countdown'] = data;
+    }
+
+    getCountdownData() {
+        if (typeof this.tempData['countdown'] == 'undefined')
+            return { countdown: false }
+        else
+            return { countdown: Object.assign(this.tempData['countdown'], { rtim: 0 }) }
     }
 
 }
@@ -357,9 +406,22 @@ function log(msg, { title = 'TITLE', color = 'white' } = {}) {
 }
 
 function tip(msg) {
-    log(msg, { title: 'warn', color: 'white' })
+    log(msg, { title: 'log', color: 'white' })
 }
 
 function warn(msg) {
     log(msg, { title: 'warn', color: 'yellow' })
+}
+
+import * as fs from 'fs';
+
+function loadJsonFile(path) {
+    if (fs.existsSync(path))
+        return JSON.parse(fs.readFileSync(path, 'utf8'));
+    else
+        return {}
+}
+
+function saveJsonFile(path, data) {
+    fs.writeFileSync(path, JSON.stringify(data));
 }
