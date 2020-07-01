@@ -2,7 +2,7 @@ import { BlinkerDevice } from './lib/blinker';
 import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget } from './lib/widget';
 // import { CONFIG } from './config';
 
-let device = new BlinkerDevice('beef6d0ee2f2');
+let device = new BlinkerDevice('c8df42c8acbc');
 // let device = new BlinkerDevice('您申请到的authkey');
 
 // 注册组件
@@ -27,7 +27,7 @@ device.heartbeat.subscribe(message => {
     number1.value(randomNumber()).unit('米').text('长度').color(randomColor()).update();
     button2.color(randomColor()).update();
     button1.color(randomColor()).update();
-    // colorPicker1.color(randomColor()).brightness(randomNumber(0, 255)).update()
+    colorPicker1.color(randomColor()).brightness(randomNumber(0, 255)).update()
     device.vibrate();
 })
 
@@ -65,22 +65,22 @@ joystick1.listen().subscribe(message => {
     console.log('y:', message.data[1]);
 })
 
-setInterval(() => {
-    device.saveTsData({
-        humi: randomNumber(),
-        temp: randomNumber(),
-        pm25: randomNumber(),
-        pm10: randomNumber()
-    });
-}, 5000)
+// setInterval(() => {
+//     device.saveTsData({
+//         humi: randomNumber(),
+//         temp: randomNumber(),
+//         pm25: randomNumber(),
+//         pm10: randomNumber()
+//     });
+// }, 5000)
 
-setTimeout(() => {
-    device.saveTextData('text');
-    device.saveObjectData({
-        config: 111,
-        test: 'text'
-    });
-}, 60000);
+// setTimeout(() => {
+//     device.saveTextData('text');
+//     device.saveObjectData({
+//         config: 111,
+//         test: 'text'
+//     });
+// }, 60000);
 
 
 

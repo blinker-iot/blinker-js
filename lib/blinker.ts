@@ -121,63 +121,68 @@ export class BlinkerDevice {
             let fromDevice;
             try {
                 fromDevice = JSON.parse(u8aToString(message)).fromDevice
+                this.targetDevice = fromDevice
                 data = JSON.parse(u8aToString(message)).data
             } catch (error) {
                 console.log(error);
             }
-            if (typeof data['get'] != 'undefined') {
-                if (data['get'] == 'state') {
-                    this.heartbeat.next(data);
-                    this.sendMessage(`{"state":"online"}`)
-                } else if (data['get'] == 'timing') {
-                    tip('反馈定时任务')
-                    console.log(this.getTimingData());
-
-                    this.sendMessage(this.getTimingData())
-                } else if (data['get'] == 'countdown') {
-                    tip('反馈倒计时任务')
-                    this.sendMessage(this.getCountdownData())
-                }
-            } else if (typeof data['set'] != 'undefined') {
-                if (typeof data['set']['timing'] != 'undefined') {
-                    tip('设定定时任务')
-                    this.setTimingData(data['set']['timing']);
-                    this.sendMessage(this.getTimingData())
-                    // timing: [ { task: 0, ena: 1, tim: 240, act: [Array], day: '0110000' } ]
-                } else if (typeof data['set']['countdown'] != 'undefined') {
-                    tip('设定倒计时任务')
-                    this.setCountdownData(data['set']['countdown']);
-                    this.sendMessage(this.getCountdownData())
-                    // { countdown: { run: 1, ttim: 10, act: [ [Object] ] } }
-                }
-            } else {
-                // tip(JSON.stringify(data));
-                let otherData = {}
-                for (const key in data) {
-                    // 处理组件数据
-                    if (this.widgetKeyList.indexOf(key) > -1) {
-                        let widget: Widget = this.widgetDict[key]
-                        widget.change.next({
-                            fromDevice: fromDevice,
-                            data: data[key],
-                        })
-                    } else {
-                        let temp = {};
-                        temp[key] = data[key]
-                        otherData = Object.assign(otherData, temp)
-                    }
-                }
-                if (JSON.stringify(otherData) != '{}')
-                    this.dataRead.next({
-                        fromDevice: fromDevice,
-                        data: otherData
-                    })
-            }
+            this.processData(data, fromDevice)
         })
 
         this.mqttClient.on('error', (err) => {
             console.log(err);
         })
+    }
+
+    processData(data, fromDevice = this.targetDevice) {
+        if (typeof data['get'] != 'undefined') {
+            if (data['get'] == 'state') {
+                this.heartbeat.next(data);
+                this.sendMessage(`{"state":"online"}`)
+            } else if (data['get'] == 'timing') {
+                tip('反馈定时任务')
+                console.log(this.getTimingData());
+
+                this.sendMessage(this.getTimingData())
+            } else if (data['get'] == 'countdown') {
+                tip('反馈倒计时任务')
+                this.sendMessage(this.getCountdownData())
+            }
+        } else if (typeof data['set'] != 'undefined') {
+            if (typeof data['set']['timing'] != 'undefined') {
+                tip('设定定时任务')
+                this.setTimingData(data['set']['timing']);
+                this.sendMessage(this.getTimingData())
+                // timing: [ { task: 0, ena: 1, tim: 240, act: [Array], day: '0110000' } ]
+            } else if (typeof data['set']['countdown'] != 'undefined') {
+                tip('设定倒计时任务')
+                this.setCountdownData(data['set']['countdown']);
+                this.sendMessage(this.getCountdownData())
+                // { countdown: { run: 1, ttim: 10, act: [ [Object] ] } }
+            }
+        } else {
+            // tip(JSON.stringify(data));
+            let otherData = {}
+            for (const key in data) {
+                // 处理组件数据
+                if (this.widgetKeyList.indexOf(key) > -1) {
+                    let widget: Widget = this.widgetDict[key]
+                    widget.change.next({
+                        fromDevice: fromDevice,
+                        data: data[key],
+                    })
+                } else {
+                    let temp = {};
+                    temp[key] = data[key]
+                    otherData = Object.assign(otherData, temp)
+                }
+            }
+            if (JSON.stringify(otherData) != '{}')
+                this.dataRead.next({
+                    fromDevice: fromDevice,
+                    data: otherData
+                })
+        }
     }
 
     sendTimers = {};
@@ -305,7 +310,6 @@ export class BlinkerDevice {
 
     setTimingData(data) {
         console.log(data);
-
         if (typeof this.tempData['timing'] == 'undefined') this.tempData['timing'] = []
         this.tempData['timing'] = data;
     }
@@ -320,13 +324,20 @@ export class BlinkerDevice {
     setCountdownData(data) {
         console.log(data);
         this.tempData['countdown'] = data;
+        this.tempData['countdown']['rtim'] = 0
+        setTimeout(() => {
+            this.processData(data.act[0])
+        }, data.ttim * 60 * 1000);
+        setInterval(() => {
+            this.tempData['countdown']['rtim']++;
+        }, 60 * 1000)
     }
 
     getCountdownData() {
         if (typeof this.tempData['countdown'] == 'undefined')
             return { countdown: false }
         else
-            return { countdown: Object.assign(this.tempData['countdown'], { rtim: 0 }) }
+            return { countdown: this.tempData['countdown'] }
     }
 
 }
