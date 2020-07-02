@@ -320,17 +320,30 @@ export class BlinkerDevice {
         else
             return { timing: this.tempData['timing'] }
     }
+
     countdownTimer;
+    countdownTimer2;
+
     setCountdownData(data) {
         console.log(data);
+        if (data == 'dlt') {
+            this.tempData['countdown'] = false
+            clearTimeout(this.countdownTimer)
+            clearInterval(this.countdownTimer2)
+            return
+        } else if (JSON.stringify(data.run).indexOf(`{"run":`) > -1) {
+            this.tempData['countdown']['run'] = data.run
+            return
+        }
         this.tempData['countdown'] = data;
         this.tempData['countdown']['rtim'] = 0
-        setTimeout(() => {
+        this.countdownTimer = setTimeout(() => {
+            log(data.act)
             this.processData(data.act[0])
         }, data.ttim * 60 * 1000);
-        this.countdownTimer = setInterval(() => {
+        this.countdownTimer2 = setInterval(() => {
             this.tempData['countdown']['rtim']++;
-            if (this.tempData['countdown']['rtim'] == this.tempData['countdown']['ttim']) clearInterval(this.countdownTimer)
+            if (this.tempData['countdown']['rtim'] == this.tempData['countdown']['ttim']) clearInterval(this.countdownTimer2)
         }, 60 * 1000)
     }
 
