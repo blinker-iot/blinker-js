@@ -29,7 +29,8 @@ export class BlinkerDevice {
         iotToken: string,
         port: string,
         productKey: string,
-        uuid: string
+        uuid: string,
+        authKey?: string
     };
 
     subtopic;
@@ -65,6 +66,7 @@ export class BlinkerDevice {
         axios.get(this.serverUrl + authkey + '&protocol=' + this.protocol).then(resp => {
             console.log(resp.data);
             this.config = resp.data.detail
+            this.config['authKey'] = authkey
             if (this.config.broker == 'aliyun') {
                 this.initBroker_Aliyun()
             } else if (this.config.broker == 'blinker') {
@@ -372,6 +374,24 @@ export class BlinkerDevice {
             return { countdown: false }
         else
             return { countdown: this.tempData['countdown'] }
+    }
+
+    getWeather(cityKey) {
+        return axios.get(`https://iot.diandeng.tech/api/v2/weather/${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
+            return resp.data
+        })
+    }
+
+    getWeatherForecast(cityKey) {
+        return axios.get(`https://iot.diandeng.tech/api/v2/forecast/${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
+            return resp.data
+        })
+    }
+
+    getAir(cityKey) {
+        return axios.get(`https://iot.diandeng.tech/api/v2/air/${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
+            return resp.data
+        })
     }
 
 }

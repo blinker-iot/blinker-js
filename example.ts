@@ -82,6 +82,12 @@ joystick1.listen().subscribe(message => {
 //     });
 // }, 60000);
 
+// 空气、天气、天气预报 获取
+// setTimeout(async () => {
+//     console.log(await device.getAir('sichuan-chengdushi'));
+//     console.log(await device.getWeather('sichuan-chengdushi'));
+//     console.log(await device.getWeatherForecast('sichuan-chengdushi'));
+// }, 10000);
 
 
 /*
