@@ -4,7 +4,8 @@ import { Subject } from 'rxjs';
 import { Widget } from './widget';
 import bonjour from 'bonjour';
 import * as WebSocket from 'ws';
-import scheduleJob from 'node-schedule';
+// import scheduleJob from 'node-schedule';
+import * as pauseable from 'pauseable';
 
 export interface Message {
     fromDevice?: string,
@@ -140,25 +141,23 @@ export class BlinkerDevice {
                 this.heartbeat.next(data);
                 this.sendMessage(`{"state":"online"}`)
             } else if (data['get'] == 'timing') {
-                tip('反馈定时任务')
-                console.log(this.getTimingData());
-
+                // tip('反馈定时任务')
+                // console.log(this.getTimingData());
                 this.sendMessage(this.getTimingData())
             } else if (data['get'] == 'countdown') {
-                tip('反馈倒计时任务')
+                // tip('反馈倒计时任务')
                 this.sendMessage(this.getCountdownData())
             }
         } else if (typeof data['set'] != 'undefined') {
             if (typeof data['set']['timing'] != 'undefined') {
-                tip('设定定时任务')
+                // tip('设定定时任务')
                 this.setTimingData(data['set']['timing']);
                 this.sendMessage(this.getTimingData())
                 // timing: [ { task: 0, ena: 1, tim: 240, act: [Array], day: '0110000' } ]
             } else if (typeof data['set']['countdown'] != 'undefined') {
-                tip('设定倒计时任务')
+                // tip('设定倒计时任务')
                 this.setCountdownData(data['set']['countdown']);
                 this.sendMessage(this.getCountdownData())
-                // { countdown: { run: 1, ttim: 10, act: [ [Object] ] } }
             }
         } else {
             // tip(JSON.stringify(data));
@@ -309,7 +308,7 @@ export class BlinkerDevice {
     }
 
     setTimingData(data) {
-        console.log(data);
+        // console.log(data);
         if (typeof this.tempData['timing'] == 'undefined') this.tempData['timing'] = []
         this.tempData['timing'] = data;
     }
@@ -325,26 +324,47 @@ export class BlinkerDevice {
     countdownTimer2;
 
     setCountdownData(data) {
-        console.log(data);
         if (data == 'dlt') {
+            timerLog('countdown stop')
             this.tempData['countdown'] = false
-            clearTimeout(this.countdownTimer)
-            clearInterval(this.countdownTimer2)
+            this.clearCountdownTimer()
             return
-        } else if (JSON.stringify(data.run).indexOf(`{"run":`) > -1) {
+        } else if (JSON.stringify(data).indexOf(`{"run":`) > -1) {
             this.tempData['countdown']['run'] = data.run
+            if (this.tempData['countdown']['run'] == 0) {
+                timerLog('countdown pause')
+                this.countdownTimer.pause()
+                this.countdownTimer2.pause()
+            } else if (this.tempData['countdown']['run'] == 1) {
+                timerLog('countdown resume')
+                this.countdownTimer.resume()
+                this.countdownTimer2.resume()
+            }
             return
         }
+        timerLog('countdown start')
         this.tempData['countdown'] = data;
         this.tempData['countdown']['rtim'] = 0
-        this.countdownTimer = setTimeout(() => {
-            log(data.act)
-            this.processData(data.act[0])
+        this.clearCountdownTimer();
+        this.countdownTimer = pauseable.setTimeout(() => {
+            this.clearCountdownTimer();
+            timerLog('countdown done')
+            this.processData(this.tempData['countdown'].act[0]);
+            // 关闭倒计时
+            this.tempData['countdown'] = false
+            this.sendMessage(this.getCountdownData())
         }, data.ttim * 60 * 1000);
-        this.countdownTimer2 = setInterval(() => {
+        this.countdownTimer2 = pauseable.setInterval(() => {
             this.tempData['countdown']['rtim']++;
             if (this.tempData['countdown']['rtim'] == this.tempData['countdown']['ttim']) clearInterval(this.countdownTimer2)
         }, 60 * 1000)
+    }
+
+    clearCountdownTimer() {
+        if (typeof this.countdownTimer != 'undefined')
+            this.countdownTimer.clear()
+        if (typeof this.countdownTimer != 'undefined')
+            this.countdownTimer2.clear()
     }
 
     getCountdownData() {
@@ -384,7 +404,7 @@ function formatMess2Grounp(deviceId, toGrounp, data) {
 }
 
 function formatMess2Storage(deviceId, storageType, data) {
-    return `{"data":${data},"fromDevice":"${deviceId}","toStorage":"${storageType}"}`
+    return `{"data":"${data}","fromDevice":"${deviceId}","toStorage":"${storageType}"}`
 }
 
 function u8aToString(fileData) {
@@ -436,6 +456,10 @@ function tip(msg) {
 
 function warn(msg) {
     log(msg, { title: 'warn', color: 'yellow' })
+}
+
+function timerLog(msg) {
+    log(msg, { title: 'timer', color: 'blue' })
 }
 
 import * as fs from 'fs';
