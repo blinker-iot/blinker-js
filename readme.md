@@ -27,17 +27,17 @@ JoystickWidget
 ## 已支持  
 基本MQTT通信  
 Layouter组件  
+时序数据存储(仅限blinker broker)    
+文本数据存储(仅限blinker broker)    
+对象数据存储(仅限blinker broker)  
+倒计时  
 
 ## 即将支持  
 语音助手  
 专属设备  
 局域网ws通信  
 更多组件支持  
-时序数据存储  
-文本数据存储  
-对象数据存储  
 定时  
-倒计时  
 
 # blinker-cli(开发中)  
 
