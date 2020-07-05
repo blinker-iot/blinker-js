@@ -64,12 +64,14 @@ export class BlinkerDevice {
 
     init(authkey) {
         axios.get(this.serverUrl + authkey + '&protocol=' + this.protocol).then(resp => {
-            console.log(resp.data);
+            // console.log(resp.data);
             this.config = resp.data.detail
             this.config['authKey'] = authkey
             if (this.config.broker == 'aliyun') {
+                mqttLog('broker:aliyun')
                 this.initBroker_Aliyun()
             } else if (this.config.broker == 'blinker') {
+                mqttLog('broker:blinker')
                 this.initBroker_Blinker()
             }
             this.connectBroker()
@@ -115,7 +117,7 @@ export class BlinkerDevice {
         });
 
         this.mqttClient.on('connect', () => {
-            console.log('blinker connected');
+            mqttLog('blinker connected');
             this.mqttClient.subscribe(this.subtopic);
         })
 
@@ -133,7 +135,7 @@ export class BlinkerDevice {
         })
 
         this.mqttClient.on('error', (err) => {
-            console.log(err);
+            mqttLog(err);
         })
     }
 
@@ -481,6 +483,11 @@ function warn(msg) {
 function timerLog(msg) {
     log(msg, { title: 'timer', color: 'blue' })
 }
+
+function mqttLog(msg) {
+    log(msg, { title: 'mqtt', color: 'blue' })
+}
+
 
 import * as fs from 'fs';
 
