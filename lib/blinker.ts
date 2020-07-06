@@ -261,9 +261,7 @@ export class BlinkerDevice {
             return
         }
         tip('sendTsData')
-        console.log(data);
-
-        this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ts', data))
+        this.mqttClient.publish(this.pubtopic, formatMess2StorageTs(this.config.deviceName, 'ts', data))
         this.storageCache = []
     }
     objectDataTimer
@@ -286,7 +284,7 @@ export class BlinkerDevice {
         clearTimeout(this.objectDataTimer);
         this.objectDataTimer = setTimeout(() => {
             tip('saveObjectData')
-            this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ot', JSON.stringify(dataCache)))
+            this.mqttClient.publish(this.pubtopic, formatMess2StorageOt(this.config.deviceName, 'ot', JSON.stringify(dataCache)))
         }, 5000);
     }
     textDataTimer
@@ -302,7 +300,7 @@ export class BlinkerDevice {
         clearTimeout(this.textDataTimer);
         this.textDataTimer = setTimeout(() => {
             tip('saveTextData')
-            this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ot', data))
+            this.mqttClient.publish(this.pubtopic, formatMess2StorageTt(this.config.deviceName, 'tt', data))
         }, 5000);
     }
 
@@ -404,6 +402,7 @@ export class BlinkerDevice {
 
 }
 
+// 内置开关
 export class BuiltinSwitch {
     key = 'switch';
     state = '';
@@ -431,8 +430,16 @@ function formatMess2Grounp(deviceId, toGrounp, data) {
     return `{"data":${data},"fromDevice":"${deviceId}","toGrounp":"${toGrounp}"}`
 }
 
-function formatMess2Storage(deviceId, storageType, data) {
+function formatMess2StorageTs(deviceId, storageType, data) {
+    return `{"data":${data},"fromDevice":"${deviceId}","toStorage":"${storageType}"}`
+}
+
+function formatMess2StorageTt(deviceId, storageType, data) {
     return `{"data":"${data}","fromDevice":"${deviceId}","toStorage":"${storageType}"}`
+}
+
+function formatMess2StorageOt(deviceId, storageType, data) {
+    return `{"data":${data},"fromDevice":"${deviceId}","toStorage":"${storageType}"}`
 }
 
 function u8aToString(fileData) {
