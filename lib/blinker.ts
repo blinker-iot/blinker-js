@@ -134,6 +134,10 @@ export class BlinkerDevice {
             this.processData(data, fromDevice)
         })
 
+        this.mqttClient.on('close', (err) => {
+            mqttLog('blinker close');
+        })
+
         this.mqttClient.on('error', (err) => {
             mqttLog(err);
         })
@@ -257,6 +261,8 @@ export class BlinkerDevice {
             return
         }
         tip('sendTsData')
+        console.log(data);
+
         this.mqttClient.publish(this.pubtopic, formatMess2Storage(this.config.deviceName, 'ts', data))
         this.storageCache = []
     }
@@ -333,7 +339,7 @@ export class BlinkerDevice {
             this.tempData['countdown'] = false
             this.clearCountdownTimer()
             return
-        } else if (JSON.stringify(data).indexOf(`{"run":`) > -1) {
+        } else if (JSON.stringify(data).indexOf(`{"run":1}`) > -1 || JSON.stringify(data).indexOf(`{"run":0}`) > -1) {
             this.tempData['countdown']['run'] = data.run
             if (this.tempData['countdown']['run'] == 0) {
                 timerLog('countdown pause')
