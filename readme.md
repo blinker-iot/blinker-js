@@ -34,7 +34,7 @@ Layouter组件
 文本数据存储(仅限blinker broker)    
 对象数据存储(仅限blinker broker)  
 倒计时  
-定时(待完善)  
+定时  
 
 ## 即将支持  
 语音助手  
