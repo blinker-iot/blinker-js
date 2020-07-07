@@ -4,7 +4,7 @@ import { Subject } from 'rxjs';
 import { Widget } from './widget';
 import bonjour from 'bonjour';
 import * as WebSocket from 'ws';
-// import scheduleJob from 'node-schedule';
+import * as schedule from 'node-schedule';
 import * as pauseable from 'pauseable';
 
 export interface Message {
@@ -37,7 +37,6 @@ export class BlinkerDevice {
     pubtopic;
 
     deviceName;
-    // password;
 
     targetDevice;
 
@@ -158,10 +157,12 @@ export class BlinkerDevice {
             }
         } else if (typeof data['set'] != 'undefined') {
             if (typeof data['set']['timing'] != 'undefined') {
-                // tip('设定定时任务')
-                this.setTimingData(data['set']['timing']);
+                if (typeof data['set']['timing'][0]["dlt"] != 'undefined') {
+                    this.delTimingData(data['set']['timing'][0]["dlt"])
+                } else {
+                    this.setTimingData(data['set']['timing']);
+                }
                 this.sendMessage(this.getTimingData())
-                // timing: [ { task: 0, ena: 1, tim: 240, act: [Array], day: '0110000' } ]
             } else if (typeof data['set']['countdown'] != 'undefined') {
                 // tip('设定倒计时任务')
                 this.setCountdownData(data['set']['countdown']);
@@ -197,6 +198,7 @@ export class BlinkerDevice {
     messageDataCache = {}
 
     sendMessage(message: string | Object, toDevice = this.targetDevice) {
+        // console.log(message);
         let sendMessage: string;
         if (typeof message == 'object') sendMessage = JSON.stringify(message)
         else sendMessage = message
@@ -257,7 +259,7 @@ export class BlinkerDevice {
     private sendTsData() {
         let data = JSON.stringify(this.storageCache)
         if (data.length > 10240) {
-            warn('saveTsData:单次上传数据长度超过10Kb,请减少数据内容，或降低数据上传频率');
+            error('saveTsData:单次上传数据长度超过10Kb,请减少数据内容，或降低数据上传频率');
             return
         }
         tip('sendTsData')
@@ -267,13 +269,13 @@ export class BlinkerDevice {
     objectDataTimer
     saveObjectData(data: any) {
         if (this.config.broker != 'blinker') {
-            warn('saveObjectData:仅可用于blinker broker')
+            error('saveObjectData:仅可用于blinker broker')
             return
         }
         let dataCache;
         if (typeof data == 'string') {
             if (!isJson(data)) {
-                warn(`saveObjectData:数据不是对象`)
+                error(`saveObjectData:数据不是对象`)
                 return
             } else {
                 dataCache = JSON.parse(data)
@@ -290,11 +292,11 @@ export class BlinkerDevice {
     textDataTimer
     saveTextData(data: string) {
         if (this.config.broker != 'blinker') {
-            warn('saveTextData:仅可用于blinker broker');
+            error('saveTextData:仅可用于blinker broker');
             return
         }
         if (data.length > 1024) {
-            warn('saveTextData:数据长度超过1024字节');
+            error('saveTextData:数据长度超过1024字节');
             return
         }
         clearTimeout(this.textDataTimer);
@@ -315,10 +317,12 @@ export class BlinkerDevice {
         this.sendMessage(`{"vibrate":${time}}`)
     }
 
+    // 定时功能
     setTimingData(data) {
-        // console.log(data);
+        timerLog('set timing task')
         if (typeof this.tempData['timing'] == 'undefined') this.tempData['timing'] = []
-        this.tempData['timing'] = data;
+        this.tempData['timing'][data[0].task] = data[0]
+        this.addTimingTask(data[0])
     }
 
     getTimingData() {
@@ -328,6 +332,57 @@ export class BlinkerDevice {
             return { timing: this.tempData['timing'] }
     }
 
+    delTimingData(taskId) {
+        this.delTimingTask(taskId)
+        arrayRemove(this.tempData['timing'], taskId)
+        for (let index = taskId; index < this.tempData['timing'].length; index++)
+            this.tempData['timing'][index].task = index
+    }
+
+    timingTasks = [];
+    addTimingTask(taskData) {
+        // console.log(taskData);
+        if (taskData.ena == 0) {
+            this.disableTimingTask(taskData.task)
+            return
+        }
+        let hour = Math.floor(taskData.tim / 60);
+        let minute = taskData.tim % 60
+        let dayOfWeek = []
+        for (let index = 0; index < taskData.day.length; index++) {
+            if (taskData.day[index] == '1')
+                dayOfWeek.push(index)
+        }
+        let config = {
+            minute: minute,
+            hour: hour
+        }
+        if (dayOfWeek.length == 1) {
+            config['dayOfWeek'] = dayOfWeek[0]
+        } else if (dayOfWeek.length > 1) {
+            config['dayOfWeek'] = dayOfWeek
+        }
+        console.log(config);
+        this.timingTasks[taskData.task] = schedule.scheduleJob(config, () => {
+            this.processData(taskData.act[0])
+            this.disableTimingTask(taskData.task)
+            this.sendMessage(this.getTimingData())
+            timerLog('timer task done')
+        })
+        console.log('设定完成');
+    }
+
+    delTimingTask(taskId) {
+        this.disableTimingTask(taskId);
+        arrayRemove(this.timingTasks, taskId)
+    }
+
+    disableTimingTask(taskId) {
+        this.tempData['timing'][taskId].ena = 0;
+        this.timingTasks[taskId].cancel();
+    }
+
+    // 倒计时功能  
     countdownTimer;
     countdownTimer2;
 
@@ -382,6 +437,7 @@ export class BlinkerDevice {
             return { countdown: this.tempData['countdown'] }
     }
 
+    // 气象数据获取  
     getWeather(cityKey) {
         return axios.get(`https://iot.diandeng.tech/api/v2/weather/${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
             return resp.data
@@ -493,6 +549,11 @@ function warn(msg) {
     log(msg, { title: 'warn', color: 'yellow' })
 }
 
+function error(msg) {
+    log(msg, { title: 'error', color: 'red' })
+}
+
+
 function timerLog(msg) {
     log(msg, { title: 'timer', color: 'blue' })
 }
@@ -513,4 +574,17 @@ function loadJsonFile(path) {
 
 function saveJsonFile(path, data) {
     fs.writeFileSync(path, JSON.stringify(data));
+}
+
+function arrayRemove(array, index) {
+    if (index <= (array.length - 1)) {
+        for (var i = index; i < array.length; i++) {
+            array[i] = array[i + 1];
+        }
+    }
+    else {
+        // throw new Error('超出最大索引！');
+    }
+    array.length = array.length - 1;
+    return array;
 }
