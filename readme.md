@@ -31,13 +31,13 @@ Layouter组件
 文本数据存储(仅限blinker broker)    
 对象数据存储(仅限blinker broker)  
 倒计时  
+定时(待完善)  
 
 ## 即将支持  
 语音助手  
 专属设备  
 局域网ws通信  
-更多组件支持  
-定时  
+更多组件支持   
 
 # blinker-cli(开发中)  
 
