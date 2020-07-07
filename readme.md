@@ -2,11 +2,14 @@
 
 ## 环境/依赖安装  
 ```
+git clone https://github.com/blinker-iot/blinker-js.git
+cd blinker-js
 npm i -g ts-node
 npm i
 ```
 
 ## 运行示例  
+
 替换example.ts中的以下语句，参数为app中申请到的设备的authkey  
 ```
 let device = new BlinkerDevice('xxxxxxxxxxxx');
@@ -37,7 +40,8 @@ Layouter组件
 语音助手  
 专属设备  
 局域网ws通信  
-更多组件支持   
+更多组件支持  
+
 
 # blinker-cli(开发中)  
 
