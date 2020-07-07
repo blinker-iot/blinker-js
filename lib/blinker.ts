@@ -86,6 +86,7 @@ export class BlinkerDevice {
             // 加载暂存数据  
             this.tempDataPath = `.${this.config.deviceName}.json`
             this.tempData = loadJsonFile(this.tempDataPath)
+            this.loadTimingTask()
         })
     }
 
@@ -318,21 +319,21 @@ export class BlinkerDevice {
     }
 
     // 定时功能
-    setTimingData(data) {
+    private setTimingData(data) {
         timerLog('set timing task')
         if (typeof this.tempData['timing'] == 'undefined') this.tempData['timing'] = []
         this.tempData['timing'][data[0].task] = data[0]
         this.addTimingTask(data[0])
     }
 
-    getTimingData() {
+    private getTimingData() {
         if (typeof this.tempData['timing'] == 'undefined')
             return { timing: [] }
         else
             return { timing: this.tempData['timing'] }
     }
 
-    delTimingData(taskId) {
+    private delTimingData(taskId) {
         this.delTimingTask(taskId)
         arrayRemove(this.tempData['timing'], taskId)
         for (let index = taskId; index < this.tempData['timing'].length; index++)
@@ -340,7 +341,7 @@ export class BlinkerDevice {
     }
 
     timingTasks = [];
-    addTimingTask(taskData) {
+    private addTimingTask(taskData) {
         // console.log(taskData);
         if (taskData.ena == 0) {
             this.disableTimingTask(taskData.task)
@@ -362,24 +363,35 @@ export class BlinkerDevice {
         } else if (dayOfWeek.length > 1) {
             config['dayOfWeek'] = dayOfWeek
         }
-        console.log(config);
+        // console.log(config);
         this.timingTasks[taskData.task] = schedule.scheduleJob(config, () => {
             this.processData(taskData.act[0])
             this.disableTimingTask(taskData.task)
             this.sendMessage(this.getTimingData())
             timerLog('timer task done')
         })
-        console.log('设定完成');
+        saveJsonFile(this.tempDataPath, this.tempData)
     }
 
-    delTimingTask(taskId) {
+    private delTimingTask(taskId) {
         this.disableTimingTask(taskId);
         arrayRemove(this.timingTasks, taskId)
+        saveJsonFile(this.tempDataPath, this.tempData)
     }
 
-    disableTimingTask(taskId) {
+    private disableTimingTask(taskId) {
         this.tempData['timing'][taskId].ena = 0;
         this.timingTasks[taskId].cancel();
+        saveJsonFile(this.tempDataPath, this.tempData)
+    }
+
+    // 重启后，加载配置
+    private loadTimingTask() {
+        timerLog("load timing tasks")
+        for (let index = 0; index < this.tempData['timing'].length; index++) {
+            const task = this.tempData['timing'][index];
+            this.addTimingTask(task)
+        }
     }
 
     // 倒计时功能  
