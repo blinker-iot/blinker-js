@@ -319,6 +319,7 @@ export class BlinkerDevice {
     }
 
     // 定时功能
+    timingTasks = [];
     private setTimingData(data) {
         timerLog('set timing task')
         if (typeof this.tempData['timing'] == 'undefined') this.tempData['timing'] = []
@@ -340,7 +341,6 @@ export class BlinkerDevice {
             this.tempData['timing'][index].task = index
     }
 
-    timingTasks = [];
     private addTimingTask(taskData) {
         // console.log(taskData);
         if (taskData.ena == 0) {
