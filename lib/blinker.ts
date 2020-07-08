@@ -318,6 +318,20 @@ export class BlinkerDevice {
         this.sendMessage(`{"vibrate":${time}}`)
     }
 
+    sendSmsTimeout = true;
+    sendSms(text) {
+        if (!this.sendSmsTimeout) return
+        this.sendSmsTimeout = false;
+        setTimeout(() => {
+            this.sendSmsTimeout = true
+        }, 60000);
+        axios.post('https://iot.diandeng.tech/api/v1/user/device/sms', {
+            'deviceName': this.config.deviceName,
+            'key': this.config.authKey,
+            'msg': text
+        })
+    }
+
     // 定时功能
     private setTimingData(data) {
         timerLog('set timing task')
