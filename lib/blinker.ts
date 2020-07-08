@@ -333,6 +333,7 @@ export class BlinkerDevice {
     }
 
     // 定时功能
+    timingTasks = [];
     private setTimingData(data) {
         timerLog('set timing task')
         if (typeof this.tempData['timing'] == 'undefined') this.tempData['timing'] = []
@@ -354,7 +355,6 @@ export class BlinkerDevice {
             this.tempData['timing'][index].task = index
     }
 
-    timingTasks = [];
     private addTimingTask(taskData) {
         // console.log(taskData);
         if (taskData.ena == 0) {
@@ -399,8 +399,9 @@ export class BlinkerDevice {
         saveJsonFile(this.tempDataPath, this.tempData)
     }
 
-    // 重启后，加载配置
+    // 重启后，加载定时配置  
     private loadTimingTask() {
+        if (typeof this.tempData['timing'] == 'undefined') return
         timerLog("load timing tasks")
         for (let index = 0; index < this.tempData['timing'].length; index++) {
             const task = this.tempData['timing'][index];

@@ -14,15 +14,13 @@ let number1: NumberWidget = device.addWidget(new NumberWidget('num-lnw'));
 let colorPicker1: RGBWidget = device.addWidget(new RGBWidget('col-a9t'));
 let joystick1: JoystickWidget = device.addWidget(new JoystickWidget('joy-d32'));
 
-let powerState = 'off';
-
 device.dataRead.subscribe(message => {
     console.log('otherData:', message);
 })
 
 device.heartbeat.subscribe(message => {
     console.log('heartbeat:', message);
-    device.builtinSwitch.setState(powerState).update();
+    device.builtinSwitch.setState(getSwitchState()).update();
     range1.value(randomNumber()).color(randomColor()).update();
     number1.value(randomNumber()).unit('米').text('长度').color(randomColor()).update();
     button2.color(randomColor()).update();
@@ -33,7 +31,7 @@ device.heartbeat.subscribe(message => {
 
 device.builtinSwitch.change.subscribe(message => {
     console.log('builtinSwitch:', message);
-    device.builtinSwitch.setState(powerState).update();
+    device.builtinSwitch.setState(turnSwitch()).update();
 })
 
 button1.listen().subscribe(message => {
@@ -109,6 +107,9 @@ function randomColor() {
 }
 
 // 开关切换
+function getSwitchState() {
+    return switchState ? 'on' : 'off'
+}
 let switchState = false
 function turnSwitch() {
     switchState = !switchState
