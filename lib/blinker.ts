@@ -320,7 +320,10 @@ export class BlinkerDevice {
 
     sendSmsTimeout = true;
     sendSms(text) {
-        if (!this.sendSmsTimeout) return
+        if (!this.sendSmsTimeout) {
+            warn('sendSms:too frequent requests')
+            return
+        }
         this.sendSmsTimeout = false;
         setTimeout(() => {
             this.sendSmsTimeout = true
@@ -329,6 +332,9 @@ export class BlinkerDevice {
             'deviceName': this.config.deviceName,
             'key': this.config.authKey,
             'msg': text
+        }).then(resp => {
+            if (resp.data.message != 1000)
+                console.log(resp.data);
         })
     }
 
