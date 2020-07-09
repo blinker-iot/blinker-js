@@ -411,7 +411,8 @@ export class BlinkerDevice {
         timerLog("load timing tasks")
         for (let index = 0; index < this.tempData['timing'].length; index++) {
             const task = this.tempData['timing'][index];
-            this.addTimingTask(task)
+            if (task.ena == 1)
+                this.addTimingTask(task)
         }
     }
 
