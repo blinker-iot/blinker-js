@@ -64,6 +64,10 @@ export class BlinkerDevice {
     init(authkey) {
         axios.get(this.serverUrl + authkey + '&protocol=' + this.protocol).then(resp => {
             // console.log(resp.data);
+            if (resp.data.message != 1000) {
+                error(resp.data);
+                return
+            }
             this.config = resp.data.detail
             this.config['authKey'] = authkey
             if (this.config.broker == 'aliyun') {
@@ -319,7 +323,7 @@ export class BlinkerDevice {
     }
 
     sendSmsTimeout = true;
-    sendSms(text) {
+    sms(text: string) {
         if (!this.sendSmsTimeout) {
             warn('sendSms:too frequent requests')
             return
@@ -334,7 +338,31 @@ export class BlinkerDevice {
             'msg': text
         }).then(resp => {
             if (resp.data.message != 1000)
-                console.log(resp.data);
+                error(resp.data);
+        })
+    }
+
+    wechat(title: string, state: string, text: string) {
+        axios.post('https://iot.diandeng.tech/api/v1/user/device/wxMsg/', {
+            'deviceName': this.config.deviceName,
+            'key': this.config.authKey,
+            'title': title,
+            'state': state,
+            'msg': text
+        }).then(resp => {
+            if (resp.data.message != 1000)
+                error(resp.data);
+        })
+    }
+
+    push(text: string) {
+        axios.post('https://iot.diandeng.tech/api/v1/user/device/push', {
+            'deviceName': this.config.deviceName,
+            'key': this.config.authKey,
+            'msg': text
+        }).then(resp => {
+            if (resp.data.message != 1000)
+                error(resp.data);
         })
     }
 

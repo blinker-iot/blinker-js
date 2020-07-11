@@ -35,6 +35,9 @@ Layouter组件
 对象数据存储(仅限blinker broker)  
 倒计时  
 定时  
+短信通知  
+微信通知  
+App推送  
 
 ## 即将支持  
 语音助手  
