@@ -139,9 +139,11 @@ export class BlinkerDevice {
             let data;
             let fromDevice;
             try {
-                fromDevice = JSON.parse(u8aToString(message)).fromDevice
+                let messageString=u8aToString(message)
+                let messageObject=JSON.parse(messageString)
+                fromDevice = messageObject.fromDevice
+                data = messageObject.data
                 this.targetDevice = fromDevice
-                data = JSON.parse(u8aToString(message)).data
             } catch (error) {
                 console.log(error);
             }
@@ -158,6 +160,13 @@ export class BlinkerDevice {
     }
 
     processData(data, fromDevice = this.targetDevice) {
+        if (typeof data == 'string' || typeof data=='number'){
+            this.dataRead.next({
+                fromDevice: fromDevice,
+                data: data
+            })
+            return
+        }
         if (typeof data['get'] != 'undefined') {
             if (data['get'] == 'state') {
                 this.heartbeat.next(data);
