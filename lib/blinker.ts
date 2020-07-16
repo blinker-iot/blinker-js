@@ -603,6 +603,7 @@ function isNumber(val: string) {
 
 // 辅助调试
 function log(msg, { title = 'TITLE', color = 'white' } = {}) {
+    if (typeof msg == 'object') msg = JSON.stringify(msg)
     const COLOR_CODE = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'].indexOf(color)
     if (COLOR_CODE >= 0) {
         const TITLE_STR = title ? `\x1b[4${COLOR_CODE};30m ${title} \x1b[0m ` : ''
