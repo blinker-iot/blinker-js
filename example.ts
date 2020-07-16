@@ -2,8 +2,7 @@ import { BlinkerDevice } from './lib/blinker';
 import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget } from './lib/widget';
 // import { CONFIG } from './config';
 
-let device = new BlinkerDevice('c8df42c8acbc');
-// let device = new BlinkerDevice('您申请到的authkey');
+let device = new BlinkerDevice('您申请到的authkey');
 
 // 注册组件
 let button1: ButtonWidget = device.addWidget(new ButtonWidget('btn-crf'));
@@ -63,14 +62,14 @@ joystick1.listen().subscribe(message => {
     console.log('y:', message.data[1]);
 })
 
-// setInterval(() => {
-//     device.saveTsData({
-//         humi: randomNumber(),
-//         temp: randomNumber(),
-//         pm25: randomNumber(),
-//         pm10: randomNumber()
-//     });
-// }, 5000)
+setInterval(() => {
+    device.saveTsData({
+        humi: randomNumber(),
+        temp: randomNumber(),
+        pm25: randomNumber(),
+        pm10: randomNumber()
+    });
+}, 5000)
 
 // setTimeout(() => {
 //     device.saveTextData('text');

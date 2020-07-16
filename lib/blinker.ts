@@ -96,8 +96,18 @@ export class BlinkerDevice {
 
     initWs() {
         this.ws = new WebSocket.Server({ port: 81 });
-        this.ws.on('message', function incoming(data) {
-            warn(data)
+        this.ws.on('message', (message) => {
+            tip(message);
+            let data;
+            let fromDevice;
+            try {
+                fromDevice = JSON.parse(message).fromDevice
+                this.targetDevice = fromDevice
+                data = JSON.parse(message).data
+            } catch (error) {
+                console.log(error);
+            }
+            this.processData(data, fromDevice)
         });
     }
 
