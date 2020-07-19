@@ -2,7 +2,7 @@ import { BlinkerDevice } from './lib/blinker';
 import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget } from './lib/widget';
 // import { CONFIG } from './config';
 
-let device = new BlinkerDevice('您申请到的authkey');
+let device = new BlinkerDevice(/*您申请到的authkey*/);
 
 // 注册组件
 let button1: ButtonWidget = device.addWidget(new ButtonWidget('btn-crf'));

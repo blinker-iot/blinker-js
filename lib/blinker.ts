@@ -52,12 +52,15 @@ export class BlinkerDevice {
     private tempData;
     private tempDataPath;
 
-    constructor(authkey, options = {
+    constructor(authkey = '', options = {
         host: 'https://iot.diandeng.tech',
-        protocol: "mqtts"
+        protocol: 'mqtts'
     }) {
         this.serverUrl = options.host + '/api/v1/user/device/diy/auth?authKey=';
         this.protocol = options.protocol
+        if (authkey == '') {
+            authkey = loadJsonFile('auth.json').authkey
+        }
         this.init(authkey)
     }
 
@@ -87,7 +90,7 @@ export class BlinkerDevice {
                 host: this.config.deviceName + '.local',
                 port: 81
             })
-            // 加载暂存数据  
+            // // 加载暂存数据  
             this.tempDataPath = `.${this.config.deviceName}.json`
             this.tempData = loadJsonFile(this.tempDataPath)
             this.loadTimingTask()
@@ -139,8 +142,8 @@ export class BlinkerDevice {
             let data;
             let fromDevice;
             try {
-                let messageString=u8aToString(message)
-                let messageObject=JSON.parse(messageString)
+                let messageString = u8aToString(message)
+                let messageObject = JSON.parse(messageString)
                 fromDevice = messageObject.fromDevice
                 data = messageObject.data
                 this.targetDevice = fromDevice
@@ -160,7 +163,7 @@ export class BlinkerDevice {
     }
 
     processData(data, fromDevice = this.targetDevice) {
-        if (typeof data == 'string' || typeof data=='number'){
+        if (typeof data == 'string' || typeof data == 'number') {
             this.dataRead.next({
                 fromDevice: fromDevice,
                 data: data
