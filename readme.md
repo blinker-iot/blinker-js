@@ -1,4 +1,5 @@
-# blinker-nodejs
+# blinker-nodejs  
+[文档](https://diandeng.tech/doc/javascript-support)  
 
 ## 环境/依赖安装  
 ```
