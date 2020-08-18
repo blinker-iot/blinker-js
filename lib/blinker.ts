@@ -6,6 +6,7 @@ import bonjour from 'bonjour';
 import * as WebSocket from 'ws';
 import * as schedule from 'node-schedule';
 import * as pauseable from 'pauseable';
+import getMAC from 'getmac'
 
 export interface Message {
     fromDevice?: string,
@@ -82,14 +83,7 @@ export class BlinkerDevice {
             }
             this.connectBroker()
             this.addWidget(this.builtinSwitch)
-
-            // 开启mdns服务
-            bonjour().publish({
-                name: this.config.deviceName,
-                type: 'blinker',
-                host: this.config.deviceName + '.local',
-                port: 81
-            })
+            this.initLocal()
             // // 加载暂存数据  
             this.tempDataPath = `.${this.config.deviceName}.json`
             this.tempData = loadJsonFile(this.tempDataPath)
@@ -97,7 +91,14 @@ export class BlinkerDevice {
         })
     }
 
-    initWs() {
+    initLocal() {
+        // 开启mdns服务
+        bonjour().publish({
+            name: this.config.deviceName,
+            type: 'blinker',
+            host: this.config.deviceName + '.local',
+            port: 81
+        })
         this.ws = new WebSocket.Server({ port: 81 });
         this.ws.on('message', (message) => {
             tip(message);
