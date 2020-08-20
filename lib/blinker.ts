@@ -54,7 +54,7 @@ export class BlinkerDevice {
     private tempDataPath;
 
     constructor(authkey = '', options = {
-        host: 'https://iot.diandeng.tech',
+        host: SERVER.HOST,
         protocol: 'mqtts'
     }) {
         this.serverUrl = options.host + '/api/v1/user/device/diy/auth?authKey=';
@@ -83,15 +83,16 @@ export class BlinkerDevice {
             }
             this.connectBroker()
             this.addWidget(this.builtinSwitch)
-            this.initLocal()
-            // // 加载暂存数据  
+            this.initLocalService()
+            // 加载暂存数据  
             this.tempDataPath = `.${this.config.deviceName}.json`
             this.tempData = loadJsonFile(this.tempDataPath)
             this.loadTimingTask()
         })
     }
 
-    initLocal() {
+    // 本地服务：MDNS\WS SERVER
+    initLocalService() {
         // 开启mdns服务
         bonjour().publish({
             name: this.config.deviceName,
@@ -137,6 +138,7 @@ export class BlinkerDevice {
         this.mqttClient.on('connect', () => {
             mqttLog('blinker connected');
             this.mqttClient.subscribe(this.subtopic);
+            this.startHeartbeat2cloud();
         })
 
         this.mqttClient.on('message', (topic, message) => {
@@ -156,11 +158,24 @@ export class BlinkerDevice {
 
         this.mqttClient.on('close', (err) => {
             mqttLog('blinker close');
+            this.stopHeartbeat2cloud()
         })
 
         this.mqttClient.on('error', (err) => {
             mqttLog(err);
         })
+    }
+
+    // 云端心跳
+    timer_heartbeat2cloud;
+    startHeartbeat2cloud() {
+        this.timer_heartbeat2cloud = setInterval(() => {
+            axios.get(SERVER.HOST + `/api/v1/user/device/heartbeat?deviceName=${this.config.host}&key=${this.config.authKey}&heartbeat=600`)
+        }, 599000)
+    }
+
+    stopHeartbeat2cloud() {
+        clearInterval(this.timer_heartbeat2cloud)
     }
 
     processData(data, fromDevice = this.targetDevice) {
@@ -650,6 +665,8 @@ function mqttLog(msg) {
 
 
 import * as fs from 'fs';
+import { SERVER } from './server.config';
+import { clearInterval } from 'timers';
 
 function loadJsonFile(path) {
     if (fs.existsSync(path))
