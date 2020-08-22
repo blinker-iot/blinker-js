@@ -171,8 +171,9 @@ export class BlinkerDevice {
     // 云端心跳
     timer_heartbeat2cloud;
     startHeartbeat2cloud() {
+        axios.get(SERVER.HOST + `/api/v1/user/device/heartbeat?deviceName=${this.config.deviceName}&key=${this.config.authKey}&heartbeat=600`)
         this.timer_heartbeat2cloud = setInterval(() => {
-            axios.get(SERVER.HOST + `/api/v1/user/device/heartbeat?deviceName=${this.config.host}&key=${this.config.authKey}&heartbeat=600`)
+            axios.get(SERVER.HOST + `/api/v1/user/device/heartbeat?deviceName=${this.config.deviceName}&key=${this.config.authKey}&heartbeat=600`)
         }, 599000)
     }
 
