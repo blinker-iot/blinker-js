@@ -60,7 +60,7 @@ export class BlinkerDevice {
         this.serverUrl = options.host + '/api/v1/user/device/diy/auth?authKey=';
         this.protocol = options.protocol
         if (authkey == '') {
-            authkey = loadJsonFile('auth.json').authkey
+            authkey = loadJsonFile('.auth.json').authkey
         }
         this.init(authkey)
     }
@@ -112,6 +112,7 @@ export class BlinkerDevice {
             } catch (error) {
                 console.log(error);
             }
+            console.log("ws message:");
             this.processData(data, fromDevice)
         });
     }
@@ -153,6 +154,7 @@ export class BlinkerDevice {
             } catch (error) {
                 console.log(error);
             }
+            console.log("mqtt message:");
             this.processData(data, fromDevice)
         })
 
@@ -169,8 +171,9 @@ export class BlinkerDevice {
     // 云端心跳
     timer_heartbeat2cloud;
     startHeartbeat2cloud() {
+        axios.get(SERVER.HOST + `/api/v1/user/device/heartbeat?deviceName=${this.config.deviceName}&key=${this.config.authKey}&heartbeat=600`)
         this.timer_heartbeat2cloud = setInterval(() => {
-            axios.get(SERVER.HOST + `/api/v1/user/device/heartbeat?deviceName=${this.config.host}&key=${this.config.authKey}&heartbeat=600`)
+            axios.get(SERVER.HOST + `/api/v1/user/device/heartbeat?deviceName=${this.config.deviceName}&key=${this.config.authKey}&heartbeat=600`)
         }, 599000)
     }
 
