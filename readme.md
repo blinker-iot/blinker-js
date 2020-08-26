@@ -41,6 +41,8 @@ Layouter组件
 App推送  
 
 ## 即将支持  
+APCONFIG(AP配网)  
+QRCONFIG(扫码配置)  
 语音助手  
 专属设备  
 局域网ws通信  
@@ -69,3 +71,9 @@ config.json:
     "device":""
 }
 ```
+
+
+## 使用到的相关项目  
+[axios]()  
+[qrcode-terminal]()  
+[create ap](https://github.com/oblique/create_ap)  
