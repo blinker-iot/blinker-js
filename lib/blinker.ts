@@ -20,6 +20,7 @@ export class BlinkerDevice {
 
     mqttClient: mqtt.MqttClient;
 
+    wsServer;
     ws;
 
     config: {
@@ -99,22 +100,26 @@ export class BlinkerDevice {
             type: 'blinker',
             host: this.config.deviceName + '.local',
             port: 81
+        })        
+        this.wsServer = new WebSocket.Server({ port: 81 });
+        this.wsServer.on('connection',ws=>{
+            tip('local connection');
+            ws.send(`{"state":"connected"}`)
+            this.ws=ws
+            this.ws.on('message', (message) => {
+                let data;
+                let fromDevice;
+                try {
+                    data = JSON.parse(message)
+                } catch (error) {
+                    console.log(error);
+                }
+                this.processData(data, fromDevice)
+            });
         })
-        this.ws = new WebSocket.Server({ port: 81 });
-        this.ws.on('message', (message) => {
-            tip(message);
-            let data;
-            let fromDevice;
-            try {
-                fromDevice = JSON.parse(message).fromDevice
-                this.targetDevice = fromDevice
-                data = JSON.parse(message).data
-            } catch (error) {
-                console.log(error);
-            }
-            console.log("ws message:");
-            this.processData(data, fromDevice)
-        });
+        this.wsServer.on('close',()=>{
+            console.log('ws client disconnect');
+        })
     }
 
     initBroker_Aliyun() {
