@@ -51,6 +51,8 @@ export class BlinkerDevice {
     widgetKeyList = []
     widgetDict = {}
 
+    sharedUserList = []
+
     private tempData;
     private tempDataPath;
 
@@ -68,7 +70,7 @@ export class BlinkerDevice {
 
     init(authkey) {
         axios.get(this.serverUrl + authkey + '&protocol=' + this.protocol).then(resp => {
-            // console.log(resp.data);
+            console.log(resp.data);
             if (resp.data.message != 1000) {
                 error(resp.data);
                 return
@@ -84,6 +86,7 @@ export class BlinkerDevice {
             }
             this.connectBroker()
             this.addWidget(this.builtinSwitch)
+            this.getShareInfo()
             this.initLocalService()
             // 加载暂存数据  
             this.tempDataPath = `.${this.config.deviceName}.json`
@@ -100,12 +103,12 @@ export class BlinkerDevice {
             type: 'blinker',
             host: this.config.deviceName + '.local',
             port: 81
-        })        
+        })
         this.wsServer = new WebSocket.Server({ port: 81 });
-        this.wsServer.on('connection',ws=>{
+        this.wsServer.on('connection', ws => {
             tip('local connection');
             ws.send(`{"state":"connected"}`)
-            this.ws=ws
+            this.ws = ws
             this.ws.on('message', (message) => {
                 let data;
                 let fromDevice;
@@ -117,8 +120,18 @@ export class BlinkerDevice {
                 this.processData(data, fromDevice)
             });
         })
-        this.wsServer.on('close',()=>{
+        this.wsServer.on('close', () => {
             console.log('ws client disconnect');
+        })
+    }
+
+    getShareInfo() {
+        axios.get(API.SHARE + `?deviceName=${this.config.deviceName}&key=${this.config.authKey}`).then(resp => {
+            if (resp.data.message != 1000) {
+                error(resp.data);
+                return
+            }
+            this.sharedUserList = resp.data.detail.users
         })
     }
 
@@ -159,7 +172,8 @@ export class BlinkerDevice {
             } catch (error) {
                 console.log(error);
             }
-            console.log("mqtt message:");
+            // 检查
+            if (this.sharedUserList.indexOf(fromDevice) < 0 && fromDevice != this.config.uuid) return
             this.processData(data, fromDevice)
         })
 
@@ -673,7 +687,7 @@ function mqttLog(msg) {
 
 
 import * as fs from 'fs';
-import { SERVER } from './server.config';
+import { API, SERVER } from './server.config';
 import { clearInterval } from 'timers';
 
 function loadJsonFile(path) {
