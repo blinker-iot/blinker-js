@@ -1,4 +1,6 @@
 # blinker-nodejs  
+
+## 支持文档  
 [文档](https://diandeng.tech/doc/javascript-support)  
 
 ## 环境/依赖安装  
@@ -47,8 +49,8 @@ APCONFIG(AP配网)
 QRCONFIG(扫码配置)  
 语音助手  
 专属设备  
-更多组件支持  
 自动化  
+更多组件支持  
 
 
 # blinker-cli(开发中)  
@@ -58,6 +60,7 @@ blinker start --type {deviceType} --key {deviceType}
 blinker restart
 
 blinker stop
+
 
 ## blinker start  
 
@@ -74,6 +77,6 @@ config.json:
 
 
 ## 使用到的相关项目  
-[axios]()  
-[qrcode-terminal]()  
+[axios](https://github.com/axios/axios)  
+[qrcode-terminal](https://github.com/gtanner/qrcode-terminal)  
 [create ap](https://github.com/oblique/create_ap)  
