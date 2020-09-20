@@ -33,15 +33,15 @@ JoystickWidget
 ## 已支持  
 基本MQTT通信  
 Layouter组件  
-时序数据存储(仅限blinker broker)    
-文本数据存储(仅限blinker broker)    
-对象数据存储(仅限blinker broker)  
+时序数据存储 (仅限blinker broker)    
+文本数据存储 (仅限blinker broker)    
+对象数据存储 (仅限blinker broker)  
 倒计时  
 定时  
 短信通知  
 微信通知  
 App推送  
-局域网ws通信  
+局域网ws通信 (仅限Linux设备)  
 设备分享  
 
 ## 即将支持  
