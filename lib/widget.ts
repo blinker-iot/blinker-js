@@ -225,9 +225,13 @@ export class ChartWidget extends Widget {
         super(key)
     }
 
-    push(data: { key: string, velue: number, date: Date }) {
+    push(data: chartData) {
         this.state['data'] = data
         this.update()
     }
 
+}
+
+interface chartData {
+    key: string, value: number, date: Date
 }

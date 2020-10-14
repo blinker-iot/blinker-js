@@ -86,7 +86,7 @@ setTimeout(() => {
 setInterval(() => {
     chart1.push({
         key:'humi',
-        value:20,
+        value:randomNumber(),
         date:new Date()
     });
 }, 5000)
