@@ -1,5 +1,5 @@
 import { BlinkerDevice } from './lib/blinker';
-import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget } from './lib/widget';
+import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget } from './lib/widget';
 // import { CONFIG } from './config';
 
 let device = new BlinkerDevice(/*您申请到的authkey*/);
@@ -12,6 +12,7 @@ let range1: RangeWidget = device.addWidget(new RangeWidget('ran-i89'));
 let number1: NumberWidget = device.addWidget(new NumberWidget('num-lnw'));
 let colorPicker1: RGBWidget = device.addWidget(new RGBWidget('col-a9t'));
 let joystick1: JoystickWidget = device.addWidget(new JoystickWidget('joy-d32'));
+let chart1: ChartWidget = device.addWidget(new ChartWidget('crt-001'));
 
 device.dataRead.subscribe(message => {
     console.log('otherData:', message);
@@ -62,6 +63,7 @@ joystick1.listen().subscribe(message => {
     console.log('y:', message.data[1]);
 })
 
+// 存储时序数据
 setInterval(() => {
     device.saveTsData({
         humi: randomNumber(),
@@ -71,13 +73,23 @@ setInterval(() => {
     });
 }, 5000)
 
-// setTimeout(() => {
-//     device.saveTextData('text');
-//     device.saveObjectData({
-//         config: 111,
-//         test: 'text'
-//     });
-// }, 60000);
+// 存储文本数据、对象数据
+setTimeout(() => {
+    device.saveTextData('text');
+    device.saveObjectData({
+        config: 111,
+        test: 'text'
+    });
+}, 60000);
+
+// 实时图表数据
+setInterval(() => {
+    chart1.push({
+        key:'humi',
+        value:20,
+        date:new Date()
+    });
+}, 5000)
 
 // 空气、天气、天气预报 获取
 setTimeout(async () => {

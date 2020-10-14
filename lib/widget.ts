@@ -218,3 +218,16 @@ export class VideoWidget extends Widget {
         return this
     }
 }
+
+export class ChartWidget extends Widget {
+
+    constructor(key) {
+        super(key)
+    }
+
+    push(data: { key: string, velue: number, date: Date }) {
+        this.state['data'] = data
+        this.update()
+    }
+
+}
