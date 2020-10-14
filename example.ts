@@ -85,9 +85,14 @@ setTimeout(() => {
 // 实时图表数据
 setInterval(() => {
     chart1.push({
-        key:'humi',
-        value:randomNumber(),
-        date:new Date()
+        'temp': [{
+            value: randomNumber(),
+            date: new Date()
+        }],
+        'humi': [{
+            value: randomNumber(),
+            date: new Date()
+        }]
     });
 }, 5000)
 
