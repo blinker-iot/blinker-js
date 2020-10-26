@@ -167,14 +167,14 @@ export class BlinkerDevice {
                 let messageString = u8aToString(message)
                 let messageObject = JSON.parse(messageString)
                 fromDevice = messageObject.fromDevice
+                // 检查权限  
+                if (this.sharedUserList.indexOf(fromDevice) < 0 && fromDevice != this.config.uuid) return
                 data = messageObject.data
                 this.targetDevice = fromDevice
+                this.processData(data, fromDevice)
             } catch (error) {
                 console.log(error);
             }
-            // 检查
-            if (this.sharedUserList.indexOf(fromDevice) < 0 && fromDevice != this.config.uuid) return
-            this.processData(data, fromDevice)
         })
 
         this.mqttClient.on('close', (err) => {

@@ -11,12 +11,12 @@ export class Widget {
     state = {};
 
     change = new Subject<Message>();
-    private change2 = new Subject<Message>();
+    change2 = new Subject<Message>();
     changeSubscription;
     listen() {
         this.changeSubscription = this.change.subscribe(message => {
             // console.log(message);
-            this.device.targetDevice = message.fromDevice
+            // this.device.targetDevice = message.fromDevice
             this.change2.next(message)
         })
         return this.change2
@@ -228,6 +228,19 @@ export class ChartWidget extends Widget {
     push(data: any) {
         this.state['data'] = data
         this.update()
+    }
+
+    listen() {
+        this.changeSubscription = this.change.subscribe(message => {
+            if (typeof message.data.get != 'undefined') {
+                for (const key in message.data.get) {
+                    let request = message.data.get[key]
+                }
+                this.change2.next(message)
+            }
+
+        })
+        return this.change2
     }
 
 }

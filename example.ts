@@ -83,6 +83,12 @@ setTimeout(() => {
 }, 60000);
 
 // 实时图表数据
+chart1.listen().subscribe(message => {
+    console.log('chart1:', message.data); // {get:{key1:{freq:5 , times:5},key2:{freq:3 , times:5}}}
+    if (typeof message.data.get != 'undefined') {
+
+    }
+})
 setInterval(() => {
     chart1.push({
         'temp': [{
