@@ -92,7 +92,12 @@ export class BlinkerDevice {
             this.tempDataPath = `.${this.config.deviceName}.json`
             this.tempData = loadJsonFile(this.tempDataPath)
             this.loadTimingTask()
+            return
         })
+    }
+
+    async ready(){
+
     }
 
     // 本地服务：MDNS\WS SERVER

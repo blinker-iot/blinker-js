@@ -1,5 +1,5 @@
 import { BlinkerDevice } from './lib/blinker';
-import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget } from './lib/widget';
+import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget } from './lib/widget';
 // import { CONFIG } from './config';
 
 let device = new BlinkerDevice(/*您申请到的authkey*/);
@@ -12,6 +12,7 @@ let range1: RangeWidget = device.addWidget(new RangeWidget('ran-i89'));
 let number1: NumberWidget = device.addWidget(new NumberWidget('num-lnw'));
 let colorPicker1: RGBWidget = device.addWidget(new RGBWidget('col-a9t'));
 let joystick1: JoystickWidget = device.addWidget(new JoystickWidget('joy-d32'));
+let chart1: ChartWidget = device.addWidget(new JoystickWidget('cha-t12'));
 
 device.dataRead.subscribe(message => {
     console.log('otherData:', message);
@@ -25,7 +26,7 @@ device.heartbeat.subscribe(message => {
     button2.color(randomColor()).update();
     button1.color(randomColor()).update();
     colorPicker1.color(randomColor()).brightness(randomNumber(0, 255)).update()
-    device.vibrate();
+    //device.vibrate();
 })
 
 device.builtinSwitch.change.subscribe(message => {
@@ -35,6 +36,7 @@ device.builtinSwitch.change.subscribe(message => {
 
 button1.listen().subscribe(message => {
     console.log('button1:', message.data);
+    device.push('NUC设备测试');
     button1.turn(turnSwitch()).update();
     text1.text('button1的动作').text1(message.data).update();
 })
@@ -62,6 +64,11 @@ joystick1.listen().subscribe(message => {
     console.log('y:', message.data[1]);
 })
 
+
+chart1.listen().subscribe(message => {
+    console.log('chart:', message.data);
+})
+
 setInterval(() => {
     device.saveTsData({
         humi: randomNumber(),
@@ -71,20 +78,30 @@ setInterval(() => {
     });
 }, 5000)
 
-// setTimeout(() => {
-//     device.saveTextData('text');
-//     device.saveObjectData({
-//         config: 111,
-//         test: 'text'
-//     });
-// }, 60000);
+setTimeout(() => {
+    device.saveTextData('text');
+    device.saveObjectData({
+        config: 111,
+        test: 'text'
+    });
+}, 60000);
 
 // 空气、天气、天气预报 获取
 setTimeout(async () => {
-    console.log(await device.getAir('sichuan-chengdushi'));
-    console.log(await device.getWeather('sichuan-chengdushi'));
-    console.log(await device.getWeatherForecast('sichuan-chengdushi'));
+    console.log(await device.getAir('chongqingshi'));
+    console.log(await device.getWeather('chongqingshi'));
+    console.log(await device.getWeatherForecast('chongqingshi'));
 }, 10000);
+
+setTimeout(() => {
+    device.wechat('设备测试','启动',new Date().toString())
+    device.push('设备测试：启动')
+    setInterval(() => {
+        device.wechat('设备测试','正常运行',new Date().toString())
+        device.push('设备测试：正常运行')
+    }, 86400000)
+}, 10000);
+
 
 
 /*
