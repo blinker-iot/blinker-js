@@ -88,6 +88,8 @@ setTimeout(() => {
 
 // 空气、天气、天气预报 获取
 setTimeout(async () => {
+    console.log("获取天气数据：");
+    
     console.log(await device.getAir('chongqingshi'));
     console.log(await device.getWeather('chongqingshi'));
     console.log(await device.getWeatherForecast('chongqingshi'));

@@ -94,6 +94,7 @@ export class BlinkerDevice {
             this.loadTimingTask()
             return
         })
+
     }
 
     async ready(){
@@ -107,9 +108,9 @@ export class BlinkerDevice {
             name: this.config.deviceName,
             type: 'blinker',
             host: this.config.deviceName + '.local',
-            port: 81
+            port: 8801
         })
-        this.wsServer = new WebSocket.Server({ port: 81 });
+        this.wsServer = new WebSocket.Server({ port: 8801 });
         this.wsServer.on('connection', ws => {
             tip('local connection');
             ws.send(`{"state":"connected"}`)
@@ -658,6 +659,8 @@ function isNumber(val: string) {
 
 // 辅助调试
 function log(msg, { title = 'TITLE', color = 'white' } = {}) {
+    // console.log(msg);
+    
     if (typeof msg == 'object') msg = JSON.stringify(msg)
     const COLOR_CODE = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'].indexOf(color)
     if (COLOR_CODE >= 0) {
