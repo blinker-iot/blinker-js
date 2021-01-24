@@ -97,7 +97,7 @@ export class BlinkerDevice {
 
     }
 
-    async ready(){
+    async ready() {
 
     }
 
@@ -409,7 +409,7 @@ export class BlinkerDevice {
     }
 
     wechat(title: string, state: string, text: string) {
-        axios.post('https://iot.diandeng.tech/api/v1/user/device/wxMsg/', {
+        axios.post(SERVER.HOST + '/api/v1/user/device/wxMsg/', {
             'deviceName': this.config.deviceName,
             'key': this.config.authKey,
             'title': title,
@@ -422,7 +422,7 @@ export class BlinkerDevice {
     }
 
     push(text: string) {
-        axios.post('https://iot.diandeng.tech/api/v1/user/device/push', {
+        axios.post(SERVER.HOST + '/api/v1/user/device/push', {
             'deviceName': this.config.deviceName,
             'key': this.config.authKey,
             'msg': text
@@ -567,23 +567,32 @@ export class BlinkerDevice {
 
     // 气象数据获取  
     getWeather(cityKey) {
-        return axios.get(`https://iot.diandeng.tech/api/v2/weather/${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
+        return axios.get(SERVER.HOST + `/api/v2/weather/${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
             return resp.data
         })
     }
 
     getWeatherForecast(cityKey) {
-        return axios.get(`https://iot.diandeng.tech/api/v2/forecast/${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
+        return axios.get(SERVER.HOST + `/api/v2/forecast/${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
             return resp.data
         })
     }
 
     getAir(cityKey) {
-        return axios.get(`https://iot.diandeng.tech/api/v2/air/${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
+        return axios.get(SERVER.HOST + `/api/v2/air/${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
             return resp.data
         })
     }
 
+    log(logString) {
+        return axios.post(SERVER.HOST + `/api/v1/user/device/cloud_storage/logs`, {
+            token: this.config.authKey,
+            data: [[(new Date()).toString(), logString]]
+        }).then((resp: any) => {
+            console.log(resp.data);
+            return resp.data
+        })
+    }
 }
 
 // 内置开关
@@ -660,7 +669,7 @@ function isNumber(val: string) {
 // 辅助调试
 function log(msg, { title = 'TITLE', color = 'white' } = {}) {
     // console.log(msg);
-    
+
     if (typeof msg == 'object') msg = JSON.stringify(msg)
     const COLOR_CODE = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'].indexOf(color)
     if (COLOR_CODE >= 0) {

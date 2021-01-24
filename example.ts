@@ -89,17 +89,17 @@ setTimeout(() => {
 // 空气、天气、天气预报 获取
 setTimeout(async () => {
     console.log("获取天气数据：");
-    
+
     console.log(await device.getAir('chongqingshi'));
     console.log(await device.getWeather('chongqingshi'));
     console.log(await device.getWeatherForecast('chongqingshi'));
 }, 10000);
 
 setTimeout(() => {
-    device.wechat('设备测试','启动',new Date().toString())
+    device.wechat('设备测试', '启动', new Date().toString())
     device.push('设备测试：启动')
     setInterval(() => {
-        device.wechat('设备测试','正常运行',new Date().toString())
+        device.wechat('设备测试', '正常运行', new Date().toString())
         device.push('设备测试：正常运行')
     }, 86400000)
 }, 10000);
@@ -131,5 +131,6 @@ function getSwitchState() {
 let switchState = false
 function turnSwitch() {
     switchState = !switchState
+    device.log("切换设备状态为" + (switchState ? 'on' : 'off'))
     return switchState ? 'on' : 'off'
 }
