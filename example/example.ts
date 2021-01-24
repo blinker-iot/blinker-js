@@ -1,6 +1,5 @@
-import { BlinkerDevice } from './lib/blinker';
-import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget } from './lib/widget';
-// import { CONFIG } from './config';
+import { BlinkerDevice } from '../lib/blinker';
+import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget } from '../lib/widget';
 
 let device = new BlinkerDevice(/*您申请到的authkey*/);
 

@@ -19,7 +19,7 @@ let device = new BlinkerDevice('xxxxxxxxxxxx');
 ```
 运行示例程序：  
 ```
-ts-node example.ts
+ts-node .\example\example.ts
 ```
 
 ## 组件支持  

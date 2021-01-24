@@ -196,9 +196,9 @@ export class BlinkerDevice {
     // 云端心跳
     timer_heartbeat2cloud;
     startHeartbeat2cloud() {
-        axios.get(SERVER.HOST + `/api/v1/user/device/heartbeat?deviceName=${this.config.deviceName}&key=${this.config.authKey}&heartbeat=600`)
+        axios.get(API.HEARTBEAT + `?deviceName=${this.config.deviceName}&key=${this.config.authKey}&heartbeat=600`)
         this.timer_heartbeat2cloud = setInterval(() => {
-            axios.get(SERVER.HOST + `/api/v1/user/device/heartbeat?deviceName=${this.config.deviceName}&key=${this.config.authKey}&heartbeat=600`)
+            axios.get(API.HEARTBEAT + `?deviceName=${this.config.deviceName}&key=${this.config.authKey}&heartbeat=600`)
         }, 599000)
     }
 
@@ -398,7 +398,7 @@ export class BlinkerDevice {
         setTimeout(() => {
             this.sendSmsTimeout = true
         }, 60000);
-        axios.post('https://iot.diandeng.tech/api/v1/user/device/sms', {
+        axios.post(API.SMS, {
             'deviceName': this.config.deviceName,
             'key': this.config.authKey,
             'msg': text
@@ -409,7 +409,7 @@ export class BlinkerDevice {
     }
 
     wechat(title: string, state: string, text: string) {
-        axios.post(SERVER.HOST + '/api/v1/user/device/wxMsg/', {
+        axios.post(API.WECHAT, {
             'deviceName': this.config.deviceName,
             'key': this.config.authKey,
             'title': title,
@@ -422,7 +422,7 @@ export class BlinkerDevice {
     }
 
     push(text: string) {
-        axios.post(SERVER.HOST + '/api/v1/user/device/push', {
+        axios.post(API.PUSH, {
             'deviceName': this.config.deviceName,
             'key': this.config.authKey,
             'msg': text
@@ -567,29 +567,29 @@ export class BlinkerDevice {
 
     // 气象数据获取  
     getWeather(cityKey) {
-        return axios.get(SERVER.HOST + `/api/v2/weather/${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
+        return axios.get(API.WEATHER + `${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
             return resp.data
         })
     }
 
     getWeatherForecast(cityKey) {
-        return axios.get(SERVER.HOST + `/api/v2/forecast/${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
+        return axios.get(API.WEATHER_FORECAST + `${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
             return resp.data
         })
     }
 
     getAir(cityKey) {
-        return axios.get(SERVER.HOST + `/api/v2/air/${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
+        return axios.get(API.AIR + `${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
             return resp.data
         })
     }
 
     log(logString) {
-        return axios.post(SERVER.HOST + `/api/v1/user/device/cloud_storage/logs`, {
-            token: this.config.authKey,
-            data: [[(new Date()).toString(), logString]]
+        return axios.post(API.LOG, {
+            token: this.config.iotToken,
+            data: [[(new Date()).getTime().toString().substr(0, 10), logString]]
         }).then((resp: any) => {
-            console.log(resp.data);
+            console.log(resp);
             return resp.data
         })
     }
