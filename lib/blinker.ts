@@ -108,9 +108,9 @@ export class BlinkerDevice {
             name: this.config.deviceName,
             type: 'blinker',
             host: this.config.deviceName + '.local',
-            port: 8801
+            port: 81
         })
-        this.wsServer = new WebSocket.Server({ port: 8801 });
+        this.wsServer = new WebSocket.Server({ port: 81 });
         this.wsServer.on('connection', ws => {
             tip('local connection');
             ws.send(`{"state":"connected"}`)
