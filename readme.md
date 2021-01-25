@@ -4,10 +4,11 @@
 [文档](https://diandeng.tech/doc/javascript-support)  
 
 ## 环境/依赖安装  
+最新nodejs LTS版本  
 ```
+npm i -g ts-node
 git clone https://github.com/blinker-iot/blinker-js.git
 cd blinker-js
-npm i -g ts-node
 npm i
 ```
 
