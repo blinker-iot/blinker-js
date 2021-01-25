@@ -12,7 +12,7 @@ let number1: NumberWidget = device.addWidget(new NumberWidget('num-lnw'));
 let colorPicker1: RGBWidget = device.addWidget(new RGBWidget('col-a9t'));
 let joystick1: JoystickWidget = device.addWidget(new JoystickWidget('joy-d32'));
 let chart1: ChartWidget = device.addWidget(new JoystickWidget('cha-t12'));
-let image1: ImageWidget = device.addWidget(new JoystickWidget('img-abc'));
+let image1: ImageWidget = device.addWidget(new ImageWidget('img-abc'));
 
 
 device.dataRead.subscribe(message => {
