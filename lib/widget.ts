@@ -26,7 +26,7 @@ export class Widget {
         this.changeSubscription.unsubscribe();
     }
 
-    update() {
+    update(value = '') {
         let message = {}
         message[this.key] = this.state
         this.device.sendMessage(message)
@@ -199,6 +199,18 @@ export class JoystickWidget extends Widget {
 
     constructor(key) {
         super(key)
+    }
+}
+
+export class ImageWidget extends Widget {
+
+    constructor(key) {
+        super(key)
+    }
+
+    show(img: number) {
+        this.state['img'] = img
+        return this
     }
 }
 

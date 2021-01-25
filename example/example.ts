@@ -1,5 +1,5 @@
 import { BlinkerDevice } from '../lib/blinker';
-import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget } from '../lib/widget';
+import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget, ImageWidget } from '../lib/widget';
 
 let device = new BlinkerDevice(/*您申请到的authkey*/);
 
@@ -12,6 +12,8 @@ let number1: NumberWidget = device.addWidget(new NumberWidget('num-lnw'));
 let colorPicker1: RGBWidget = device.addWidget(new RGBWidget('col-a9t'));
 let joystick1: JoystickWidget = device.addWidget(new JoystickWidget('joy-d32'));
 let chart1: ChartWidget = device.addWidget(new JoystickWidget('cha-t12'));
+let image1: ImageWidget = device.addWidget(new JoystickWidget('img-abc'));
+
 
 device.dataRead.subscribe(message => {
     console.log('otherData:', message);
@@ -36,8 +38,13 @@ device.builtinSwitch.change.subscribe(message => {
 button1.listen().subscribe(message => {
     console.log('button1:', message.data);
     device.push('NUC设备测试');
-    button1.turn(turnSwitch()).update();
+    let state = turnSwitch()
+    button1.turn(state).update();
     text1.text('button1的动作').text1(message.data).update();
+    if (state == 'on')
+        image1.show(1).update()
+    else
+        image1.show(0).update()
 })
 
 button2.listen().subscribe(message => {
