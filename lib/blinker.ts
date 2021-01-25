@@ -589,7 +589,8 @@ export class BlinkerDevice {
             token: this.config.iotToken,
             data: [[(new Date()).getTime().toString().substr(0, 10), logString]]
         }).then((resp: any) => {
-            console.log(resp);
+            if (resp.data.message == 1000)
+                tip('log2Cloud')
             return resp.data
         })
     }
