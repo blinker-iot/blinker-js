@@ -30,10 +30,12 @@ async function getInfo() {
     if (platform == 'linux') {
         let meminfo = fs.readFileSync('/proc/meminfo', 'utf8');
         let itemArray = meminfo.split('\n');
-        let memAvailable = itemArray[2].replace(/[^0-9]/g, "");
-        let memTotle = itemArray[0].replace(/[^0-9]/g, "");
-        addData('memAvailable', memAvailable);
+        let memAvailable = parseInt(itemArray[2].replace(/[^0-9]/g, ""));
+        let memTotle = parseInt(itemArray[0].replace(/[^0-9]/g, ""));
+        let memUsage=1-(memAvailable/memTotle);
+        addData('memAvailable',memAvailable);
         addData('memTotle', memTotle);
+        addData('memUsage', memUsage);
     } else {
         addData('memAvailable', osUtils.freemem());
         addData('memTotle', osUtils.totalmem());
