@@ -10,10 +10,13 @@ let platform = os.platform();
 
 let device = new BlinkerDevice(/*您申请到的authkey*/);
 
+let number1: NumberWidget = device.addWidget(new NumberWidget('cpu'));
+let number2: NumberWidget = device.addWidget(new NumberWidget('mem'));
+
 device.heartbeat.subscribe(message => {
     console.log('heartbeat:', message);
-    // device.builtinSwitch.setState(getSwitchState()).update();
-    device.sendMessage(state)
+    number1.value(state.cpuUsage*100).update();
+    number2.value(state.memUsage*100).update();
 })
 
 setInterval(async () => {
