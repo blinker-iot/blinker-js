@@ -108,7 +108,8 @@ export class BlinkerDevice {
             name: this.config.deviceName,
             type: 'blinker',
             host: this.config.deviceName + '.local',
-            port: 81
+            port: 81,
+            txt:{mac:getMAC().replace(/:/g,'').toUpperCase()}
         })
         this.wsServer = new WebSocket.Server({ port: 81 });
         this.wsServer.on('connection', ws => {

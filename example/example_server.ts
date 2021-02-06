@@ -17,6 +17,7 @@ device.heartbeat.subscribe(message => {
     console.log('heartbeat:', message);
     number1.value(state.cpuUsage*100).update();
     number2.value(state.memUsage*100).update();
+    device.builtinSwitch.setState('on').update();
 })
 
 setInterval(async () => {
