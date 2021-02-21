@@ -8,15 +8,28 @@ import * as schedule from 'node-schedule';
 import * as pauseable from 'pauseable';
 import getMAC from 'getmac'
 
+import { ALI_TYPE, DUER_TYPE, MI_TYPE } from './voice-assistant';
+
 export interface Message {
     fromDevice?: string,
     data: any
 }
 
+export interface authOption {
+    "authKey"?: string,
+    "aliType"?: ALI_TYPE,
+    "duerType"?: DUER_TYPE,
+    "miType"?: MI_TYPE,
+    "version"?: string,
+    "protocol"?: string,
+}
+
 export class BlinkerDevice {
 
-    serverUrl: string
-    protocol: string
+    options: authOption = {
+        version: '1.0',
+        protocol: 'mqtts'
+    };
 
     mqttClient: mqtt.MqttClient;
 
@@ -56,20 +69,20 @@ export class BlinkerDevice {
     private tempData;
     private tempDataPath;
 
-    constructor(authkey = '', options = {
-        host: SERVER.HOST,
-        protocol: 'mqtts'
-    }) {
-        this.serverUrl = options.host + '/api/v1/user/device/diy/auth?authKey=';
-        this.protocol = options.protocol
+    constructor(authkey = '', options?: authOption) {
         if (authkey == '') {
             authkey = loadJsonFile('.auth.json').authkey
         }
+        for (const key in options) {
+            this.options[key] = options[key]
+        }
+        this.options['authKey'] = authkey
         this.init(authkey)
     }
 
     init(authkey) {
-        axios.get(this.serverUrl + authkey + '&protocol=' + this.protocol).then(resp => {
+        axios.get(API.AUTH, { params: this.options }).then(resp => {
+            // + '?authKey=' + authkey + '&protocol=' + this.options.protocol).then(resp => {
             console.log(resp.data);
             if (resp.data.message != 1000) {
                 error(resp.data);
@@ -109,7 +122,7 @@ export class BlinkerDevice {
             type: 'blinker',
             host: this.config.deviceName + '.local',
             port: 81,
-            txt:{mac:getMAC().replace(/:/g,'').toUpperCase()}
+            txt: { mac: getMAC().replace(/:/g, '').toUpperCase() }
         })
         this.wsServer = new WebSocket.Server({ port: 81 });
         this.wsServer.on('connection', ws => {
@@ -170,8 +183,11 @@ export class BlinkerDevice {
         this.mqttClient.on('message', (topic, message) => {
             let data;
             let fromDevice;
+           
             try {
                 let messageString = u8aToString(message)
+                console.log(messageString);
+            
                 let messageObject = JSON.parse(messageString)
                 fromDevice = messageObject.fromDevice
                 data = messageObject.data

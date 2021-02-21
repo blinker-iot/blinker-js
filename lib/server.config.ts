@@ -3,6 +3,7 @@ export const SERVER = {
 }
 
 export const API = {
+    AUTH: SERVER.HOST + '/api/v1/user/device/diy/auth',
     HEARTBEAT: SERVER.HOST + '/api/v1/user/device/heartbeat',
     SMS: SERVER.HOST + '/api/v1/user/device/sms',
     WECHAT: SERVER.HOST + '/api/v1/user/device/wxMsg/',
