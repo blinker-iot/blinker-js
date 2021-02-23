@@ -155,9 +155,13 @@ export class BlinkerDevice {
         })
     }
 
+    exasubTopic;
+    exapubTopic;
     initBroker_Aliyun() {
         this.subtopic = `/${this.config.productKey}/${this.config.deviceName}/r`;
         this.pubtopic = `/${this.config.productKey}/${this.config.deviceName}/s`;
+        this.exasubTopic = `/sys/${this.config.productKey}/${this.config.deviceName}/rrpc/request/+`
+        this.exapubTopic = `/sys/${this.config.productKey}/${this.config.deviceName}/rrpc/response/`
         this.targetDevice = this.config.uuid;
     }
 
@@ -183,11 +187,12 @@ export class BlinkerDevice {
         this.mqttClient.on('message', (topic, message) => {
             let data;
             let fromDevice;
-           
+
             try {
                 let messageString = u8aToString(message)
+                console.log(topic);
                 console.log(messageString);
-            
+
                 let messageObject = JSON.parse(messageString)
                 fromDevice = messageObject.fromDevice
                 data = messageObject.data
@@ -399,6 +404,10 @@ export class BlinkerDevice {
         this.widgetKeyList.push(widget.key);
         this.widgetDict[widget.key] = widget;
         return widget
+    }
+
+    addVoiceAssistant(va: any) {
+
     }
 
     vibrate(time = 500) {

@@ -13,6 +13,13 @@ export const BLINKER_MIOT_OUTLET = 'outlet'
 export const BLINKER_MIOT_MULTI_OUTLET = 'multi_outlet'
 export const BLINKER_MIOT_SENSOR = 'sensor'
 
+export enum VA_TYPE {
+    LIGHT = 'light',
+    OUTLET = 'outlet',
+    MULTI_OUTLET = 'multi_outlet',
+    SENSOR = 'sensor'
+}
+
 export enum MI_TYPE {
     LIGHT = 'light',
     OUTLET = 'outlet',
@@ -32,4 +39,57 @@ export enum DUER_TYPE {
     OUTLET = 'SOCKET',
     MULTI_OUTLET = 'MULTI_SOCKET',
     SENSOR = 'AIR_MONITOR'
+}
+
+
+import { Subject } from "rxjs";
+import { BlinkerDevice, Message } from "./blinker";
+
+export class VoiceAssistant {
+
+    subTopic = '';
+    pubTopic = '';
+
+    vaType = ''
+
+    get message() {
+        return `{"fromDevice": "${this.device.deviceName}", "toDevice": "${this.vaType}_r", "data": ${} , "deviceType": "vAssistant"}`
+    }
+
+    constructor(key) {
+        this.key = key
+    }
+
+    listen() {
+        this.changeSubscription = this.change.subscribe(message => {
+            // console.log(message);
+            this.device.targetDevice = message.fromDevice
+            this.change2.next(message)
+        })
+        return this.change2
+    }
+
+    unlisten() {
+        this.changeSubscription.unsubscribe();
+    }
+
+    update(value = '') {
+        let message = {}
+        message[this.key] = this.state
+        this.device.sendMessage(message)
+    }
+    device: BlinkerDevice;
+}
+
+export class Miot extends VoiceAssistant {
+
+}
+
+export class AliGenie extends VoiceAssistant {
+
+}
+
+
+export class DuerOS extends VoiceAssistant {
+
 }

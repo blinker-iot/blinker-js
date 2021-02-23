@@ -1,10 +1,15 @@
 import { BlinkerDevice } from '../lib/blinker';
-import { MI_TYPE } from '../lib/voice-assistant';
+import { Miot, AliGenie, DuerOS, VA_TYPE } from '../lib/voice-assistant';
 import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget, ImageWidget } from '../lib/widget';
 
-let device = new BlinkerDevice('', {
+let device = new BlinkerDevice('45f9415c41ca', {
     miType: MI_TYPE.SENSOR
 });
+
+
+let miot = device.addVoiceAssistant(new Miot(VA_TYPE.LIGHT));
+let aliGenie = device.addVoiceAssistant(new AliGenie(VA_TYPE.SENSOR));
+let duerOS = device.addVoiceAssistant(new DuerOS(VA_TYPE.OUTLET));
 
 // 注册组件
 let button1: ButtonWidget = device.addWidget(new ButtonWidget('btn-crf'));
@@ -12,11 +17,6 @@ let button2: ButtonWidget = device.addWidget(new ButtonWidget('btn-b9g'));
 let text1: TextWidget = device.addWidget(new TextWidget('tex-pnd'));
 let range1: RangeWidget = device.addWidget(new RangeWidget('ran-i89'));
 let number1: NumberWidget = device.addWidget(new NumberWidget('num-lnw'));
-let colorPicker1: RGBWidget = device.addWidget(new RGBWidget('col-a9t'));
-let joystick1: JoystickWidget = device.addWidget(new JoystickWidget('joy-d32'));
-let chart1: ChartWidget = device.addWidget(new JoystickWidget('cha-t12'));
-let image1: ImageWidget = device.addWidget(new ImageWidget('img-abc'));
-
 
 device.dataRead.subscribe(message => {
     console.log('otherData:', message);
@@ -29,8 +29,7 @@ device.heartbeat.subscribe(message => {
     number1.value(randomNumber()).unit('米').text('长度').color(randomColor()).update();
     button2.color(randomColor()).update();
     button1.color(randomColor()).update();
-    colorPicker1.color(randomColor()).brightness(randomNumber(0, 255)).update()
-    //device.vibrate();
+
 })
 
 device.builtinSwitch.change.subscribe(message => {
@@ -44,10 +43,6 @@ button1.listen().subscribe(message => {
     let state = turnSwitch()
     button1.turn(state).update();
     text1.text('button1的动作').text1(message.data).update();
-    if (state == 'on')
-        image1.show(1).update()
-    else
-        image1.show(0).update()
 })
 
 button2.listen().subscribe(message => {
@@ -57,25 +52,6 @@ button2.listen().subscribe(message => {
 
 range1.listen().subscribe(message => {
     console.log('range:', message.data);
-})
-
-colorPicker1.listen().subscribe(message => {
-    console.log('color:', message.data);
-    console.log('red:', message.data[0]);
-    console.log('green:', message.data[1]);
-    console.log('blue:', message.data[2]);
-    console.log('brightness:', message.data[3]);
-})
-
-joystick1.listen().subscribe(message => {
-    console.log('joystick:', message.data);
-    console.log('x:', message.data[0]);
-    console.log('y:', message.data[1]);
-})
-
-
-chart1.listen().subscribe(message => {
-    console.log('chart:', message.data);
 })
 
 setTimeout(() => {
