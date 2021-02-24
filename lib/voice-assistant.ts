@@ -20,62 +20,42 @@ export enum VA_TYPE {
     SENSOR = 'sensor'
 }
 
-export enum MI_TYPE {
-    LIGHT = 'light',
-    OUTLET = 'outlet',
-    MULTI_OUTLET = 'multi_outlet',
-    SENSOR = 'sensor'
-}
-
-export enum ALI_TYPE {
-    LIGHT = 'light',
-    OUTLET = 'outlet',
-    MULTI_OUTLET = 'multi_outlet',
-    SENSOR = 'sensor'
-}
-
-export enum DUER_TYPE {
-    LIGHT = 'LIGHT',
-    OUTLET = 'SOCKET',
-    MULTI_OUTLET = 'MULTI_SOCKET',
-    SENSOR = 'AIR_MONITOR'
-}
-
-
 import { Subject } from "rxjs";
-import { BlinkerDevice, Message } from "./blinker";
+import { BlinkerDevice } from "./blinker";
+import { API } from './server.config'
+import axios from 'axios';
 
 export class VoiceAssistant {
 
     subTopic = '';
     pubTopic = '';
 
-    vaType = ''
+    vaType;
 
-    get message() {
-        return `{"fromDevice": "${this.device.deviceName}", "toDevice": "${this.vaType}_r", "data": ${} , "deviceType": "vAssistant"}`
-    }
+    // get message() {
+    //     return `{"fromDevice": "${this.device.deviceName}", "toDevice": "${this.vaType}_r", "data": ${} , "deviceType": "vAssistant"}`
+    // }
 
     constructor(key) {
-        this.key = key
+        this.vaType = key
     }
 
     listen() {
-        this.changeSubscription = this.change.subscribe(message => {
-            // console.log(message);
-            this.device.targetDevice = message.fromDevice
-            this.change2.next(message)
-        })
-        return this.change2
+        // this.changeSubscription = this.change.subscribe(message => {
+        //     // console.log(message);
+        //     this.device.targetDevice = message.fromDevice
+        //     this.change2.next(message)
+        // })
+        // return this.change2
     }
 
     unlisten() {
-        this.changeSubscription.unsubscribe();
+        // this.changeSubscription.unsubscribe();
     }
 
     update(value = '') {
         let message = {}
-        message[this.key] = this.state
+        // message[this.key] = this.state
         this.device.sendMessage(message)
     }
     device: BlinkerDevice;
@@ -83,13 +63,40 @@ export class VoiceAssistant {
 
 export class Miot extends VoiceAssistant {
 
+    constructor(key) {
+        super(key)
+        this.vaType = { miType: key }
+    }
 }
 
 export class AliGenie extends VoiceAssistant {
 
+    constructor(key) {
+        super(key)
+        this.vaType = { aliType: key }
+    }
 }
 
-
 export class DuerOS extends VoiceAssistant {
+
+    constructor(key) {
+        super(key)
+        let newkey;
+        switch (key) {
+            case VA_TYPE.LIGHT:
+                newkey = 'LIGHT'
+                break;
+            case VA_TYPE.OUTLET:
+                newkey = 'SOCKET'
+                break;
+            case VA_TYPE.MULTI_OUTLET:
+                newkey = 'MULTI_SOCKET'
+                break;
+            case VA_TYPE.SENSOR:
+                newkey = 'AIR_MONITOR'
+                break;
+        }
+        this.vaType = { duerType: newkey }
+    }
 
 }

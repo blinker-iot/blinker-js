@@ -12,5 +12,6 @@ export const API = {
     LOG: SERVER.HOST + '/api/v1/user/device/cloud_storage/logs',
     WEATHER: SERVER.HOST + '/api/v2/weather/',
     WEATHER_FORECAST: SERVER.HOST + '/api/v2/forecast/',
-    AIR: SERVER.HOST + '/api/v2/air/'
+    AIR: SERVER.HOST + '/api/v2/air/',
+    VA: SERVER.HOST + '/api/v1/user/device/voice_assistant'
 }

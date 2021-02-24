@@ -1,6 +1,6 @@
 import * as mqtt from 'mqtt';
 import axios from 'axios';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { Widget } from './widget';
 import bonjour from 'bonjour';
 import * as WebSocket from 'ws';
@@ -8,7 +8,7 @@ import * as schedule from 'node-schedule';
 import * as pauseable from 'pauseable';
 import getMAC from 'getmac'
 
-import { ALI_TYPE, DUER_TYPE, MI_TYPE } from './voice-assistant';
+import { VoiceAssistant } from './voice-assistant';
 
 export interface Message {
     fromDevice?: string,
@@ -17,9 +17,6 @@ export interface Message {
 
 export interface authOption {
     "authKey"?: string,
-    "aliType"?: ALI_TYPE,
-    "duerType"?: DUER_TYPE,
-    "miType"?: MI_TYPE,
     "version"?: string,
     "protocol"?: string,
 }
@@ -61,6 +58,8 @@ export class BlinkerDevice {
 
     builtinSwitch = new BuiltinSwitch();
 
+    configReady = new BehaviorSubject(false)
+
     widgetKeyList = []
     widgetDict = {}
 
@@ -82,7 +81,6 @@ export class BlinkerDevice {
 
     init(authkey) {
         axios.get(API.AUTH, { params: this.options }).then(resp => {
-            // + '?authKey=' + authkey + '&protocol=' + this.options.protocol).then(resp => {
             console.log(resp.data);
             if (resp.data.message != 1000) {
                 error(resp.data);
@@ -105,13 +103,17 @@ export class BlinkerDevice {
             this.tempDataPath = `.${this.config.deviceName}.json`
             this.tempData = loadJsonFile(this.tempDataPath)
             this.loadTimingTask()
-            return
+            this.configReady.next(true)
         })
 
     }
 
     async ready() {
-
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                reject()
+            }, 5000);
+        })
     }
 
     // 本地服务：MDNS\WS SERVER
@@ -406,8 +408,16 @@ export class BlinkerDevice {
         return widget
     }
 
-    addVoiceAssistant(va: any) {
-
+    addVoiceAssistant(va: VoiceAssistant) {
+        this.configReady.subscribe(state => {
+            if (state) {
+                let params = Object.assign({ token: this.config.iotToken }, va.vaType)
+                axios.post(API.VA, params).then(resp => {
+                    console.log(resp.data);
+                })
+            }
+        })
+        return va
     }
 
     vibrate(time = 500) {
