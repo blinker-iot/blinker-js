@@ -19,9 +19,6 @@ let number1: NumberWidget = device.addWidget(new NumberWidget('num-lnw'));
 
 // async () => {
 device.ready().then(() => {
-    console.log('test');
-    // await device.ready();
-    console.log('READY');
 
     // miot.listen().subscribe(message => {
     //     console.log(message);

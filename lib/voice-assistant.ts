@@ -40,7 +40,9 @@ export class VoiceAssistant {
 
     device: BlinkerDevice;
 
-    change = new Subject()
+    change = new Subject();
+
+    targetDevice;
 
     constructor(key) {
         this.vaType = key
@@ -54,10 +56,27 @@ export class VoiceAssistant {
 
     listen() {
         this.device.mqttClient.on('message', (topic, message) => {
+
+            console.log(topic);
+            let messageString = u8aToString(message)
+            console.log(messageString);
             if (topic == this.subTopic) {
-                let messageString = u8aToString(message)
-                console.log(topic);
-                console.log(messageString);
+                let data;
+                let fromDevice;
+
+                try {
+                    let messageString = u8aToString(message)
+                    // console.log(topic);
+                    console.log(messageString);
+                    let messageObject = JSON.parse(messageString)
+                    fromDevice = messageObject.fromDevice
+                    data = messageObject.data
+                    this.targetDevice = fromDevice
+                } catch (error) {
+                    console.log(error);
+                }
+                // 检查
+                this.processData(data, fromDevice)
             }
         })
         // return this.change
@@ -65,6 +84,11 @@ export class VoiceAssistant {
 
     unlisten() {
         // this.changeSubscription.unsubscribe();
+    }
+
+
+    processData(data, fromDevice) {
+
     }
 
     update(value = '') {
