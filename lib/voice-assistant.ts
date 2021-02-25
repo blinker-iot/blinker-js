@@ -24,29 +24,43 @@ import { Subject } from "rxjs";
 import { BlinkerDevice } from "./blinker";
 import { API } from './server.config'
 import axios from 'axios';
+import { u8aToString } from "./fun"
 
 export class VoiceAssistant {
 
-    subTopic = '';
-    pubTopic = '';
+    get subTopic() {
+        return `/sys/${this.device.config.productKey}/${this.device.config.deviceName}/rrpc/request/+`
+    }
+
+    get pubTopic() {
+        return `/sys/${this.device.config.productKey}/${this.device.config.deviceName}/rrpc/response/`
+    }
 
     vaType;
 
-    // get message() {
-    //     return `{"fromDevice": "${this.device.deviceName}", "toDevice": "${this.vaType}_r", "data": ${} , "deviceType": "vAssistant"}`
-    // }
+    device: BlinkerDevice;
+
+    change = new Subject()
 
     constructor(key) {
         this.vaType = key
     }
 
+
+
+    // get message() {
+    //     return `{"fromDevice": "${this.device.deviceName}", "toDevice": "${this.vaType}_r", "data": ${} , "deviceType": "vAssistant"}`
+    // }
+
     listen() {
-        // this.changeSubscription = this.change.subscribe(message => {
-        //     // console.log(message);
-        //     this.device.targetDevice = message.fromDevice
-        //     this.change2.next(message)
-        // })
-        // return this.change2
+        this.device.mqttClient.on('message', (topic, message) => {
+            if (topic == this.subTopic) {
+                let messageString = u8aToString(message)
+                console.log(topic);
+                console.log(messageString);
+            }
+        })
+        // return this.change
     }
 
     unlisten() {
@@ -58,7 +72,16 @@ export class VoiceAssistant {
         // message[this.key] = this.state
         this.device.sendMessage(message)
     }
-    device: BlinkerDevice;
+
+    powerState = new Subject();
+    mode = new Subject();
+    color = new Subject();
+    colorTemp = new Subject();
+    brightness = new Subject();
+    temp = new Subject();
+    humi = new Subject();
+    pm25 = new Subject();
+
 }
 
 export class Miot extends VoiceAssistant {

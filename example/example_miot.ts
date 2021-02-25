@@ -6,8 +6,8 @@ let device = new BlinkerDevice('');
 
 
 let miot = device.addVoiceAssistant(new Miot(VA_TYPE.LIGHT));
-let aliGenie = device.addVoiceAssistant(new AliGenie(VA_TYPE.LIGHT));
-let duerOS = device.addVoiceAssistant(new DuerOS(VA_TYPE.LIGHT));
+// let aliGenie = device.addVoiceAssistant(new AliGenie(VA_TYPE.LIGHT));
+// let duerOS = device.addVoiceAssistant(new DuerOS(VA_TYPE.LIGHT));
 
 // 注册组件
 let button1: ButtonWidget = device.addWidget(new ButtonWidget('btn-crf'));
@@ -17,13 +17,21 @@ let range1: RangeWidget = device.addWidget(new RangeWidget('ran-i89'));
 let number1: NumberWidget = device.addWidget(new NumberWidget('num-lnw'));
 
 
-async ()=>{
-    await device.ready();
+// async () => {
+device.ready().then(() => {
+    console.log('test');
+    // await device.ready();
+    console.log('READY');
+
+    // miot.listen().subscribe(message => {
+    //     console.log(message);
+
+    // })
 
     device.dataRead.subscribe(message => {
         console.log('otherData:', message);
     })
-    
+
     device.heartbeat.subscribe(message => {
         console.log('heartbeat:', message);
         device.builtinSwitch.setState(getSwitchState()).update();
@@ -31,14 +39,14 @@ async ()=>{
         number1.value(randomNumber()).unit('米').text('长度').color(randomColor()).update();
         button2.color(randomColor()).update();
         button1.color(randomColor()).update();
-    
+
     })
-    
+
     device.builtinSwitch.change.subscribe(message => {
         console.log('builtinSwitch:', message);
         device.builtinSwitch.setState(turnSwitch()).update();
     })
-    
+
     button1.listen().subscribe(message => {
         console.log('button1:', message.data);
         device.push('NUC设备测试');
@@ -46,17 +54,13 @@ async ()=>{
         button1.turn(state).update();
         text1.text('button1的动作').text1(message.data).update();
     })
-    
+
     button2.listen().subscribe(message => {
         console.log('button2:', message);
         text1.text('button2的动作').text1(message.data).update();
     })
 
-
-
-
-
-}
+})
 
 
 /*

@@ -45,8 +45,8 @@ export class BlinkerDevice {
         authKey?: string
     };
 
-    subtopic;
-    pubtopic;
+    subTopic;
+    pubTopic;
 
     deviceName;
 
@@ -80,7 +80,7 @@ export class BlinkerDevice {
     }
 
     init(authkey) {
-        axios.get(API.AUTH, { params: this.options }).then(resp => {
+        axios.get(API.AUTH, { params: this.options }).then(async resp => {
             console.log(resp.data);
             if (resp.data.message != 1000) {
                 error(resp.data);
@@ -95,7 +95,7 @@ export class BlinkerDevice {
                 mqttLog('broker:blinker')
                 this.initBroker_Blinker()
             }
-            this.connectBroker()
+            await this.connectBroker()
             this.addWidget(this.builtinSwitch)
             this.getShareInfo()
             this.initLocalService()
@@ -108,10 +108,10 @@ export class BlinkerDevice {
 
     }
 
-    async ready() {
+    ready(): Promise<Boolean> {
         return new Promise((resolve, reject) => {
             setTimeout(() => {
-                reject()
+                resolve(true)
             }, 5000);
         })
     }
@@ -160,60 +160,65 @@ export class BlinkerDevice {
     exasubTopic;
     exapubTopic;
     initBroker_Aliyun() {
-        this.subtopic = `/${this.config.productKey}/${this.config.deviceName}/r`;
-        this.pubtopic = `/${this.config.productKey}/${this.config.deviceName}/s`;
+        this.subTopic = `/${this.config.productKey}/${this.config.deviceName}/r`;
+        this.pubTopic = `/${this.config.productKey}/${this.config.deviceName}/s`;
         this.exasubTopic = `/sys/${this.config.productKey}/${this.config.deviceName}/rrpc/request/+`
         this.exapubTopic = `/sys/${this.config.productKey}/${this.config.deviceName}/rrpc/response/`
         this.targetDevice = this.config.uuid;
     }
 
     initBroker_Blinker() {
-        this.subtopic = `/device/${this.config.deviceName}/r`;
-        this.pubtopic = `/device/${this.config.deviceName}/s`;
+        this.subTopic = `/device/${this.config.deviceName}/r`;
+        this.pubTopic = `/device/${this.config.deviceName}/s`;
         this.targetDevice = this.config.uuid;
     }
 
     connectBroker() {
-        this.mqttClient = mqtt.connect(this.config.host + ':' + this.config.port, {
-            clientId: this.config.deviceName,
-            username: this.config.iotId,
-            password: this.config.iotToken
-        });
+        return new Promise((resolve, reject) => {
+            this.mqttClient = mqtt.connect(this.config.host + ':' + this.config.port, {
+                clientId: this.config.deviceName,
+                username: this.config.iotId,
+                password: this.config.iotToken
+            });
 
-        this.mqttClient.on('connect', () => {
-            mqttLog('blinker connected');
-            this.mqttClient.subscribe(this.subtopic);
-            this.startHeartbeat2cloud();
-        })
+            this.mqttClient.on('connect', () => {
+                mqttLog('blinker connected');
+                this.mqttClient.subscribe(this.subTopic);
+                this.startHeartbeat2cloud();
+                resolve(true)
+            })
 
-        this.mqttClient.on('message', (topic, message) => {
-            let data;
-            let fromDevice;
+            this.mqttClient.on('message', (topic, message) => {
+                if (topic == this.subTopic) {
+                    let data;
+                    let fromDevice;
 
-            try {
-                let messageString = u8aToString(message)
-                console.log(topic);
-                console.log(messageString);
+                    try {
+                        let messageString = u8aToString(message)
+                        // console.log(topic);
+                        console.log(messageString);
 
-                let messageObject = JSON.parse(messageString)
-                fromDevice = messageObject.fromDevice
-                data = messageObject.data
-                this.targetDevice = fromDevice
-            } catch (error) {
-                console.log(error);
-            }
-            // 检查
-            if (this.sharedUserList.indexOf(fromDevice) < 0 && fromDevice != this.config.uuid) return
-            this.processData(data, fromDevice)
-        })
+                        let messageObject = JSON.parse(messageString)
+                        fromDevice = messageObject.fromDevice
+                        data = messageObject.data
+                        this.targetDevice = fromDevice
+                    } catch (error) {
+                        console.log(error);
+                    }
+                    // 检查
+                    if (this.sharedUserList.indexOf(fromDevice) < 0 && fromDevice != this.config.uuid) return
+                    this.processData(data, fromDevice)
+                }
+            })
 
-        this.mqttClient.on('close', (err) => {
-            mqttLog('blinker close');
-            this.stopHeartbeat2cloud()
-        })
+            this.mqttClient.on('close', (err) => {
+                mqttLog('blinker close');
+                this.stopHeartbeat2cloud()
+            })
 
-        this.mqttClient.on('error', (err) => {
-            mqttLog(err);
+            this.mqttClient.on('error', (err) => {
+                mqttLog(err);
+            })
         })
     }
 
@@ -310,14 +315,14 @@ export class BlinkerDevice {
             //         deviceInLocal = true
             // }
             this.sendTimers[toDevice] = setTimeout(() => {
-                this.mqttClient.publish(this.pubtopic, formatMess2Device(this.config.deviceName, toDevice, this.messageDataCache[toDevice]))
+                this.mqttClient.publish(this.pubTopic, formatMess2Device(this.config.deviceName, toDevice, this.messageDataCache[toDevice]))
                 this.messageDataCache[toDevice] = '';
                 delete this.sendTimers[toDevice];
             }, 100)
         } else {
             console.log('not json');
             if (!isNumber(sendMessage)) sendMessage = `"${sendMessage}"`
-            this.mqttClient.publish(this.pubtopic, formatMess2Device(this.config.deviceName, toDevice, sendMessage))
+            this.mqttClient.publish(this.pubTopic, formatMess2Device(this.config.deviceName, toDevice, sendMessage))
         }
     }
 
@@ -358,7 +363,7 @@ export class BlinkerDevice {
             return
         }
         tip('sendTsData')
-        this.mqttClient.publish(this.pubtopic, formatMess2StorageTs(this.config.deviceName, 'ts', data))
+        this.mqttClient.publish(this.pubTopic, formatMess2StorageTs(this.config.deviceName, 'ts', data))
         this.storageCache = []
     }
     objectDataTimer
@@ -381,7 +386,7 @@ export class BlinkerDevice {
         clearTimeout(this.objectDataTimer);
         this.objectDataTimer = setTimeout(() => {
             tip('saveObjectData')
-            this.mqttClient.publish(this.pubtopic, formatMess2StorageOt(this.config.deviceName, 'ot', JSON.stringify(dataCache)))
+            this.mqttClient.publish(this.pubTopic, formatMess2StorageOt(this.config.deviceName, 'ot', JSON.stringify(dataCache)))
         }, 5000);
     }
     textDataTimer
@@ -397,7 +402,7 @@ export class BlinkerDevice {
         clearTimeout(this.textDataTimer);
         this.textDataTimer = setTimeout(() => {
             tip('saveTextData')
-            this.mqttClient.publish(this.pubtopic, formatMess2StorageTt(this.config.deviceName, 'tt', data))
+            this.mqttClient.publish(this.pubTopic, formatMess2StorageTt(this.config.deviceName, 'tt', data))
         }, 5000);
     }
 
@@ -408,16 +413,18 @@ export class BlinkerDevice {
         return widget
     }
 
-    addVoiceAssistant(va: VoiceAssistant) {
+    addVoiceAssistant(voiceAssistant: VoiceAssistant) {
         this.configReady.subscribe(state => {
             if (state) {
-                let params = Object.assign({ token: this.config.iotToken }, va.vaType)
-                axios.post(API.VA, params).then(resp => {
+                let params = Object.assign({ token: this.config.iotToken }, voiceAssistant.vaType)
+                axios.post(API.VOICE_ASSISTANT, params).then(resp => {
                     console.log(resp.data);
+                    voiceAssistant.device = this;
+                    voiceAssistant.listen();
                 })
             }
         })
-        return va
+        return voiceAssistant
     }
 
     vibrate(time = 500) {
@@ -672,14 +679,6 @@ function formatMess2StorageOt(deviceId, storageType, data) {
     return `{"data":${data},"fromDevice":"${deviceId}","toStorage":"${storageType}"}`
 }
 
-function u8aToString(fileData) {
-    var dataString = "";
-    for (var i = 0; i < fileData.length; i++) {
-        dataString += String.fromCharCode(fileData[i]);
-    }
-    return dataString
-}
-
 function isJson(str: string) {
     if (isNumber(str)) {
         return false;
@@ -743,6 +742,7 @@ function mqttLog(msg) {
 import * as fs from 'fs';
 import { API, SERVER } from './server.config';
 import { clearInterval } from 'timers';
+import { u8aToString } from './fun';
 
 function loadJsonFile(path) {
     if (fs.existsSync(path))
