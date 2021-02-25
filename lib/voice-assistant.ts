@@ -96,6 +96,9 @@ export class VoiceAssistant {
             console.log(topic);
             let messageString = u8aToString(message)
             console.log(messageString);
+            let messageId=topic.split('/')[6]
+            console.log(messageId);
+            
             if (topic == this.subTopic) {
                 let data;
                 let fromDevice;
