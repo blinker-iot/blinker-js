@@ -20,6 +20,42 @@ export enum VA_TYPE {
     SENSOR = 'sensor'
 }
 
+export enum MI_LIGHT_MODE {
+    DAY,
+    NIGHT,
+    COLOR,
+    WARMTH,
+    TV,
+    READING,
+    COMPUTER,
+}
+
+export enum ALI_LIGHT_MODE {
+    reading,
+    movie,
+    sleep,
+    holiday,
+    music,
+    common
+}
+
+export enum DUER_LIGHT_MODE {
+    READING,
+    SLEEP,
+    ALARM,
+    NIGHT_LIGHT,
+    ROMANTIC,
+    SUNDOWN,
+    SUNRISE,
+    RELAX,
+    LIGHTING,
+    SUN,
+    STAR,
+    ENERGY_SAVING,
+    MOON,
+    JUDI,
+}
+
 import { Subject } from "rxjs";
 import { BlinkerDevice } from "./blinker";
 import { API } from './server.config'
