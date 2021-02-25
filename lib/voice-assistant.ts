@@ -80,6 +80,12 @@ export class VoiceAssistant {
 
     targetDevice;
 
+    powerChange = new Subject();
+    modeChange = new Subject();
+    colorChange = new Subject();
+    colorTempChange = new Subject();
+    brightnessChange = new Subject();
+
     constructor(key) {
         this.vaType = key
     }
@@ -96,9 +102,9 @@ export class VoiceAssistant {
             console.log(topic);
             let messageString = u8aToString(message)
             console.log(messageString);
-            let messageId=topic.split('/')[6]
+            let messageId = topic.split('/')[6]
             console.log(messageId);
-            
+
             if (topic == this.subTopic) {
                 let data;
                 let fromDevice;
@@ -136,14 +142,37 @@ export class VoiceAssistant {
         this.device.sendMessage(message)
     }
 
-    powerState = new Subject();
-    mode = new Subject();
-    color = new Subject();
-    colorTemp = new Subject();
-    brightness = new Subject();
-    temp = new Subject();
-    humi = new Subject();
-    pm25 = new Subject();
+    power(state: string) {
+
+    }
+
+    mode(mode: string) {
+
+    }
+
+    color(color: string) {
+
+    }
+
+    colorTemp(colorTemp: number) {
+
+    }
+
+    brightness(brightness: number) {
+
+    }
+
+    temp(val: number) {
+
+    }
+
+    humi(val: number) {
+
+    }
+
+    pm25(val: number) {
+
+    }
 
 }
 

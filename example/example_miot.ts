@@ -20,10 +20,30 @@ let number1: NumberWidget = device.addWidget(new NumberWidget('num-lnw'));
 // async () => {
 device.ready().then(() => {
 
-    // miot.listen().subscribe(message => {
-    //     console.log(message);
+    miot.powerChange.subscribe(message => {
+        console.log(message);
 
-    // })
+    })
+
+    miot.modeChange.subscribe(message => {
+        console.log(message);
+
+    })
+
+    miot.colorChange.subscribe(message => {
+        console.log(message);
+
+    })
+
+    miot.colorTempChange.subscribe(message => {
+        console.log(message);
+
+    })
+
+    miot.brightnessChange.subscribe(message => {
+        console.log(message);
+
+    })
 
     device.dataRead.subscribe(message => {
         console.log('otherData:', message);
