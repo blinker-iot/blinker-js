@@ -1,11 +1,11 @@
 import { BlinkerDevice } from '../lib/blinker';
-import { Miot, AliGenie, DuerOS, VA_TYPE, MI_LIGHT_MODE } from '../lib/voice-assistant';
+import { DuerOS, VA_TYPE, MI_LIGHT_MODE } from '../lib/voice-assistant';
 import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget, ImageWidget } from '../lib/widget';
 
 let device = new BlinkerDevice('');
 
 
-// let miot = device.addVoiceAssistant(new Miot(VA_TYPE.LIGHT));
+// let duerOS = device.addVoiceAssistant(new duerOS(VA_TYPE.LIGHT));
 // let aliGenie = device.addVoiceAssistant(new AliGenie(VA_TYPE.LIGHT));
 let duerOS = device.addVoiceAssistant(new DuerOS(VA_TYPE.LIGHT));
 
@@ -18,43 +18,43 @@ let number1: NumberWidget = device.addWidget(new NumberWidget('num-lnw'));
 
 device.ready().then(() => {
     // 电源状态改变
-    miot.powerChange.subscribe(message => {
+    duerOS.powerChange.subscribe(message => {
         console.log(message);
-        miot.power('on').update();
-        // miot.power('off').update();
+        duerOS.power('on').update();
+        // duerOS.power('off').update();
     })
     // 模式改变
-    miot.modeChange.subscribe(message => {
+    duerOS.modeChange.subscribe(message => {
         console.log(message);
-        miot.mode(MI_LIGHT_MODE.DAY).update();
-        miot.mode(MI_LIGHT_MODE.NIGHT).update();
-        miot.mode(MI_LIGHT_MODE.COLOR).update();
-        miot.mode(MI_LIGHT_MODE.WARMTH).update();
-        miot.mode(MI_LIGHT_MODE.TV).update();
-        miot.mode(MI_LIGHT_MODE.READING).update();
-        miot.mode(MI_LIGHT_MODE.COMPUTER).update();
+        duerOS.mode(MI_LIGHT_MODE.DAY).update();
+        duerOS.mode(MI_LIGHT_MODE.NIGHT).update();
+        duerOS.mode(MI_LIGHT_MODE.COLOR).update();
+        duerOS.mode(MI_LIGHT_MODE.WARMTH).update();
+        duerOS.mode(MI_LIGHT_MODE.TV).update();
+        duerOS.mode(MI_LIGHT_MODE.READING).update();
+        duerOS.mode(MI_LIGHT_MODE.COMPUTER).update();
     })
     // 颜色改变
-    miot.colorChange.subscribe(message => {
+    duerOS.colorChange.subscribe(message => {
         console.log(message);
-        miot.color('255,255,255').update();
+        duerOS.color('255,255,255').update();
     })
     // 色温改变
-    miot.colorTempChange.subscribe(message => {
+    duerOS.colorTempChange.subscribe(message => {
         console.log(message);
-        miot.colorTemp(255).update();
+        duerOS.colorTemp(255).update();
     })
 
     // 亮度改变
-    miot.brightnessChange.subscribe(message => {
+    duerOS.brightnessChange.subscribe(message => {
         console.log(message);
-        miot.brightness(255).update();
+        duerOS.brightness(255).update();
     })
 
     // 小爱每次动作前后，都会查询设备状态
-    miot.stateQuery.subscribe(message => {
+    duerOS.stateQuery.subscribe(message => {
         console.log(message);
-        miot.brightness(255).update();
+        duerOS.brightness(255).update();
     })
 
     device.dataRead.subscribe(message => {

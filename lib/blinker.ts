@@ -418,7 +418,7 @@ export class BlinkerDevice {
             if (state) {
                 let params = Object.assign({ token: this.config.iotToken }, voiceAssistant.vaType)
                 axios.post(API.VOICE_ASSISTANT, params).then(resp => {
-                    console.log(resp.data);
+                    console.log(resp);
                     voiceAssistant.device = this;
                     voiceAssistant.listen();
                 })

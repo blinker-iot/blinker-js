@@ -1,13 +1,13 @@
 import { BlinkerDevice } from '../lib/blinker';
-import { Miot, AliGenie, DuerOS, VA_TYPE, MI_LIGHT_MODE } from '../lib/voice-assistant';
-import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget, ImageWidget } from '../lib/widget';
+import { AliGenie, VA_TYPE, MI_LIGHT_MODE } from '../lib/voice-assistant';
+import { ButtonWidget, TextWidget, RangeWidget, NumberWidget } from '../lib/widget';
 
 let device = new BlinkerDevice('');
 
 
-// let miot = device.addVoiceAssistant(new Miot(VA_TYPE.LIGHT));
-// let aliGenie = device.addVoiceAssistant(new AliGenie(VA_TYPE.LIGHT));
-let duerOS = device.addVoiceAssistant(new DuerOS(VA_TYPE.LIGHT));
+// let aliGenie = device.addVoiceAssistant(new aliGenie(VA_TYPE.LIGHT));
+let aliGenie = device.addVoiceAssistant(new AliGenie(VA_TYPE.LIGHT));
+// let aliGenie = device.addVoiceAssistant(new aliGenie(VA_TYPE.LIGHT));
 
 // 注册组件
 let button1: ButtonWidget = device.addWidget(new ButtonWidget('btn-crf'));
@@ -18,43 +18,43 @@ let number1: NumberWidget = device.addWidget(new NumberWidget('num-lnw'));
 
 device.ready().then(() => {
     // 电源状态改变
-    miot.powerChange.subscribe(message => {
+    aliGenie.powerChange.subscribe(message => {
         console.log(message);
-        miot.power('on').update();
-        // miot.power('off').update();
+        aliGenie.power('on').update();
+        // aliGenie.power('off').update();
     })
     // 模式改变
-    miot.modeChange.subscribe(message => {
+    aliGenie.modeChange.subscribe(message => {
         console.log(message);
-        miot.mode(MI_LIGHT_MODE.DAY).update();
-        miot.mode(MI_LIGHT_MODE.NIGHT).update();
-        miot.mode(MI_LIGHT_MODE.COLOR).update();
-        miot.mode(MI_LIGHT_MODE.WARMTH).update();
-        miot.mode(MI_LIGHT_MODE.TV).update();
-        miot.mode(MI_LIGHT_MODE.READING).update();
-        miot.mode(MI_LIGHT_MODE.COMPUTER).update();
+        aliGenie.mode(MI_LIGHT_MODE.DAY).update();
+        aliGenie.mode(MI_LIGHT_MODE.NIGHT).update();
+        aliGenie.mode(MI_LIGHT_MODE.COLOR).update();
+        aliGenie.mode(MI_LIGHT_MODE.WARMTH).update();
+        aliGenie.mode(MI_LIGHT_MODE.TV).update();
+        aliGenie.mode(MI_LIGHT_MODE.READING).update();
+        aliGenie.mode(MI_LIGHT_MODE.COMPUTER).update();
     })
     // 颜色改变
-    miot.colorChange.subscribe(message => {
+    aliGenie.colorChange.subscribe(message => {
         console.log(message);
-        miot.color('255,255,255').update();
+        aliGenie.color('255,255,255').update();
     })
     // 色温改变
-    miot.colorTempChange.subscribe(message => {
+    aliGenie.colorTempChange.subscribe(message => {
         console.log(message);
-        miot.colorTemp(255).update();
+        aliGenie.colorTemp(255).update();
     })
 
     // 亮度改变
-    miot.brightnessChange.subscribe(message => {
+    aliGenie.brightnessChange.subscribe(message => {
         console.log(message);
-        miot.brightness(255).update();
+        aliGenie.brightness(255).update();
     })
 
     // 小爱每次动作前后，都会查询设备状态
-    miot.stateQuery.subscribe(message => {
+    aliGenie.stateQuery.subscribe(message => {
         console.log(message);
-        miot.brightness(255).update();
+        aliGenie.brightness(255).update();
     })
 
     device.dataRead.subscribe(message => {
