@@ -1,5 +1,5 @@
 import { BlinkerDevice } from '../lib/blinker';
-import { Miot, AliGenie, DuerOS, VA_TYPE } from '../lib/voice-assistant';
+import { Miot, AliGenie, DuerOS, VA_TYPE, MI_LIGHT_MODE } from '../lib/voice-assistant';
 import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget, ImageWidget } from '../lib/widget';
 
 let device = new BlinkerDevice('');
@@ -22,27 +22,39 @@ device.ready().then(() => {
 
     miot.powerChange.subscribe(message => {
         console.log(message);
-
+        miot.power('on').update();
+        // miot.power('off').update();
     })
 
     miot.modeChange.subscribe(message => {
         console.log(message);
-
+        miot.mode(MI_LIGHT_MODE.DAY).update();
+        miot.mode(MI_LIGHT_MODE.NIGHT).update();
+        miot.mode(MI_LIGHT_MODE.COLOR).update();
+        miot.mode(MI_LIGHT_MODE.WARMTH).update();
+        miot.mode(MI_LIGHT_MODE.TV).update();
+        miot.mode(MI_LIGHT_MODE.READING).update();
+        miot.mode(MI_LIGHT_MODE.COMPUTER).update();
     })
 
     miot.colorChange.subscribe(message => {
         console.log(message);
-
+        miot.color('255,255,255').update();
     })
 
     miot.colorTempChange.subscribe(message => {
         console.log(message);
-
+        miot.colorTemp(255).update();
     })
 
     miot.brightnessChange.subscribe(message => {
         console.log(message);
+        miot.brightness(255).update();
+    })
 
+    miot.stateQuery.subscribe(message => {
+        console.log(message);
+        miot.brightness(255).update();
     })
 
     device.dataRead.subscribe(message => {

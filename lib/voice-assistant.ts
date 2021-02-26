@@ -85,12 +85,11 @@ export class VoiceAssistant {
     colorChange = new Subject();
     colorTempChange = new Subject();
     brightnessChange = new Subject();
+    stateQuery = new Subject();
 
     constructor(key) {
         this.vaType = key
     }
-
-
 
     // get message() {
     //     return `{"fromDevice": "${this.device.deviceName}", "toDevice": "${this.vaType}_r", "data": ${} , "deviceType": "vAssistant"}`
@@ -144,34 +143,35 @@ export class VoiceAssistant {
 
     power(state: string) {
 
+        return this
     }
 
-    mode(mode: string) {
-
+    mode(mode: number) {
+        return this
     }
 
     color(color: string) {
-
+        return this
     }
 
     colorTemp(colorTemp: number) {
-
+        return this
     }
 
     brightness(brightness: number) {
-
+        return this
     }
 
     temp(val: number) {
-
+        return this
     }
 
     humi(val: number) {
-
+        return this
     }
 
     pm25(val: number) {
-
+        return this
     }
 
 }
@@ -181,6 +181,10 @@ export class Miot extends VoiceAssistant {
     constructor(key) {
         super(key)
         this.vaType = { miType: key }
+    }
+
+    mode(mode: MI_LIGHT_MODE) {
+        return this
     }
 }
 
