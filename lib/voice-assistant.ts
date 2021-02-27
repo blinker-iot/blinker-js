@@ -43,6 +43,7 @@ export enum DUER_LIGHT_MODE {
     READING,
     SLEEP,
     ALARM,
+    DAYTIME,
     NIGHT_LIGHT,
     ROMANTIC,
     SUNDOWN,
@@ -54,13 +55,17 @@ export enum DUER_LIGHT_MODE {
     ENERGY_SAVING,
     MOON,
     JUDI,
+    HEAT,
+    COOL
 }
 
-import { Subject } from "rxjs";
+import { from, Subject } from "rxjs";
 import { BlinkerDevice } from "./blinker";
 import { API } from './server.config'
 import axios from 'axios';
 import { u8aToString } from "./fun"
+import { Message } from "./message"
+import { vaLog } from "./debug"
 
 export class VoiceAssistant {
 
@@ -73,6 +78,7 @@ export class VoiceAssistant {
     }
 
     vaType;
+    vaName;
 
     device: BlinkerDevice;
 
@@ -80,50 +86,37 @@ export class VoiceAssistant {
 
     targetDevice;
 
-    powerChange = new Subject();
-    modeChange = new Subject();
-    colorChange = new Subject();
-    colorTempChange = new Subject();
-    brightnessChange = new Subject();
-    stateQuery = new Subject();
+    powerChange = new Subject<powerMessage>();
+    modeChange = new Subject<modeMessage>();
+    colorChange = new Subject<colorMessage>();
+    colorTempChange = new Subject<colorTempMessage>();
+    brightnessChange = new Subject<brightnessMessage>();
+    stateQuery = new Subject<dataMessage>();
 
     constructor(key) {
         this.vaType = key
     }
 
-    // get message() {
-    //     return `{"fromDevice": "${this.device.deviceName}", "toDevice": "${this.vaType}_r", "data": ${} , "deviceType": "vAssistant"}`
-    // }
-
     listen() {
         this.device.mqttClient.on('message', (topic, message) => {
-
-            console.log(topic);
-            let messageString = u8aToString(message)
-            console.log(messageString);
-            let messageId = topic.split('/')[6]
-            console.log(messageId);
-
-            if (topic == this.subTopic) {
+            if (topic.indexOf(this.subTopic.substr(0, this.subTopic.length - 1)) > -1) {
                 let data;
                 let fromDevice;
-
+                let messageId;
                 try {
                     let messageString = u8aToString(message)
-                    // console.log(topic);
-                    console.log(messageString);
                     let messageObject = JSON.parse(messageString)
                     fromDevice = messageObject.fromDevice
                     data = messageObject.data
                     this.targetDevice = fromDevice
+                    messageId = topic.split('/')[6]
                 } catch (error) {
                     console.log(error);
                 }
-                // 检查
-                this.processData(data, fromDevice)
+                if (fromDevice == this.vaName)
+                    this.processData(messageId, data)
             }
         })
-        // return this.change
     }
 
     unlisten() {
@@ -131,49 +124,25 @@ export class VoiceAssistant {
     }
 
 
-    processData(data, fromDevice) {
+    processData(messageId, data) {
+        console.log(data);
 
+        if (typeof data.set != 'undefined') {
+            if (typeof data.set.pState != 'undefined') {
+                this.powerChange.next(new powerMessage(this.device, this, messageId, data))
+            } else if (typeof data.set.col != 'undefined') {
+                this.colorChange.next(new colorMessage(this.device, this, messageId, data))
+            } else if (typeof data.set.clrtemp != 'undefined') {
+                this.colorTempChange.next(new colorTempMessage(this.device, this, messageId, data))
+            } else if (typeof data.set.mode != 'undefined') {
+                this.modeChange.next(new modeMessage(this.device, this, messageId, data))
+            } else if (typeof data.set.bright != 'undefined' || typeof data.set.upBright != 'undefined' || typeof data.set.downBright != 'undefined') {
+                this.brightnessChange.next(new brightnessMessage(this.device, this, messageId, data))
+            }
+        } else if (typeof data.get != 'undefined') {
+            this.stateQuery.next(new dataMessage(this.device, this, messageId, data))
+        }
     }
-
-    update(value = '') {
-        let message = {}
-        // message[this.key] = this.state
-        this.device.sendMessage(message)
-    }
-
-    power(state: string) {
-
-        return this
-    }
-
-    mode(mode: number) {
-        return this
-    }
-
-    color(color: string) {
-        return this
-    }
-
-    colorTemp(colorTemp: number) {
-        return this
-    }
-
-    brightness(brightness: number) {
-        return this
-    }
-
-    temp(val: number) {
-        return this
-    }
-
-    humi(val: number) {
-        return this
-    }
-
-    pm25(val: number) {
-        return this
-    }
-
 }
 
 export class Miot extends VoiceAssistant {
@@ -181,6 +150,7 @@ export class Miot extends VoiceAssistant {
     constructor(key) {
         super(key)
         this.vaType = { miType: key }
+        this.vaName = 'Miot'
     }
 
     mode(mode: MI_LIGHT_MODE) {
@@ -193,6 +163,7 @@ export class AliGenie extends VoiceAssistant {
     constructor(key) {
         super(key)
         this.vaType = { aliType: key }
+        this.vaName = 'AliGenie'
     }
 }
 
@@ -216,6 +187,143 @@ export class DuerOS extends VoiceAssistant {
                 break;
         }
         this.vaType = { duerType: newkey }
+        this.vaName = 'DuerOS'
     }
 
+}
+
+
+export class VaMessage extends Message {
+    id: number;
+    device: BlinkerDevice;
+    voiceAssistant: VoiceAssistant;
+
+    get data() {
+        return JSON.stringify(this.request)
+    }
+
+    request = {};
+    response = {};
+
+    constructor(device, voiceAssistant, id, request) {
+        super(device)
+        this.device = device
+        this.id = id
+        this.request = request
+        this.voiceAssistant = voiceAssistant
+        vaLog(this.data, `${this.voiceAssistant.vaName}>device`)
+    }
+
+    update() {
+        let responseStr = JSON.stringify(this.response)
+        let data = `{ "fromDevice": "${this.device.config.deviceName}", "toDevice": "${this.voiceAssistant.vaName}_r", "data": ${responseStr}, "deviceType": "vAssistant"}`
+        let base64Data = Buffer.from(data).toString('base64')
+        this.device.mqttClient.publish(this.voiceAssistant.pubTopic + this.id, base64Data)
+        vaLog(responseStr, `device>${this.voiceAssistant.vaName}`)
+    }
+
+    // power(state: string) {
+    //     let data = { pState: state }
+    //     this.response = Object.assign(this.response, data)
+    //     return this
+    // }
+
+    // mode(mode: number) {
+    //     return this
+    // }
+
+    // color(color: string) {
+    //     return this
+    // }
+
+    // colorTemp(colorTemp: number) {
+    //     return this
+    // }
+
+    // brightness(brightness: number) {
+    //     return this
+    // }
+
+    // temp(val: number) {
+    //     return this
+    // }
+
+    // humi(val: number) {
+    //     return this
+    // }
+
+    // pm25(val: number) {
+    //     return this
+    // }
+
+    // co2(val: number) {
+    //     return this
+    // }
+
+}
+
+class powerMessage extends VaMessage {
+    power(state: string) {
+        let data = { pState: state }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+}
+
+class modeMessage extends VaMessage {
+    mode(state: string | number) {
+        let data = { mode: state }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+}
+
+class colorMessage extends VaMessage {
+    color(color: string | number[]) {
+        let data = { clr: color }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+}
+
+class colorTempMessage extends VaMessage {
+    colorTemp(state: string) {
+        let data = { mode: state }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+}
+
+class brightnessMessage extends VaMessage {
+    brightness(val: number) {
+        let data = { bright: val }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+}
+
+class dataMessage extends VaMessage {
+    temp(val: number) {
+        let data = { temp: val }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+
+    humi(val: number) {
+        let data = { humi: val }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+
+    pm25(val: number) {
+        let data = { pm25: val }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+
+    co2(val: number) {
+        let data = { co2: val }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
 }

@@ -6,6 +6,7 @@ import bonjour from 'bonjour';
 import * as WebSocket from 'ws';
 import * as schedule from 'node-schedule';
 import * as pauseable from 'pauseable';
+import { tip, warn, error, timerLog, mqttLog } from './debug'
 import getMAC from 'getmac'
 
 import { VoiceAssistant } from './voice-assistant';
@@ -418,7 +419,7 @@ export class BlinkerDevice {
             if (state) {
                 let params = Object.assign({ token: this.config.iotToken }, voiceAssistant.vaType)
                 axios.post(API.VOICE_ASSISTANT, params).then(resp => {
-                    console.log(resp);
+                    // console.log(resp);
                     voiceAssistant.device = this;
                     voiceAssistant.listen();
                 })
@@ -700,42 +701,6 @@ function isNumber(val: string) {
         // console.log("不是数字");
         return false;
     }
-}
-
-// 辅助调试
-function log(msg, { title = 'TITLE', color = 'white' } = {}) {
-    // console.log(msg);
-
-    if (typeof msg == 'object') msg = JSON.stringify(msg)
-    const COLOR_CODE = ['black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'].indexOf(color)
-    if (COLOR_CODE >= 0) {
-        const TITLE_STR = title ? `\x1b[4${COLOR_CODE};30m ${title} \x1b[0m ` : ''
-        console.log(`${TITLE_STR}\x1b[3${COLOR_CODE}m${msg}\x1b[;0m`)
-    }
-    else {
-        console.log(title ? `${title} ${msg}` : msg)
-    }
-}
-
-function tip(msg) {
-    log(msg, { title: 'log', color: 'white' })
-}
-
-function warn(msg) {
-    log(msg, { title: 'warn', color: 'yellow' })
-}
-
-function error(msg) {
-    log(msg, { title: 'error', color: 'red' })
-}
-
-
-function timerLog(msg) {
-    log(msg, { title: 'timer', color: 'blue' })
-}
-
-function mqttLog(msg) {
-    log(msg, { title: 'mqtt', color: 'blue' })
 }
 
 

@@ -5,9 +5,9 @@ import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, Joystic
 let device = new BlinkerDevice('');
 
 
-// let miot = device.addVoiceAssistant(new Miot(VA_TYPE.LIGHT));
+let miot = device.addVoiceAssistant(new Miot(VA_TYPE.LIGHT));
 // let aliGenie = device.addVoiceAssistant(new AliGenie(VA_TYPE.LIGHT));
-let duerOS = device.addVoiceAssistant(new DuerOS(VA_TYPE.LIGHT));
+// let duerOS = device.addVoiceAssistant(new DuerOS(VA_TYPE.LIGHT));
 
 // 注册组件
 let button1: ButtonWidget = device.addWidget(new ButtonWidget('btn-crf'));
@@ -20,41 +20,42 @@ device.ready().then(() => {
     // 电源状态改变
     miot.powerChange.subscribe(message => {
         console.log(message);
-        miot.power('on').update();
+        message.power('on').update();
         // miot.power('off').update();
     })
     // 模式改变
     miot.modeChange.subscribe(message => {
         console.log(message);
-        miot.mode(MI_LIGHT_MODE.DAY).update();
-        miot.mode(MI_LIGHT_MODE.NIGHT).update();
-        miot.mode(MI_LIGHT_MODE.COLOR).update();
-        miot.mode(MI_LIGHT_MODE.WARMTH).update();
-        miot.mode(MI_LIGHT_MODE.TV).update();
-        miot.mode(MI_LIGHT_MODE.READING).update();
-        miot.mode(MI_LIGHT_MODE.COMPUTER).update();
+        message.mode(MI_LIGHT_MODE.DAY).update();
+        message.mode(MI_LIGHT_MODE.NIGHT).update();
+        message.mode(MI_LIGHT_MODE.COLOR).update();
+        message.mode(MI_LIGHT_MODE.WARMTH).update();
+        message.mode(MI_LIGHT_MODE.TV).update();
+        message.mode(MI_LIGHT_MODE.READING).update();
+        message.mode(MI_LIGHT_MODE.COMPUTER).update();
     })
     // 颜色改变
     miot.colorChange.subscribe(message => {
         console.log(message);
-        miot.color('255,255,255').update();
+        message.color('255,255,255').update();
     })
+    // 色温改变
     // 色温改变
     miot.colorTempChange.subscribe(message => {
         console.log(message);
-        miot.colorTemp(255).update();
+        message.colorTemp(255).update();
     })
 
     // 亮度改变
     miot.brightnessChange.subscribe(message => {
         console.log(message);
-        miot.brightness(255).update();
+        message.brightness(255).update();
     })
 
     // 小爱每次动作前后，都会查询设备状态
     miot.stateQuery.subscribe(message => {
         console.log(message);
-        miot.brightness(255).update();
+        message.brightness(255).update();
     })
 
     device.dataRead.subscribe(message => {

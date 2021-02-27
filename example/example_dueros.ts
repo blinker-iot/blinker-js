@@ -1,13 +1,13 @@
 import { BlinkerDevice } from '../lib/blinker';
-import { DuerOS, VA_TYPE, MI_LIGHT_MODE } from '../lib/voice-assistant';
+import { DuerOS, VA_TYPE, DUER_LIGHT_MODE } from '../lib/voice-assistant';
 import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget, ImageWidget } from '../lib/widget';
 
 let device = new BlinkerDevice('');
 
 
-// let duerOS = device.addVoiceAssistant(new duerOS(VA_TYPE.LIGHT));
+let miot = device.addVoiceAssistant(new Miot(VA_TYPE.LIGHT));
 // let aliGenie = device.addVoiceAssistant(new AliGenie(VA_TYPE.LIGHT));
-let duerOS = device.addVoiceAssistant(new DuerOS(VA_TYPE.LIGHT));
+let duerOS = device.addVoiceAssistant(new DuerOS(VA_TYPE.SENSOR));
 
 // 注册组件
 let button1: ButtonWidget = device.addWidget(new ButtonWidget('btn-crf'));
@@ -19,42 +19,35 @@ let number1: NumberWidget = device.addWidget(new NumberWidget('num-lnw'));
 device.ready().then(() => {
     // 电源状态改变
     duerOS.powerChange.subscribe(message => {
-        console.log(message);
-        duerOS.power('on').update();
-        // duerOS.power('off').update();
+        // console.log(message.data);
+        message.power('off').update();
     })
     // 模式改变
     duerOS.modeChange.subscribe(message => {
         console.log(message);
-        duerOS.mode(MI_LIGHT_MODE.DAY).update();
-        duerOS.mode(MI_LIGHT_MODE.NIGHT).update();
-        duerOS.mode(MI_LIGHT_MODE.COLOR).update();
-        duerOS.mode(MI_LIGHT_MODE.WARMTH).update();
-        duerOS.mode(MI_LIGHT_MODE.TV).update();
-        duerOS.mode(MI_LIGHT_MODE.READING).update();
-        duerOS.mode(MI_LIGHT_MODE.COMPUTER).update();
+        message.mode(DUER_LIGHT_MODE.READING).update();
     })
     // 颜色改变
     duerOS.colorChange.subscribe(message => {
         console.log(message);
-        duerOS.color('255,255,255').update();
+        message.color('255,255,255').update();
     })
     // 色温改变
     duerOS.colorTempChange.subscribe(message => {
         console.log(message);
-        duerOS.colorTemp(255).update();
+        message.colorTemp(255).update();
     })
 
     // 亮度改变
     duerOS.brightnessChange.subscribe(message => {
-        console.log(message);
-        duerOS.brightness(255).update();
+        console.log(message.data);
+        message.brightness(255).update();
     })
 
-    // 小爱每次动作前后，都会查询设备状态
+    // 查询传感器状态
     duerOS.stateQuery.subscribe(message => {
-        console.log(message);
-        duerOS.brightness(255).update();
+        console.log(message.data);
+        // message.brightness(255).update();
     })
 
     device.dataRead.subscribe(message => {
