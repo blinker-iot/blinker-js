@@ -40,29 +40,28 @@ export enum ALI_LIGHT_MODE {
 }
 
 export enum DUER_LIGHT_MODE {
-    READING,
-    SLEEP,
-    ALARM,
-    DAYTIME,
-    NIGHT_LIGHT,
-    ROMANTIC,
-    SUNDOWN,
-    SUNRISE,
-    RELAX,
-    LIGHTING,
-    SUN,
-    STAR,
-    ENERGY_SAVING,
-    MOON,
-    JUDI,
-    HEAT,
-    COOL
+    READING = 'READING',
+    SLEEP = 'SLEEP',
+    ALARM = 'ALARM',
+    // DAYTIME = 'DAYTIME',
+    NIGHT_LIGHT = 'NIGHT_LIGHT',
+    ROMANTIC = 'ROMANTIC',
+    SUNDOWN = 'SUNDOWN',
+    SUNRISE = 'SUNRISE',
+    RELAX = 'RELAX',
+    LIGHTING = 'LIGHTING',
+    SUN = 'SUN',
+    STAR = 'STAR',
+    ENERGY_SAVING = 'ENERGY_SAVING',
+    MOON = 'MOON',
+    JUDI = 'JUDI',
+    // HEAT = 'HEAT',
+    // COOL = 'COOL',
+    // AUTO = 'AUTO'
 }
 
-import { from, Subject } from "rxjs";
+import { Subject } from "rxjs";
 import { BlinkerDevice } from "./blinker";
-import { API } from './server.config'
-import axios from 'axios';
 import { u8aToString } from "./fun"
 import { Message } from "./message"
 import { vaLog } from "./debug"
@@ -125,8 +124,7 @@ export class VoiceAssistant {
 
 
     processData(messageId, data) {
-        console.log(data);
-
+        // console.log(data);
         if (typeof data.set != 'undefined') {
             if (typeof data.set.pState != 'undefined') {
                 this.powerChange.next(new powerMessage(this.device, this, messageId, data))
@@ -198,8 +196,8 @@ export class VaMessage extends Message {
     device: BlinkerDevice;
     voiceAssistant: VoiceAssistant;
 
-    get data() {
-        return JSON.stringify(this.request)
+    get data(): any {
+        return this.request
     }
 
     request = {};
@@ -268,6 +266,12 @@ class powerMessage extends VaMessage {
         this.response = Object.assign(this.response, data)
         return this
     }
+
+    num(num: number) {
+        let data = { num: num }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
 }
 
 class modeMessage extends VaMessage {
@@ -287,15 +291,16 @@ class colorMessage extends VaMessage {
 }
 
 class colorTempMessage extends VaMessage {
-    colorTemp(state: string) {
-        let data = { mode: state }
+    colorTemp(val: number) {
+        let data = { colorTemp: val }
         this.response = Object.assign(this.response, data)
         return this
     }
 }
 
 class brightnessMessage extends VaMessage {
-    brightness(val: number) {
+    brightness(val: number | string) {
+        if (typeof val == 'number') val = val.toString()
         let data = { bright: val }
         this.response = Object.assign(this.response, data)
         return this
@@ -315,8 +320,20 @@ class dataMessage extends VaMessage {
         return this
     }
 
+    aqi(val: number) {
+        let data = { aqi: val }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+
     pm25(val: number) {
         let data = { pm25: val }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+
+    pm10(val: number) {
+        let data = { pm10: val }
         this.response = Object.assign(this.response, data)
         return this
     }
