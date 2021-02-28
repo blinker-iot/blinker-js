@@ -8,7 +8,7 @@ let duerOS = device.addVoiceAssistant(new DuerOS(VA_TYPE.MULTI_OUTLET));
 device.ready().then(() => {
     // 电源状态改变
     duerOS.powerChange.subscribe(message => {
-        console.log(message.data);
+        // console.log(message.data);
         if (typeof message.data.set.num != 'undefined') {
             message.num(message.data.set.num)
         }
