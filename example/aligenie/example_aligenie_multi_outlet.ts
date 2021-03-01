@@ -40,17 +40,6 @@ device.ready().then(() => {
 以下为测试用函数
 */
 
-function rgb2int(r: number, g: number, b: number) {
-    return ((0xFF << 24) | (r << 16) | (g << 8) | b)
-}
-
-function int2rgb(value: number) {
-    let r = (value & 0xff0000) >> 16;
-    let g = (value & 0xff00) >> 8;
-    let b = (value & 0xff);
-    return [r, g, b]
-}
-
 let switchState = false
 function turnSwitch() {
     switchState = !switchState
