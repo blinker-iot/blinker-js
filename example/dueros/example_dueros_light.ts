@@ -77,10 +77,10 @@ device.ready().then(() => {
         message.color(message.data.set.col).update();
     })
 
-    // 色温改变   适用于灯   duerOS暂不支持
+    // 色温改变   适用于灯  
     // duerOS.colorTempChange.subscribe(message => {
     //     console.log(message);
-    //     message.colorTemp(255).update();
+    //     message.colorTemp(100).update();
     // })
 
     // 亮度改变   适用于灯

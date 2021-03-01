@@ -47,16 +47,17 @@ device.ready().then(() => {
         message.mode(message.data.set.mode).update();
     })
 
-    // 颜色改变   适用于灯
+    // 颜色改变   适用于灯  
+    // 支持的颜色：Red红色\Yellow黄色\Blue蓝色\Green绿色\White白色\Black黑色\Cyan青色\Purple紫色\Orange橙色
     aliGenie.colorChange.subscribe(message => {
-        console.log('RGB:', int2rgb(Number(message.data.set.col)));
+        console.log(message.data.set.col);
         message.color(message.data.set.col).update();
     })
 
     // 色温改变   适用于灯
     aliGenie.colorTempChange.subscribe(message => {
         console.log(message);
-        message.colorTemp(255).update();
+        message.colorTemp(100).update();
     })
 
     // 亮度改变   适用于灯
@@ -71,6 +72,11 @@ device.ready().then(() => {
             brightness = brightness - Number(message.data.set.downBright)
         }
         message.brightness(brightness).update();
+    })
+
+    aliGenie.stateQuery.subscribe(message => {
+        console.log(message.data.get);
+        message.power('on').mode(ALI_LIGHT_MODE.HOLIDAY).color('red').brightness(66).update();
     })
 
     device.dataRead.subscribe(message => {
@@ -88,18 +94,6 @@ device.ready().then(() => {
 /*
 以下为测试用函数
 */
-
-function rgb2int(r: number, g: number, b: number) {
-    return ((0xFF << 24) | (r << 16) | (g << 8) | b)
-}
-
-function int2rgb(value: number) {
-    let r = (value & 0xff0000) >> 16;
-    let g = (value & 0xff00) >> 8;
-    let b = (value & 0xff);
-    return [r, g, b]
-}
-
 let switchState = false
 function turnSwitch() {
     switchState = !switchState

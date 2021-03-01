@@ -31,12 +31,14 @@ export enum MI_LIGHT_MODE {
 }
 
 export enum ALI_LIGHT_MODE {
-    READING,
-    MOVIE,
-    SLEEP,
-    HOLIDAY,
-    MUSIC,
-    COMMON
+    READING = 'reading',
+    MOVIE = 'movie',
+    SLEEP = 'sleep',
+    LIVE = 'live',
+    HOLIDAY = 'holiday',
+    MUSIC = 'music',
+    COMMON = 'common',
+    NIGHT = 'night'
 }
 
 export enum DUER_LIGHT_MODE {
@@ -308,38 +310,76 @@ class brightnessMessage extends VaMessage {
 }
 
 class dataMessage extends VaMessage {
-    temp(val: number) {
+    temp(val: number | string) {
+        if (typeof val == 'number') val = val.toString()
         let data = { temp: val }
         this.response = Object.assign(this.response, data)
         return this
     }
 
-    humi(val: number) {
+    humi(val: number | string) {
+        if (typeof val == 'number') val = val.toString()
         let data = { humi: val }
         this.response = Object.assign(this.response, data)
         return this
     }
 
-    aqi(val: number) {
+    aqi(val: number | string) {
+        if (typeof val == 'number') val = val.toString()
         let data = { aqi: val }
         this.response = Object.assign(this.response, data)
         return this
     }
 
-    pm25(val: number) {
+    pm25(val: number | string) {
+        if (typeof val == 'number') val = val.toString()
         let data = { pm25: val }
         this.response = Object.assign(this.response, data)
         return this
     }
 
-    pm10(val: number) {
+    pm10(val: number | string) {
+        if (typeof val == 'number') val = val.toString()
         let data = { pm10: val }
         this.response = Object.assign(this.response, data)
         return this
     }
 
-    co2(val: number) {
+    co2(val: number | string) {
+        if (typeof val == 'number') val = val.toString()
         let data = { co2: val }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+
+    brightness(val: number | string) {
+        if (typeof val == 'number') val = val.toString()
+        let data = { bright: val }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+
+    color(color: string | number[]) {
+        let data = { clr: color }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+
+    colorTemp(val: number | string) {
+        if (typeof val == 'number') val = val.toString()
+        let data = { colorTemp: val }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+
+    mode(state: string | number) {
+        let data = { mode: state }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+
+    power(state: string) {
+        let data = { pState: state }
         this.response = Object.assign(this.response, data)
         return this
     }

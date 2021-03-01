@@ -20,6 +20,10 @@ device.ready().then(() => {
                 break;
         }
     })
+
+    aliGenie.stateQuery.subscribe(message => {
+        message.power('on').update();
+    })
     
     device.dataRead.subscribe(message => {
         console.log('otherData:', message);
