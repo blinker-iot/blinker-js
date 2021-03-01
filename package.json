@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "blinker javascript sdk",
   "main": "blinker.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blinker-iot/blinker-js.git"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

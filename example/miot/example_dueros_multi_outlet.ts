@@ -1,13 +1,13 @@
-import { BlinkerDevice } from '../lib/blinker';
-import { DuerOS, VA_TYPE } from '../lib/voice-assistant';
+import { BlinkerDevice } from '../../lib/blinker';
+import { Miot, VA_TYPE } from '../../lib/voice-assistant';
 
 let device = new BlinkerDevice('');
 
-let duerOS = device.addVoiceAssistant(new DuerOS(VA_TYPE.MULTI_OUTLET));
+let miot = device.addVoiceAssistant(new Miot(VA_TYPE.MULTI_OUTLET));
 
 device.ready().then(() => {
     // 电源状态改变
-    duerOS.powerChange.subscribe(message => {
+    miot.powerChange.subscribe(message => {
         // console.log(message.data);
         if (typeof message.data.set.num != 'undefined') {
             message.num(message.data.set.num)

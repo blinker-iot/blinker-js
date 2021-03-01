@@ -1,17 +1,17 @@
-export const BLINKER_ALIGENIE_LIGHT = 'light'
-export const BLINKER_ALIGENIE_OUTLET = 'outlet'
-export const BLINKER_ALIGENIE_MULTI_OUTLET = 'multi_outlet'
-export const BLINKER_ALIGENIE_SENSOR = 'sensor'
+// export const BLINKER_ALIGENIE_LIGHT = 'light'
+// export const BLINKER_ALIGENIE_OUTLET = 'outlet'
+// export const BLINKER_ALIGENIE_MULTI_OUTLET = 'multi_outlet'
+// export const BLINKER_ALIGENIE_SENSOR = 'sensor'
 
-export const BLINKER_DUEROS_LIGHT = 'LIGHT'
-export const BLINKER_DUEROS_OUTLET = 'SOCKET'
-export const BLINKER_DUEROS_MULTI_OUTLET = 'MULTI_SOCKET'
-export const BLINKER_DUEROS_SENSOR = 'AIR_MONITOR'
+// export const BLINKER_DUEROS_LIGHT = 'LIGHT'
+// export const BLINKER_DUEROS_OUTLET = 'SOCKET'
+// export const BLINKER_DUEROS_MULTI_OUTLET = 'MULTI_SOCKET'
+// export const BLINKER_DUEROS_SENSOR = 'AIR_MONITOR'
 
-export const BLINKER_MIOT_LIGHT = 'light'
-export const BLINKER_MIOT_OUTLET = 'outlet'
-export const BLINKER_MIOT_MULTI_OUTLET = 'multi_outlet'
-export const BLINKER_MIOT_SENSOR = 'sensor'
+// export const BLINKER_MIOT_LIGHT = 'light'
+// export const BLINKER_MIOT_OUTLET = 'outlet'
+// export const BLINKER_MIOT_MULTI_OUTLET = 'multi_outlet'
+// export const BLINKER_MIOT_SENSOR = 'sensor'
 
 export enum VA_TYPE {
     LIGHT = 'light',
@@ -31,12 +31,12 @@ export enum MI_LIGHT_MODE {
 }
 
 export enum ALI_LIGHT_MODE {
-    reading,
-    movie,
-    sleep,
-    holiday,
-    music,
-    common
+    READING,
+    MOVIE,
+    SLEEP,
+    HOLIDAY,
+    MUSIC,
+    COMMON
 }
 
 export enum DUER_LIGHT_MODE {

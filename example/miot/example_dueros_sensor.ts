@@ -1,13 +1,13 @@
-import { BlinkerDevice } from '../lib/blinker';
-import { DuerOS, VA_TYPE } from '../lib/voice-assistant';
+import { BlinkerDevice } from '../../lib/blinker';
+import { Miot, VA_TYPE } from '../../lib/voice-assistant';
 
 let device = new BlinkerDevice('');
 
-let duerOS = device.addVoiceAssistant(new DuerOS(VA_TYPE.SENSOR));
+let miot = device.addVoiceAssistant(new Miot(VA_TYPE.SENSOR));
 
 device.ready().then(() => {
     // 查询传感器状态   
-    duerOS.stateQuery.subscribe(message => {
+    miot.stateQuery.subscribe(message => {
         // console.log(message.data);
         switch (message.data.get) {
             case 'aqi':

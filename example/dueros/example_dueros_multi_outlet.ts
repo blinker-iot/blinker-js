@@ -1,14 +1,17 @@
-import { BlinkerDevice } from '../lib/blinker';
-import { DuerOS, VA_TYPE } from '../lib/voice-assistant';
+import { BlinkerDevice } from '../../lib/blinker';
+import { DuerOS, VA_TYPE } from '../../lib/voice-assistant';
 
 let device = new BlinkerDevice('');
 
-let duerOS = device.addVoiceAssistant(new DuerOS(VA_TYPE.OUTLET));
+let duerOS = device.addVoiceAssistant(new DuerOS(VA_TYPE.MULTI_OUTLET));
 
 device.ready().then(() => {
     // 电源状态改变
     duerOS.powerChange.subscribe(message => {
         // console.log(message.data);
+        if (typeof message.data.set.num != 'undefined') {
+            message.num(message.data.set.num)
+        }
         switch (message.data.set.pState) {
             case 'on':
                 message.power('on').update();
@@ -20,7 +23,7 @@ device.ready().then(() => {
                 break;
         }
     })
-    
+
     device.dataRead.subscribe(message => {
         console.log('otherData:', message);
     })

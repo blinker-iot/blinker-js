@@ -1,13 +1,13 @@
-import { BlinkerDevice } from '../lib/blinker';
-import { DuerOS, VA_TYPE, DUER_LIGHT_MODE } from '../lib/voice-assistant';
+import { BlinkerDevice } from '../../lib/blinker';
+import { VA_TYPE, ALI_LIGHT_MODE, AliGenie } from '../../lib/voice-assistant';
 
 let device = new BlinkerDevice('');
 
-let duerOS = device.addVoiceAssistant(new DuerOS(VA_TYPE.LIGHT));
+let aliGenie = device.addVoiceAssistant(new AliGenie(VA_TYPE.LIGHT));
 
 device.ready().then(() => {
     // 电源状态改变   适用于灯和插座
-    duerOS.powerChange.subscribe(message => {
+    aliGenie.powerChange.subscribe(message => {
         // console.log(message.data);
         switch (message.data.set.pState) {
             case 'on':
@@ -21,48 +21,24 @@ device.ready().then(() => {
         }
     })
     // 模式改变   适用于灯和插座
-    duerOS.modeChange.subscribe(message => {
+    aliGenie.modeChange.subscribe(message => {
         // console.log(message.data);
         switch (message.data.set.mode) {
-            case DUER_LIGHT_MODE.READING:
+            case ALI_LIGHT_MODE.READING:
                 break;
-            case DUER_LIGHT_MODE.SLEEP:
+            case ALI_LIGHT_MODE.MOVIE:
 
                 break;
-            case DUER_LIGHT_MODE.ALARM:
+            case ALI_LIGHT_MODE.SLEEP:
 
                 break;
-            case DUER_LIGHT_MODE.NIGHT_LIGHT:
+            case ALI_LIGHT_MODE.HOLIDAY:
 
                 break;
-            case DUER_LIGHT_MODE.ROMANTIC:
+            case ALI_LIGHT_MODE.MUSIC:
 
                 break;
-            case DUER_LIGHT_MODE.SUNDOWN:
-
-                break;
-            case DUER_LIGHT_MODE.SUNRISE:
-
-                break;
-            case DUER_LIGHT_MODE.RELAX:
-
-                break;
-            case DUER_LIGHT_MODE.LIGHTING:
-
-                break;
-            case DUER_LIGHT_MODE.SUN:
-
-                break;
-            case DUER_LIGHT_MODE.STAR:
-
-                break;
-            case DUER_LIGHT_MODE.MOON:
-
-                break;
-            case DUER_LIGHT_MODE.ENERGY_SAVING:
-
-                break;
-            case DUER_LIGHT_MODE.JUDI:
+            case ALI_LIGHT_MODE.COMMON:
 
                 break;
             default:
@@ -72,20 +48,20 @@ device.ready().then(() => {
     })
 
     // 颜色改变   适用于灯
-    duerOS.colorChange.subscribe(message => {
-        console.log('RGB:',int2rgb(Number(message.data.set.col)));
+    aliGenie.colorChange.subscribe(message => {
+        console.log('RGB:', int2rgb(Number(message.data.set.col)));
         message.color(message.data.set.col).update();
     })
 
-    // 色温改变   适用于灯   duerOS暂不支持
-    // duerOS.colorTempChange.subscribe(message => {
-    //     console.log(message);
-    //     message.colorTemp(255).update();
-    // })
+    // 色温改变   适用于灯
+    aliGenie.colorTempChange.subscribe(message => {
+        console.log(message);
+        message.colorTemp(255).update();
+    })
 
     // 亮度改变   适用于灯
     let brightness = 50;
-    duerOS.brightnessChange.subscribe(message => {
+    aliGenie.brightnessChange.subscribe(message => {
         // console.log(message.data.set);
         if (typeof message.data.set.bright != 'undefined') {
             brightness = Number(message.data.set.bright)
