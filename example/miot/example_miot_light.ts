@@ -77,6 +77,11 @@ device.ready().then(() => {
         message.brightness(brightness).update();
     })
 
+    miot.stateQuery.subscribe(message => {
+        // console.log(message.data);
+        message.power('on').update()
+    })
+
     device.dataRead.subscribe(message => {
         console.log('otherData:', message);
     })
