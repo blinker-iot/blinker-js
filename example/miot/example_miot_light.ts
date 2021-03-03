@@ -10,11 +10,11 @@ device.ready().then(() => {
     miot.powerChange.subscribe(message => {
         // console.log(message.data);
         switch (message.data.set.pState) {
-            case 'on':
-                message.power('on').update();
+            case "true":
+                message.power("on").update();
                 break;
-            case 'off':
-                message.power('off').update();
+            case "false":
+                message.power("off").update();
                 break;
             default:
                 break;

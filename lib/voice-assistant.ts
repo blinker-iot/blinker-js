@@ -100,6 +100,8 @@ export class VoiceAssistant {
 
     listen() {
         this.device.mqttClient.on('message', (topic, message) => {
+            // console.log(topic);
+            // console.log(u8aToString(message));
             if (topic.indexOf(this.subTopic.substr(0, this.subTopic.length - 1)) > -1) {
                 let data;
                 let fromDevice;
@@ -111,6 +113,7 @@ export class VoiceAssistant {
                     data = messageObject.data
                     this.targetDevice = fromDevice
                     messageId = topic.split('/')[6]
+                    vaLog(data, `${this.vaName}>device`)
                 } catch (error) {
                     console.log(error);
                 }
@@ -150,7 +153,7 @@ export class Miot extends VoiceAssistant {
     constructor(key) {
         super(key)
         this.vaType = { miType: key }
-        this.vaName = 'Miot'
+        this.vaName = 'MIOT'
     }
 
     mode(mode: MI_LIGHT_MODE) {
@@ -211,7 +214,6 @@ export class VaMessage extends Message {
         this.id = id
         this.request = request
         this.voiceAssistant = voiceAssistant
-        vaLog(this.data, `${this.voiceAssistant.vaName}>device`)
     }
 
     update() {
@@ -221,45 +223,6 @@ export class VaMessage extends Message {
         this.device.mqttClient.publish(this.voiceAssistant.pubTopic + this.id, base64Data)
         vaLog(responseStr, `device>${this.voiceAssistant.vaName}`)
     }
-
-    // power(state: string) {
-    //     let data = { pState: state }
-    //     this.response = Object.assign(this.response, data)
-    //     return this
-    // }
-
-    // mode(mode: number) {
-    //     return this
-    // }
-
-    // color(color: string) {
-    //     return this
-    // }
-
-    // colorTemp(colorTemp: number) {
-    //     return this
-    // }
-
-    // brightness(brightness: number) {
-    //     return this
-    // }
-
-    // temp(val: number) {
-    //     return this
-    // }
-
-    // humi(val: number) {
-    //     return this
-    // }
-
-    // pm25(val: number) {
-    //     return this
-    // }
-
-    // co2(val: number) {
-    //     return this
-    // }
-
 }
 
 class powerMessage extends VaMessage {
@@ -379,6 +342,10 @@ class dataMessage extends VaMessage {
     }
 
     power(state: string) {
+        if (this.voiceAssistant.vaName == 'MIOT') {
+            if (state == 'on') state = 'true'
+            else state = 'false'
+        }
         let data = { pState: state }
         this.response = Object.assign(this.response, data)
         return this
