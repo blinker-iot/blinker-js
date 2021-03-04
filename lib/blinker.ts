@@ -621,7 +621,12 @@ export class BlinkerDevice {
         return axios.get(API.WEATHER, {
             params: params
         }).then((resp) => {
-            return resp.data
+            if (resp.data.message == 1000)
+                return resp.data.detail
+            else {
+                error('getWeather 超出限制')
+                return
+            }
         })
     }
 
@@ -636,7 +641,12 @@ export class BlinkerDevice {
         return axios.get(API.WEATHER_FORECAST, {
             params: params
         }).then((resp) => {
-            return resp.data
+            if (resp.data.message == 1000)
+                return resp.data.detail
+            else {
+                error('getWeatherForecast 超出限制')
+                return
+            }
         })
     }
 
@@ -652,7 +662,12 @@ export class BlinkerDevice {
             params: params
         }
         ).then((resp) => {
-            return resp.data
+            if (resp.data.message == 1000)
+                return resp.data.detail
+            else {
+                error('getAir 超出限制')
+                return
+            }
         })
     }
 
