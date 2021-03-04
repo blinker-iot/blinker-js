@@ -26,6 +26,7 @@ device.ready().then(() => {
         switch (message.data.set.mode) {
             case ALI_LIGHT_MODE.READING:
                 break;
+
             case ALI_LIGHT_MODE.MOVIE:
 
                 break;
@@ -56,7 +57,7 @@ device.ready().then(() => {
 
     // 色温改变   适用于灯
     aliGenie.colorTempChange.subscribe(message => {
-        console.log(message);
+        console.log(message.data);
         message.colorTemp(100).update();
     })
 

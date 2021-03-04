@@ -1,18 +1,3 @@
-// export const BLINKER_ALIGENIE_LIGHT = 'light'
-// export const BLINKER_ALIGENIE_OUTLET = 'outlet'
-// export const BLINKER_ALIGENIE_MULTI_OUTLET = 'multi_outlet'
-// export const BLINKER_ALIGENIE_SENSOR = 'sensor'
-
-// export const BLINKER_DUEROS_LIGHT = 'LIGHT'
-// export const BLINKER_DUEROS_OUTLET = 'SOCKET'
-// export const BLINKER_DUEROS_MULTI_OUTLET = 'MULTI_SOCKET'
-// export const BLINKER_DUEROS_SENSOR = 'AIR_MONITOR'
-
-// export const BLINKER_MIOT_LIGHT = 'light'
-// export const BLINKER_MIOT_OUTLET = 'outlet'
-// export const BLINKER_MIOT_MULTI_OUTLET = 'multi_outlet'
-// export const BLINKER_MIOT_SENSOR = 'sensor'
-
 export enum VA_TYPE {
     LIGHT = 'light',
     OUTLET = 'outlet',
@@ -135,7 +120,7 @@ export class VoiceAssistant {
                 this.powerChange.next(new powerMessage(this.device, this, messageId, data))
             } else if (typeof data.set.col != 'undefined') {
                 this.colorChange.next(new colorMessage(this.device, this, messageId, data))
-            } else if (typeof data.set.clrtemp != 'undefined') {
+            } else if (typeof data.set.colTemp != 'undefined') {
                 this.colorTempChange.next(new colorTempMessage(this.device, this, messageId, data))
             } else if (typeof data.set.mode != 'undefined') {
                 this.modeChange.next(new modeMessage(this.device, this, messageId, data))
@@ -257,7 +242,7 @@ class colorMessage extends VaMessage {
 
 class colorTempMessage extends VaMessage {
     colorTemp(val: number) {
-        let data = { colorTemp: val }
+        let data = { colTemp: val }
         this.response = Object.assign(this.response, data)
         return this
     }
