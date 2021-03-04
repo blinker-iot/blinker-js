@@ -77,30 +77,31 @@ device.ready().then(() => {
         console.log('chart:', message.data);
     })
 
-    // setInterval(() => {
-    //     device.saveTsData({
-    //         humi: randomNumber(),
-    //         temp: randomNumber(),
-    //         pm25: randomNumber(),
-    //         pm10: randomNumber()
-    //     });
-    // }, 5000)
+    // 云存储时序数据  仅限blinker broker
+    setInterval(() => {
+        device.saveTsData({
+            humi: randomNumber(),
+            temp: randomNumber(),
+            pm25: randomNumber(),
+            pm10: randomNumber()
+        });
+    }, 5000)
 
-    // setTimeout(() => {
-    //     device.saveTextData('text');
-    //     device.saveObjectData({
-    //         config: 111,
-    //         test: 'text'
-    //     });
-    // }, 60000);
+    // 云存储文本数据、云存储对象数据  仅限blinker broker
+    setTimeout(() => {
+        device.saveTextData('text');
+        device.saveObjectData({
+            config: 111,
+            test: 'text'
+        });
+    }, 60000);
 
     // 空气、天气、天气预报 获取
     setTimeout(async () => {
         console.log("获取天气数据：");
-
         console.log(await device.getAir());
-        // console.log(await device.getWeather());
-        // console.log(await device.getWeatherForecast());
+        console.log(await device.getWeather());
+        console.log(await device.getWeatherForecast());
     }, 10000);
 
     setTimeout(() => {
