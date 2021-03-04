@@ -370,7 +370,7 @@ export class BlinkerDevice {
     objectDataTimer
     saveObjectData(data: any) {
         if (this.config.broker != 'blinker') {
-            error('saveObjectData:仅可用于blinker broker')
+            warn('saveObjectData:仅可用于blinker broker')
             return
         }
         let dataCache;
@@ -393,7 +393,7 @@ export class BlinkerDevice {
     textDataTimer
     saveTextData(data: string) {
         if (this.config.broker != 'blinker') {
-            error('saveTextData:仅可用于blinker broker');
+            warn('saveTextData:仅可用于blinker broker');
             return
         }
         if (data.length > 1024) {
@@ -610,20 +610,48 @@ export class BlinkerDevice {
     }
 
     // 气象数据获取  
-    getWeather(cityKey) {
-        return axios.get(API.WEATHER + `${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
+    getWeather(cityCode = null) {
+        let params = {
+            device: this.config.deviceName,
+            key: this.config.iotToken
+        }
+        if (cityCode != null) {
+            params['code'] = cityCode
+        }
+        return axios.get(API.WEATHER, {
+            params: params
+        }).then((resp) => {
             return resp.data
         })
     }
 
-    getWeatherForecast(cityKey) {
-        return axios.get(API.WEATHER_FORECAST + `${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
+    getWeatherForecast(cityCode = null) {
+        let params = {
+            device: this.config.deviceName,
+            key: this.config.iotToken
+        }
+        if (cityCode != null) {
+            params['code'] = cityCode
+        }
+        return axios.get(API.WEATHER_FORECAST, {
+            params: params
+        }).then((resp) => {
             return resp.data
         })
     }
 
-    getAir(cityKey) {
-        return axios.get(API.AIR + `${cityKey}?device=${this.config.deviceName}&key=${this.config.authKey}`).then((resp: any) => {
+    getAir(cityCode = null) {
+        let params = {
+            device: this.config.deviceName,
+            key: this.config.iotToken
+        }
+        if (cityCode != null) {
+            params['code'] = cityCode
+        }
+        return axios.get(API.AIR, {
+            params: params
+        }
+        ).then((resp) => {
             return resp.data
         })
     }

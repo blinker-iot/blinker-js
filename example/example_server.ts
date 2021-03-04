@@ -13,44 +13,48 @@ let device = new BlinkerDevice(/*您申请到的authkey*/);
 let number1: NumberWidget = device.addWidget(new NumberWidget('cpu'));
 let number2: NumberWidget = device.addWidget(new NumberWidget('mem'));
 
-device.heartbeat.subscribe(message => {
-    console.log('heartbeat:', message);
-    number1.value(state.cpuUsage*100).update();
-    number2.value(state.memUsage*100).update();
-    device.builtinSwitch.setState('on').update();
-})
 
-setInterval(async () => {
-    await getInfo()
-    console.log('state', state);
-    device.saveTsData({
-        cpu: state.cpuUsage,
-        mem: state.memUsage
-    });
-}, 5000)
+device.ready().then(() => {
+    
+    device.heartbeat.subscribe(message => {
+        console.log('heartbeat:', message);
+        number1.value(state.cpuUsage * 100).update();
+        number2.value(state.memUsage * 100).update();
+        device.builtinSwitch.setState('on').update();
+    })
+
+    setInterval(async () => {
+        await getInfo()
+        console.log('state', state);
+        device.saveTsData({
+            cpu: state.cpuUsage,
+            mem: state.memUsage
+        });
+    }, 5000)
 
 
-async function getInfo() {
-    if (platform == 'linux') {
-        let meminfo = fs.readFileSync('/proc/meminfo', 'utf8');
-        let itemArray = meminfo.split('\n');
-        let memAvailable = parseInt(itemArray[2].replace(/[^0-9]/g, ""));
-        let memTotle = parseInt(itemArray[0].replace(/[^0-9]/g, ""));
-        let memUsage=1-(memAvailable/memTotle);
-        addData('memAvailable',memAvailable);
-        addData('memTotle', memTotle);
-        addData('memUsage', memUsage);
-    } else {
-        addData('memAvailable', osUtils.freemem());
-        addData('memTotle', osUtils.totalmem());
-        addData('memUsage', osUtils.freememPercentage());
+    async function getInfo() {
+        if (platform == 'linux') {
+            let meminfo = fs.readFileSync('/proc/meminfo', 'utf8');
+            let itemArray = meminfo.split('\n');
+            let memAvailable = parseInt(itemArray[2].replace(/[^0-9]/g, ""));
+            let memTotle = parseInt(itemArray[0].replace(/[^0-9]/g, ""));
+            let memUsage = 1 - (memAvailable / memTotle);
+            addData('memAvailable', memAvailable);
+            addData('memTotle', memTotle);
+            addData('memUsage', memUsage);
+        } else {
+            addData('memAvailable', osUtils.freemem());
+            addData('memTotle', osUtils.totalmem());
+            addData('memUsage', osUtils.freememPercentage());
+        }
+        addData('cpuUsage', await getCpuUsage())
+        addData('cpuFree', await getCpuFree())
+        addData('cpuCount', osUtils.cpuCount())
+        addData('average', [osUtils.loadavg(1), osUtils.loadavg(5), osUtils.loadavg(15)])
+        await getDiskinfo()
     }
-    addData('cpuUsage', await getCpuUsage())
-    addData('cpuFree', await getCpuFree())
-    addData('cpuCount', osUtils.cpuCount())
-    addData('average', [osUtils.loadavg(1), osUtils.loadavg(5), osUtils.loadavg(15)])
-    await getDiskinfo()
-}
+})
 
 async function getDiskinfo() {
     let diskData = await diskinfo('./');
