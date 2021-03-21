@@ -9,28 +9,7 @@ device.ready().then(() => {
     // 查询传感器状态   
     miot.stateQuery.subscribe(message => {
         // console.log(message.data);
-        switch (message.data.get) {
-            case 'aqi':
-                message.aqi(10).update();
-                break;
-            case 'pm25':
-                message.pm25(10).update();
-                break;
-            case 'pm10':
-                message.pm10(10).update();
-                break;
-            case 'co2':
-                message.co2(10).update();
-                break;
-            case 'humi':
-                message.humi(10).update();
-                break;
-            case 'temp':
-                message.temp(10).update();
-                break;
-            default:
-                break;
-        }
+        message.aqi(10).pm25(10).co2(10).humi(10).temp(10).update();
     })
 
     device.dataRead.subscribe(message => {
