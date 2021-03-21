@@ -20,13 +20,15 @@ export interface authOption {
     "authKey"?: string,
     "version"?: string,
     "protocol"?: string,
+    "webSocket"?: boolean
 }
 
 export class BlinkerDevice {
 
     options: authOption = {
         version: '1.0',
-        protocol: 'mqtts'
+        protocol: 'mqtts',
+        webSocket: true
     };
 
     mqttClient: mqtt.MqttClient;
@@ -119,6 +121,7 @@ export class BlinkerDevice {
 
     // 本地服务：MDNS\WS SERVER
     initLocalService() {
+        if (!this.options.webSocket) return
         // 开启mdns服务
         bonjour().publish({
             name: this.config.deviceName,
