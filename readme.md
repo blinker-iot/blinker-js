@@ -90,3 +90,4 @@ config.json:
 [axios](https://github.com/axios/axios)  
 [qrcode-terminal](https://github.com/gtanner/qrcode-terminal)  
 [create ap](https://github.com/oblique/create_ap)  
+其他见package.json  
