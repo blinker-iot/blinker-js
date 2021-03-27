@@ -47,11 +47,18 @@ App推送
 
 ## 即将支持  
 APCONFIG(AP配网)  
-QRCONFIG(扫码配置)  
-语音助手  
+QRCONFIG(扫码配置)   
 专属设备  
 自动化  
 更多组件支持  
+
+## 可用配置项  
+关闭本地webSocket  
+```js
+let device = new BlinkerDevice('authkey',{
+    webSocket:false
+});
+```
 
 
 # blinker-cli(开发中)  

@@ -1,5 +1,5 @@
 import { BlinkerDevice } from '../lib/blinker';
-import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget, ImageWidget } from '../lib/widget';
+import { NumberWidget } from '../lib/widget';
 import * as os from 'os';
 import fs from 'fs';
 import * as osUtils from 'os-utils';
@@ -8,7 +8,9 @@ import { diskinfo } from '@dropb/diskinfo';
 let state: any = {}
 let platform = os.platform();
 
-let device = new BlinkerDevice(/*您申请到的authkey*/);
+let device = new BlinkerDevice('authkey',{
+    webSocket:false
+});
 
 let number1: NumberWidget = device.addWidget(new NumberWidget('cpu'));
 let number2: NumberWidget = device.addWidget(new NumberWidget('mem'));
