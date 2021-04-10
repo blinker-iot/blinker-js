@@ -479,6 +479,10 @@ export class BlinkerDevice {
         })
     }
 
+    notice(message) {
+        this.sendMessage(`{"notice":"${message}"}`)
+    }
+
     // 定时功能
     timingTasks = [];
     private setTimingData(data) {

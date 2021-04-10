@@ -34,15 +34,17 @@ device.ready().then(() => {
 
     device.builtinSwitch.change.subscribe(message => {
         console.log('builtinSwitch:', message);
-        device.builtinSwitch.setState(turnSwitch()).update();
+        let state = turnSwitch()
+        device.builtinSwitch.setState(state).update();
+        device.notice('blinker state:' + state)
     })
 
     button1.listen().subscribe(message => {
         console.log('button1:', message.data);
-        device.push('NUC设备测试');
+        device.push('blinker push');
         let state = turnSwitch()
         button1.turn(state).update();
-        text1.text('button1的动作').text1(message.data).update();
+        text1.text('button1 actions').text1(message.data).update();
         if (state == 'on')
             image1.show(1).update()
         else
