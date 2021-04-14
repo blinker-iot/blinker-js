@@ -1,7 +1,7 @@
 name: auto-deploy
 on:
   push:
-    branches: [master]
+    branches: [typescript]
 
 jobs:
   archive-file:
