@@ -620,8 +620,7 @@ export class BlinkerDevice {
     getWeather(cityCode = null) {
         let params = {
             device: this.config.deviceName,
-            key: this.config.iotToken,
-            encoding:'gbk'
+            key: this.config.iotToken
         }
         if (cityCode != null) {
             params['code'] = cityCode
