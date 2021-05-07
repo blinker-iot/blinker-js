@@ -1,6 +1,6 @@
 {
   "name": "blinkerjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "blinker nodejs sdk",
   "main": "blinker.js",
   "repository": {
