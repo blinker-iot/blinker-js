@@ -53,6 +53,7 @@ device.ready().then(() => {
 
     button2.listen().subscribe(message => {
         console.log('button2:', message);
+        device.sms('短信功能测试');
         text1.text('button2的动作').text1(message.data).update();
     })
 

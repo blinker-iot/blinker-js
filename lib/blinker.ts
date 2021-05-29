@@ -140,10 +140,11 @@ export class BlinkerDevice {
                 let fromDevice;
                 try {
                     data = JSON.parse(message)
+                    this.processData(data, fromDevice)
                 } catch (error) {
                     console.log(error);
+                    console.log(message);
                 }
-                this.processData(data, fromDevice)
             });
         })
         this.wsServer.on('close', () => {
@@ -688,6 +689,36 @@ export class BlinkerDevice {
             return resp.data
         })
     }
+
+    sendRtTimer;
+    sendRtTimer2;
+    sendRtData(key: string, func: Function, time = 1000) {
+        if (time < 1000) time = 1000;
+        clearInterval(this.sendRtTimer)
+        clearInterval(this.sendRtTimer2)
+        let message = `{"${key}":{"val":${func()},"date":${Math.round(new Date().getTime() / 1000)}}}`
+        this.sendMessage(message)
+        this.sendRtTimer = setInterval(() => {
+            message = `{"${key}":{"val":${func()},"date":${Math.round(new Date().getTime() / 1000)}}}`
+            // console.log(`{"${key}":{"value":${func()},"date":${Math.round(new Date().getTime() / 1000)}}}`);
+            this.sendMessage(message)
+        }, time)
+        this.sendRtTimer2 = setTimeout(() => {
+            clearInterval(this.sendRtTimer)
+        }, 15000);
+
+    }
+
+    // sendRtData(object, time = 5000) {
+    //     for (const key in object) {
+    //         if (Object.prototype.hasOwnProperty.call(object, key)) {
+    //             const func = object[key];
+    //             setInterval(() => {
+    //                 console.log(`${key}:${func()}`);
+    //             }, time)
+    //         }
+    //     }
+    // }
 }
 
 // 内置开关
