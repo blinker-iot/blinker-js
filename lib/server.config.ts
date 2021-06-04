@@ -10,6 +10,7 @@ export const API = {
     PUSH: SERVER.HOST + '/api/v1/user/device/push',
     SHARE: SERVER.HOST + '/api/v1/user/device/share/device',
     LOG: SERVER.HOST + '/api/v1/user/device/cloud_storage/logs',
+    POSITION:SERVER.HOST + '/api/v1/user/device/cloud_storage/coordinate',
     WEATHER: SERVER.HOST + '/api/v3/weather',
     WEATHER_FORECAST: SERVER.HOST + '/api/v3/forecast',
     AIR: SERVER.HOST + '/api/v3/air',

@@ -690,6 +690,17 @@ export class BlinkerDevice {
         })
     }
 
+    setPosition(lng, lat) {
+        return axios.post(API.POSITION, {
+            token: this.config.iotToken,
+            data: [[(new Date()).getTime().toString().substr(0, 10), [lng, lat]]]
+        }).then((resp: any) => {
+            if (resp.data.message == 1000)
+                tip('position2Cloud')
+            return resp.data
+        })
+    }
+
     sendRtTimer;
     sendRtTimer2;
     sendRtData(key: string, func: Function, time = 1000) {
