@@ -2,7 +2,9 @@ export enum VA_TYPE {
     LIGHT = 'light',
     OUTLET = 'outlet',
     MULTI_OUTLET = 'multi_outlet',
-    SENSOR = 'sensor'
+    SENSOR = 'sensor',
+    FAN = 'fan',
+    AIRCONDITION = 'aircondition'
 }
 
 export enum MI_LIGHT_MODE {
