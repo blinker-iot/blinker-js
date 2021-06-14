@@ -58,10 +58,14 @@ import { vaLog } from "./debug"
 export class VoiceAssistant {
 
     get subTopic() {
+        if (this.device.config.broker == 'blinker')
+            return `/device/${this.device.config.deviceName}/r`
         return `/sys/${this.device.config.productKey}/${this.device.config.deviceName}/rrpc/request/+`
     }
 
     get pubTopic() {
+        if (this.device.config.broker == 'blinker')
+            return `/device/${this.device.config.deviceName}/s`
         return `/sys/${this.device.config.productKey}/${this.device.config.deviceName}/rrpc/response/`
     }
 
@@ -87,8 +91,6 @@ export class VoiceAssistant {
 
     listen() {
         this.device.mqttClient.on('message', (topic, message) => {
-            // console.log(topic);
-            // console.log(u8aToString(message));
             if (topic.indexOf(this.subTopic.substr(0, this.subTopic.length - 1)) > -1) {
                 let data;
                 let fromDevice;
@@ -99,12 +101,17 @@ export class VoiceAssistant {
                     fromDevice = messageObject.fromDevice
                     data = messageObject.data
                     this.targetDevice = fromDevice
-                    messageId = topic.split('/')[6]
+                    if (this.device.config.broker == 'blinker')
+                        messageId = data.messageId
+                    else
+                        messageId = topic.split('/')[6]
                     vaLog(data, `${this.vaName}>device`)
                 } catch (error) {
                     console.log(error);
                 }
-                if (fromDevice == this.vaName)
+                // console.log(fromDevice);
+                // console.log(this.vaName);
+                if (fromDevice == this.vaName || fromDevice == 'ServerSender')
                     this.processData(messageId, data)
             }
         })
@@ -204,10 +211,20 @@ export class VaMessage extends Message {
     }
 
     update() {
+        this.response = Object.assign(this.response, { messageId: this.id })
         let responseStr = JSON.stringify(this.response)
-        let data = `{ "fromDevice": "${this.device.config.deviceName}", "toDevice": "${this.voiceAssistant.vaName}_r", "data": ${responseStr}, "deviceType": "vAssistant"}`
-        let base64Data = Buffer.from(data).toString('base64')
-        this.device.mqttClient.publish(this.voiceAssistant.pubTopic + this.id, base64Data)
+        let data;
+        if (this.device.config.broker == 'blinker') {
+            data = `{ "fromDevice": "${this.device.config.deviceName}", "toDevice": "ServerReceiver", "data": ${responseStr},"deviceType": "vAssistant"}`
+            this.device.mqttClient.publish(this.voiceAssistant.pubTopic, data)
+        } else {
+            data = `{ "fromDevice": "${this.device.config.deviceName}", "toDevice": "${this.voiceAssistant.vaName}_r", "data": ${responseStr}, "deviceType": "vAssistant"}`
+            let base64Data = Buffer.from(data).toString('base64')
+            this.device.mqttClient.publish(this.voiceAssistant.pubTopic + this.id, base64Data)
+        }
+        // console.log(this.voiceAssistant.pubTopic);
+        console.log(data);
+
         vaLog(responseStr, `device>${this.voiceAssistant.vaName}`)
     }
 }
@@ -221,6 +238,13 @@ class powerMessage extends VaMessage {
 
     num(num: number) {
         let data = { num: num }
+        this.response = Object.assign(this.response, data)
+        return this
+    }
+
+    brightness(val: number | string) {
+        if (typeof val == 'number') val = val.toString()
+        let data = { bright: val }
         this.response = Object.assign(this.response, data)
         return this
     }
