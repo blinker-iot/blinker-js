@@ -74,6 +74,8 @@ export class BlinkerDevice {
     constructor(authkey = '', options?: authOption) {
         if (authkey == '') {
             authkey = loadJsonFile('.auth.json').authkey
+            console.log(authkey);
+            
         }
         for (const key in options) {
             this.options[key] = options[key]

@@ -1,7 +1,11 @@
 import { BlinkerDevice } from '../lib/blinker';
 import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget, ImageWidget } from '../lib/widget';
 
-let device = new BlinkerDevice(/*您申请到的authkey*/);
+let device = new BlinkerDevice('', // 设备authkey
+    {
+        protocol: 'mqtts', // 默认mqtts加密通信，可选配置mqtt\mqtts
+        webSocket: true,   // 默认开启websocket，会占用81端口，使用false可关闭
+    });
 
 // 注册组件
 let button1: ButtonWidget = device.addWidget(new ButtonWidget('btn-crf'));
@@ -102,9 +106,9 @@ device.ready().then(() => {
     // 空气、天气、天气预报 获取
     setTimeout(async () => {
         console.log("获取天气数据：");
-        console.log(await device.getAir());
-        console.log(await device.getWeather());
-        console.log(await device.getWeatherForecast());
+        console.log(await device.getAir(510100));
+        console.log(await device.getWeather(510100));
+        console.log(await device.getWeatherForecast(510100));
     }, 10000);
 
     setTimeout(() => {
