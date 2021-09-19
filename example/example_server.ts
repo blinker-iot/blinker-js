@@ -8,7 +8,7 @@ import { diskinfo } from '@dropb/diskinfo';
 let state: any = {}
 let platform = os.platform();
 
-let device = new BlinkerDevice('authkey',{
+let device = new BlinkerDevice('',{
     webSocket:false
 });
 

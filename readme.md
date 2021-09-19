@@ -51,7 +51,6 @@ App推送
 APCONFIG(AP配网)  
 QRCONFIG(扫码配置)   
 专属设备  
-自动化  
 更多组件支持  
 
 ## 可用配置项  
@@ -62,32 +61,8 @@ let device = new BlinkerDevice('authkey',{
 });
 ```
 
-
-# blinker-cli(开发中)  
-
-blinker start --type {deviceType} --key {deviceType}  
-
-blinker restart
-
-blinker stop
-
-
-## blinker start  
-
-第一次启动，检查是否有config.json，没有则创建
-config.json:
-
-``` json
-{
-    "type":"",
-    "key:":"",
-    "device":""
-}
-```
-
-
 ## 使用到的相关项目  
-[axios](https://github.com/axios/axios)  
-[qrcode-terminal](https://github.com/gtanner/qrcode-terminal)  
-[create ap](https://github.com/oblique/create_ap)  
+http请求 [axios](https://github.com/axios/axios)  
+二维码生成 [qrcode-terminal](https://github.com/gtanner/qrcode-terminal)  
+wifi ap配置[wireless-tools](https://github.com/oblique/create_ap)  
 其他见package.json  
