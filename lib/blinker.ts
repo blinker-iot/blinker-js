@@ -6,8 +6,9 @@ import bonjour from 'bonjour';
 import * as WebSocket from 'ws';
 import * as schedule from 'node-schedule';
 import * as pauseable from 'pauseable';
-import { tip, warn, error, timerLog, mqttLog } from './debug'
-import getMAC from 'getmac'
+import { tip, warn, error, timerLog, mqttLog } from './debug';
+import getMAC from 'getmac';
+import * as wirelessTools from 'wireless-tools';
 
 import { VoiceAssistant } from './voice-assistant';
 
@@ -75,7 +76,7 @@ export class BlinkerDevice {
         if (authkey == '') {
             authkey = loadJsonFile('.auth.json').authkey
             console.log(authkey);
-            
+
         }
         for (const key in options) {
             this.options[key] = options[key]
@@ -732,6 +733,23 @@ export class BlinkerDevice {
     //         }
     //     }
     // }
+
+    startAp() {
+        var options = {
+            channel: 6,
+            driver: 'rtl871xdrv',
+            hw_mode: 'g',
+            interface: 'wlan0',
+            ssid: 'RaspberryPi',
+            wpa: 2,
+            wpa_passphrase: 'raspberry'
+        };
+
+        wirelessTools.hostapd.enable(options, (err) => {
+            console.log(err);
+        });
+    }
+
 }
 
 // 内置开关
