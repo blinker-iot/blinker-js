@@ -80,6 +80,21 @@ device.ready().then(() => {
     })
 
 
+    number1.listen().subscribe(message => {
+        console.log('number:', message.data);
+        switch (message.data.get) {
+            case 'humi':
+                device.sendRtData('humi', randomNumber)
+                break;
+            case 'temp':
+                device.sendRtData('temp', randomNumber)
+                break;
+            default:
+                break;
+        }
+    })
+
+
     chart1.listen().subscribe(message => {
         console.log('chart:', message.data);
     })

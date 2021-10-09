@@ -32,21 +32,7 @@ device.ready().then(() => {
             default:
                 break;
         }
-        // device.sendRtData({
-        //     humi: randomNumber,
-        //     temp: randomNumber
-        // }, 1000)
     })
-
-    // 云存储时序数据  仅限blinker broker
-    // setInterval(() => {
-    //     device.saveTsData({
-    //         humi: randomNumber(),
-    //         temp: randomNumber(),
-    //         pm25: randomNumber(),
-    //         pm10: randomNumber()
-    //     });
-    // }, 5000)
 
 })
 
