@@ -1,7 +1,7 @@
 import { BlinkerDevice } from '../lib/blinker';
 import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget, ImageWidget } from '../lib/widget';
 
-let device = new BlinkerDevice(/*您申请到的authkey*/);
+let device = new BlinkerDevice('89dca2b5e3b5');
 
 // 注册组件
 let button: ButtonWidget = device.addWidget(new ButtonWidget('btn-crf'));
@@ -16,38 +16,23 @@ device.ready().then(() => {
 
     button.listen().subscribe(message => {
         console.log('button1:', message.data);
-
     })
 
-
-    chart1.listen().subscribe(message => {
-        console.log('chart:', message.data);
-        switch (message.data.get) {
-            case 'humi':
-                device.sendRtData('humi', randomNumber)
-                break;
-            case 'temp':
-                device.sendRtData('temp', randomNumber)
-                break;
-            default:
-                break;
-        }
-        // device.sendRtData({
-        //     humi: randomNumber,
-        //     temp: randomNumber
-        // }, 1000)
+    device.realtimeRequest.subscribe(keys => {
+        console.log('realtimeRequest', keys);
+        keys.forEach(key => {
+            switch (key) {
+                case 'humi':
+                    device.sendRtData('humi', randomNumber)
+                    break;
+                case 'temp':
+                    device.sendRtData('temp', randomNumber)
+                    break;
+                default:
+                    break;
+            }
+        });
     })
-
-    // 云存储时序数据  仅限blinker broker
-    // setInterval(() => {
-    //     device.saveTsData({
-    //         humi: randomNumber(),
-    //         temp: randomNumber(),
-    //         pm25: randomNumber(),
-    //         pm10: randomNumber()
-    //     });
-    // }, 5000)
-
 })
 
 

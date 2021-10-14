@@ -16,7 +16,6 @@ export class Widget {
 
     listen() {
         this.changeSubscription = this.change.subscribe(message => {
-            // console.log(message);
             this.device.targetDevice = message.fromDevice
             this.change2.next(message)
         })

@@ -59,6 +59,8 @@ export class BlinkerDevice {
 
     heartbeat = new Subject<Message>()
 
+    realtimeRequest = new Subject<string[]>()
+
     builtinSwitch = new BuiltinSwitch();
 
     configReady = new BehaviorSubject(false)
@@ -75,7 +77,7 @@ export class BlinkerDevice {
         if (authkey == '') {
             authkey = loadJsonFile('.auth.json').authkey
             console.log(authkey);
-            
+
         }
         for (const key in options) {
             this.options[key] = options[key]
@@ -275,6 +277,8 @@ export class BlinkerDevice {
                 this.setCountdownData(data['set']['countdown']);
                 this.sendMessage(this.getCountdownData())
             }
+        } else if (typeof data['rt'] != 'undefined') {
+            this.realtimeRequest.next(data['rt']);
         } else {
             // tip(JSON.stringify(data));
             let otherData = {}
@@ -703,35 +707,19 @@ export class BlinkerDevice {
         })
     }
 
-    sendRtTimer;
-    sendRtTimer2;
+    // 实时数据传输功能
+    realtimeTasks = {}
     sendRtData(key: string, func: Function, time = 1000) {
-        if (time < 1000) time = 1000;
-        clearInterval(this.sendRtTimer)
-        clearInterval(this.sendRtTimer2)
-        let message = `{"${key}":{"val":${func()},"date":${Math.round(new Date().getTime() / 1000)}}}`
-        this.sendMessage(message)
-        this.sendRtTimer = setInterval(() => {
-            message = `{"${key}":{"val":${func()},"date":${Math.round(new Date().getTime() / 1000)}}}`
-            // console.log(`{"${key}":{"value":${func()},"date":${Math.round(new Date().getTime() / 1000)}}}`);
-            this.sendMessage(message)
-        }, time)
-        this.sendRtTimer2 = setTimeout(() => {
-            clearInterval(this.sendRtTimer)
-        }, 15000);
-
+        if (typeof this.realtimeTasks[key] != 'undefined') this.realtimeTasks[key].cancel()
+        this.realtimeTasks[key] = schedule.scheduleJob(
+            {
+                end: Date.now() + 10000,
+                rule: `*/${time / 1000} * * * * *`
+            }, () => {
+                let message = `{"${key}":{"val":${func()},"date":${Math.round(new Date().getTime() / 1000)}}}`
+                this.sendMessage(message)
+            })
     }
-
-    // sendRtData(object, time = 5000) {
-    //     for (const key in object) {
-    //         if (Object.prototype.hasOwnProperty.call(object, key)) {
-    //             const func = object[key];
-    //             setInterval(() => {
-    //                 console.log(`${key}:${func()}`);
-    //             }, time)
-    //         }
-    //     }
-    // }
 }
 
 // 内置开关
