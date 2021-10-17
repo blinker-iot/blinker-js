@@ -1,21 +1,11 @@
 import { BlinkerDevice } from '../lib/blinker';
-import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget, ImageWidget } from '../lib/widget';
 
-let device = new BlinkerDevice('89dca2b5e3b5');
-
-// 注册组件
-let button: ButtonWidget = device.addWidget(new ButtonWidget('btn-crf'));
-let chart1: ChartWidget = device.addWidget(new JoystickWidget('cha-t12'));
-
+let device = new BlinkerDevice(/*您申请到的Secret Key*/);
 
 device.ready().then(() => {
 
     device.dataRead.subscribe(message => {
         console.log('otherData:', message);
-    })
-
-    button.listen().subscribe(message => {
-        console.log('button1:', message.data);
     })
 
     device.realtimeRequest.subscribe(keys => {
