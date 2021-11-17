@@ -1,5 +1,5 @@
 export const SERVER = {
-    HOST: 'https://iot.diandeng.tech'
+    HOST: 'https://iot.communicolor.cn'
 }
 
 export const API = {
