@@ -61,6 +61,9 @@ let device = new BlinkerDevice('authkey',{
 });
 ```
 
+## 独立部署
+服务独立部署后，可通过修改 /lib/server.config.ts 修改服务器地址  
+
 ## 使用到的相关项目  
 http请求 [axios](https://github.com/axios/axios)  
 二维码生成 [qrcode-terminal](https://github.com/gtanner/qrcode-terminal)  
