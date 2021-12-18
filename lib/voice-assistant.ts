@@ -58,11 +58,19 @@ import { vaLog } from "./debug"
 export class VoiceAssistant {
 
     get subTopic() {
-        return `/sys/${this.device.config.productKey}/${this.device.config.deviceName}/rrpc/request/+`
+        if (this.vaName == 'MIOT'){
+            return  this.device.subTopic;
+        }else {
+            return `/sys/${this.device.config.productKey}/${this.device.config.deviceName}/rrpc/request/+`
+        }
     }
 
     get pubTopic() {
-        return `/sys/${this.device.config.productKey}/${this.device.config.deviceName}/rrpc/response/`
+        if (this.vaName == 'MIOT'){
+            return  this.device.pubTopic;
+        }else {
+            return `/sys/${this.device.config.productKey}/${this.device.config.deviceName}/rrpc/response/`
+        }
     }
 
     vaType;
@@ -104,7 +112,7 @@ export class VoiceAssistant {
                 } catch (error) {
                     console.log(error);
                 }
-                if (fromDevice == this.vaName)
+                if (data.from == this.vaName)
                     this.processData(messageId, data)
             }
         })
@@ -204,10 +212,11 @@ export class VaMessage extends Message {
     }
 
     update() {
+        let messageId = {messageId:this.data.messageId}
+        this.response = Object.assign(this.response,messageId)
         let responseStr = JSON.stringify(this.response)
-        let data = `{ "fromDevice": "${this.device.config.deviceName}", "toDevice": "${this.voiceAssistant.vaName}_r", "data": ${responseStr}, "deviceType": "vAssistant"}`
-        let base64Data = Buffer.from(data).toString('base64')
-        this.device.mqttClient.publish(this.voiceAssistant.pubTopic + this.id, base64Data)
+        let data = `{ "fromDevice": "${this.device.config.deviceName}", "toDevice": "ServerReceiver", "data": ${responseStr}, "deviceType": "vAssistant"}`
+        this.device.mqttClient.publish(this.voiceAssistant.pubTopic, data)
         vaLog(responseStr, `device>${this.voiceAssistant.vaName}`)
     }
 }
