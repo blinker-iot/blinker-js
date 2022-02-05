@@ -54,12 +54,18 @@ QRCONFIG(扫码配置)
 更多组件支持  
 
 ## 可用配置项  
-关闭本地webSocket  
+
 ```js
 let device = new BlinkerDevice('authkey',{
-    webSocket:false
+    protocol: 'mqtts', // 可选协议mqtt/mqtts/ws/wss
+    webSocket: true, // 是否开启本地webSocket，默认开启
+    sourceCheck: true, // 是否开启来源检查，默认开启
 });
 ```
+protocol: 指定设备连接协议，可选mqtt/mqtts/ws/wss。默认为mqtts。
+webSocket：开启后，会占用设备81端口，用于局域网中设备直接通信。如有安全性要求请关闭该功能。  
+sourceCheck：开启后，会检查消息来源，设备只会处理所属用户发来的消息。如需设备间通信，请关闭该功能。  
+
 
 ## 独立部署
 服务独立部署后，可通过修改 /lib/server.config.ts 修改服务器地址  

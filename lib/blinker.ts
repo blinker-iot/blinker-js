@@ -20,7 +20,8 @@ export interface authOption {
     "authKey"?: string,
     "version"?: string,
     "protocol"?: string,
-    "webSocket"?: boolean
+    "webSocket"?: boolean,
+    "sourceCheck"?: boolean
 }
 
 export class BlinkerDevice {
@@ -28,7 +29,8 @@ export class BlinkerDevice {
     options: authOption = {
         version: '1.0',
         protocol: 'mqtts',
-        webSocket: true
+        webSocket: true,
+        sourceCheck: true,
     };
 
     mqttClient: mqtt.MqttClient;
@@ -214,8 +216,9 @@ export class BlinkerDevice {
                     } catch (error) {
                         console.log(error);
                     }
-                    // 检查
-                    if (this.sharedUserList.indexOf(fromDevice) < 0 && fromDevice != this.config.uuid) return
+                    // 权限检查
+                    if (this.options.sourceCheck)
+                        if (this.sharedUserList.indexOf(fromDevice) < 0 && fromDevice != this.config.uuid) return
                     this.processData(data, fromDevice)
                 }
             })

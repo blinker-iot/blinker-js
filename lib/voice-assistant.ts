@@ -58,10 +58,14 @@ import { vaLog } from "./debug"
 export class VoiceAssistant {
 
     get subTopic() {
+        if (this.device.config.broker == 'blinker')
+            return `/device/${this.device.config.deviceName}/r`
         return `/sys/${this.device.config.productKey}/${this.device.config.deviceName}/rrpc/request/+`
     }
 
     get pubTopic() {
+        if (this.device.config.broker == 'blinker')
+            return `/device/${this.device.config.deviceName}/s`
         return `/sys/${this.device.config.productKey}/${this.device.config.deviceName}/rrpc/response/`
     }
 
@@ -87,8 +91,6 @@ export class VoiceAssistant {
 
     listen() {
         this.device.mqttClient.on('message', (topic, message) => {
-            // console.log(topic);
-            // console.log(u8aToString(message));
             if (topic.indexOf(this.subTopic.substr(0, this.subTopic.length - 1)) > -1) {
                 let data;
                 let fromDevice;
@@ -104,6 +106,8 @@ export class VoiceAssistant {
                 } catch (error) {
                     console.log(error);
                 }
+                console.log(fromDevice,this.vaName);
+                
                 if (fromDevice == this.vaName)
                     this.processData(messageId, data)
             }
