@@ -62,7 +62,7 @@ let device = new BlinkerDevice('authkey',{
     sourceCheck: true, // 是否开启来源检查，默认开启
 });
 ```
-protocol: 指定设备连接协议，可选mqtt/mqtts/ws/wss。默认为mqtts。
+protocol: 指定设备连接协议，可选mqtt/mqtts/ws/wss。默认为mqtts。  
 webSocket：开启后，会占用设备81端口，用于局域网中设备直接通信。如有安全性要求请关闭该功能。  
 sourceCheck：开启后，会检查消息来源，设备只会处理所属用户发来的消息。如需设备间通信，请关闭该功能。  
 
