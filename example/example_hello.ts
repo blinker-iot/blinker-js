@@ -11,7 +11,6 @@ let number1: NumberWidget = device.addWidget(new NumberWidget('num-abc'));
 let num = 0;
 
 device.ready().then(() => {
-
     device.dataRead.subscribe(message => {
         console.log('otherData:', message);
     })

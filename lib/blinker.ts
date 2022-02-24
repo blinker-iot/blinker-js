@@ -119,9 +119,12 @@ export class BlinkerDevice {
 
     ready(): Promise<Boolean> {
         return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                resolve(true)
-            }, 5000);
+            let subscription = this.configReady.subscribe(state => {
+                if (state) {
+                    subscription.unsubscribe
+                    resolve(true)
+                }
+            })
         })
     }
 
