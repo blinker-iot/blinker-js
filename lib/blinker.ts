@@ -79,7 +79,6 @@ export class BlinkerDevice {
         if (authkey == '') {
             authkey = loadJsonFile('.auth.json').authkey
             console.log(authkey);
-
         }
         for (const key in options) {
             this.options[key] = options[key]
@@ -544,8 +543,9 @@ export class BlinkerDevice {
         // console.log(config);
         this.timingTasks[taskData.task] = schedule.scheduleJob(config, () => {
             this.processData(taskData.act[0])
-            this.disableTimingTask(taskData.task)
             this.sendMessage(this.getTimingData())
+            if (taskData.day == '0000000')
+                this.disableTimingTask(taskData.task)
             timerLog('timer task done')
         })
         saveJsonFile(this.tempDataPath, this.tempData)
