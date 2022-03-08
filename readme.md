@@ -1,10 +1,23 @@
-# blinker-nodejs  
+# blinker JavaScript/TypeScript SDK  
 
-## 支持文档  
-[文档](https://diandeng.tech/doc/javascript-support)  
+本SDK可用于 **Linux/Windows/MacOS** 设备MQTT接入  
+**亦适用于树莓派等带操作系统的嵌入式设备**  
+
+使用WiFi接入，当设备和手机在同一个局域网中，为局域网通信  
+其余情况，使用MQTT远程通信  
+
+## 准备工作
+开始使用前您需要做好如下准备:  
+
+**下载并安装blinker APP**  
+**Android下载：**  
+[点击下载](https://github.com/blinker-iot/app-release/releases) 或 在android应用商店搜索“blinker”下载安装  
+**IOS下载：**  
+[点击下载](https://itunes.apple.com/cn/app/id1357907814) 或 在app store中搜索“blinker”下载  
+
 
 ## 环境/依赖安装  
-最新nodejs LTS版本  
+运行blinker程序需要最新nodejs LTS版本及Ts-Node支持  
 ```
 npm i -g ts-node
 git clone https://github.com/blinker-iot/blinker-js.git
@@ -12,66 +25,117 @@ cd blinker-js
 npm i
 ```
 
-## 运行示例  
+## 在app中添加设备，获取Secret Key  
+1. 进入App，点击右上角的“+”号，然后选择 **添加设备**    
+2. 点击选择**Arduino > WiFi接入**  
+3. 复制申请到的**Secret Key**  
 
-替换example.ts中的以下语句，参数为app中申请到的设备的authkey  
+## DIY界面  
+1. 在设备列表页，点击设备图标，进入设备控制面板  
+2. 首次进入设备控制面板，会弹出向导页
+3. 在向导页点击 **载入示例**，即可载入示例组件  
+   
+## 编译并上传示例程序 
+
+**.\example\example_hello.ts** 为入门示例， 替换示例中的以下语句，修改参数为app中申请到的设备的Secret Key  
 ```
 let device = new BlinkerDevice('xxxxxxxxxxxx');
 ```
-运行示例程序：  
+运行示例程序：
 ```
-ts-node .\example\example.ts
+ts-node .\example\example_hello.ts
 ```
 
-## 组件支持  
-ButtonWidget  
-TextWidget  
-NumberWidget  
-RangeWidget  
-RGBWidget  
-JoystickWidget  
+> blinker在局域网通信时会使用到81端口，如遇到权限报错，请使用sudo等方式提权运行  
 
-## 已支持  
-基本MQTT通信  
-Layouter组件  
-时序数据存储(仅限blinker broker)    
-文本数据存储(仅限blinker broker)    
-对象数据存储(仅限blinker broker)  
-倒计时  
-定时  
-短信通知  
-微信通知  
-App推送  
-局域网ws通信  
-设备分享  
-天气/天气预报/空气 数据获取  
-语音助手（小度/天猫精灵/小爱）  
+## 恭喜！一切就绪  
 
-## 即将支持  
-APCONFIG(AP配网)  
-QRCONFIG(扫码配置)   
-专属设备  
-更多组件支持  
+在APP中点击刚才您添加的设备，即可进入控制界面，点点按钮就可以控制设备了  
+另一个按钮也点下试试，放心，您的手机不会爆炸~  
 
-## 可用配置项  
+## 进一步使用blinker  
 
-```js
-let device = new BlinkerDevice('authkey',{
-    protocol: 'mqtts', // 可选协议mqtt/mqtts/ws/wss
-    webSocket: true, // 是否开启本地webSocket，默认开启
-    sourceCheck: true, // 是否开启来源检查，默认开启
-});
+#### 想了解各接入方式的区别？  
+看看[添加设备](?file=002-开发入门/001-添加设备 "添加设备")  
+
+#### 想深入理解以上例程？  
+
+看看[Nodejs开发入门](https://diandeng.tech/doc/getting-start-nodejs "Nodejs开发入门") 和 [JavaScript/TypeScript 支持库函数参考](https://diandeng.tech/doc/javascript-support)) 
+#### 更多示例程序？  
+
+看看[Github](https://github.com/blinker-iot/blinker-js/tree/typescript/example)  
+
+#### 想制作与众不同的物联网设备？  
+看看[自定义界面](https://diandeng.tech/doc/layouter-2)  
+
+#### 树莓派GPIO控制？  
+看看[pigpio](https://github.com/fivdi/pigpio)  
+
+## 完整示例程序  
+
+
+```javascript
+import { BlinkerDevice } from '../lib/blinker';
+import { ButtonWidget, NumberWidget } from '../lib/widget';
+
+let device = new BlinkerDevice(/*您申请到的Secret Key*/);
+
+// 注册组件
+let button1: ButtonWidget = device.addWidget(new ButtonWidget('btn-123'));
+let button2: ButtonWidget = device.addWidget(new ButtonWidget('btn-abc'));
+let number1: NumberWidget = device.addWidget(new NumberWidget('num-abc'));
+
+let num = 0;
+
+device.ready().then(() => {
+
+    device.dataRead.subscribe(message => {
+        console.log('otherData:', message);
+    })
+
+    button1.listen().subscribe(message => {
+        console.log('button1:', message.data);
+        num++;
+        number1.value(num).update();
+    })
+
+    button2.listen().subscribe(message => {
+        console.log('button2:', message.data);
+        // 其他控制代码
+    })
+
+})
 ```
-protocol: 指定设备连接协议，可选mqtt/mqtts/ws/wss。默认为mqtts。  
-webSocket：开启后，会占用设备81端口，用于局域网中设备直接通信。如有安全性要求请关闭该功能。  
-sourceCheck：开启后，会检查消息来源，设备只会处理所属用户发来的消息。如需设备间通信，请关闭该功能。  
 
+## 为什么设备显示不在线？  
 
-## 独立部署
-服务独立部署后，可通过修改 /lib/server.config.ts 修改服务器地址  
+0. blinker App如何判断设备是否在线？  
 
-## 使用到的相关项目  
-http请求 [axios](https://github.com/axios/axios)  
-二维码生成 [qrcode-terminal](https://github.com/gtanner/qrcode-terminal)  
-wifi ap配置[wireless-tools](https://github.com/oblique/create_ap)  
-其他见package.json  
+blinker App在 **App打开时、进入设备页面时、在设备页面中每隔一定时间** 会向设备发送心跳请求，内容为**{"get":"state"}**。  
+设备收到请求后，会返回 **{"state":"online"}**，app接收到这个返回，即会显示设备在线。  
+
+1. 程序没有成功上传到开发板  
+
+解决办法：重新上传，上传后打开串口监视器，确认程序正确运行  
+
+2. 程序中没有设置正确的ssid和密码，导致没有连接上网络  
+
+解决办法：设置后再重新上传程序，上传后打开串口监视器，确认程序正确运行  
+
+3. 程序错误，导致程序运行不正确  
+
+解决办法：先使用并理解blinker例程，再自由发挥  
+
+4. 开发板供电不足   
+
+解决办法：换电源 或 换USB口  
+
+## 为什么无法切换到局域网通信？  
+
+1. 路由器开启了AP隔离功能或禁止了UDP通信，从而阻止了局域网中设备的发现和通信  
+
+解决办法：关闭路由器AP隔离功能 或 允许UDP通信；如果找不到相关设置，通常可重置路由器解决  
+
+2. mdns没有及时发现设备  
+
+解决办法：在首页下拉刷新，可以重新搜索局域网中的设备  
