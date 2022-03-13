@@ -75,6 +75,9 @@ export class BlinkerDevice {
     private tempData;
     private tempDataPath;
 
+    // mqtt状态
+    mqttConnection = new BehaviorSubject(false);
+
     constructor(authkey = '', options?: authOption) {
         if (authkey == '') {
             authkey = loadJsonFile('.auth.json').authkey
