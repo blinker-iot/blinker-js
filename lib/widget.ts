@@ -65,12 +65,12 @@ export class TextWidget extends Widget {
         super(key)
     }
 
-    text(text) {
+    text(text:string) {
         this.state['tex'] = text
         return this
     }
 
-    text1(text) {
+    text1(text:string) {
         this.state['tex1'] = text
         return this
     }

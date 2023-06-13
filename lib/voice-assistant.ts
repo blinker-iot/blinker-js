@@ -98,7 +98,7 @@ export class VoiceAssistant {
                 try {
                     let messageString = u8aToString(message)
                     let messageObject = JSON.parse(messageString)
-                    fromDevice = messageObject.fromDevice
+                    fromDevice = messageObject.data.from
                     data = messageObject.data
                     this.targetDevice = fromDevice
                     messageId = topic.split('/')[6]
@@ -106,8 +106,6 @@ export class VoiceAssistant {
                 } catch (error) {
                     console.log(error);
                 }
-                console.log(fromDevice,this.vaName);
-                
                 if (fromDevice == this.vaName)
                     this.processData(messageId, data)
             }
@@ -208,8 +206,8 @@ export class VaMessage extends Message {
     }
 
     update() {
-        let responseStr = JSON.stringify(this.response)
-        let data = `{ "fromDevice": "${this.device.config.deviceName}", "toDevice": "${this.voiceAssistant.vaName}_r", "data": ${responseStr}, "deviceType": "vAssistant"}`
+        let responseStr = JSON.stringify(Object.assign(this.response, { messageId: this.data.messageId }))
+        let data = `{ "fromDevice": "${this.device.config.deviceName}", "toDevice": "ServerReceiver", "data": ${responseStr}, "deviceType": "vAssistant"}`
         let base64Data = Buffer.from(data).toString('base64')
         this.device.mqttClient.publish(this.voiceAssistant.pubTopic + this.id, base64Data)
         vaLog(responseStr, `device>${this.voiceAssistant.vaName}`)
