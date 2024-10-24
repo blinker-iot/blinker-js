@@ -118,7 +118,10 @@ device.ready().then(() => {
             device.wechat('设备测试', '正常运行', new Date().toString())
             device.push('设备测试：正常运行')
         }, 86400000)
+        device.sms('短信功能测试');
     }, 10000);
+
+
 
 })
 
@@ -129,7 +132,7 @@ device.ready().then(() => {
 以下为测试用函数
 */
 // 随机数
-function randomNumber(min = 0, max = 100) {
+function randomNumber(min = -10000, max = 10000) {
     let random = Math.random()
     return Math.floor((min + (max - min) * random))
 }

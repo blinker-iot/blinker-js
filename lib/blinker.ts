@@ -63,7 +63,7 @@ export class BlinkerDevice {
 
     realtimeRequest = new Subject<string[]>()
 
-    builtinSwitch = new BuiltinSwitch();
+    // builtinSwitch = new BuiltinSwitch();
 
     configReady = new BehaviorSubject(false)
 
@@ -96,15 +96,12 @@ export class BlinkerDevice {
             }
             this.config = resp.data.detail
             this.config['authKey'] = authkey
-            if (this.config.broker == 'aliyun') {
-                mqttLog('broker:aliyun')
-                this.initBroker_Aliyun()
-            } else if (this.config.broker == 'blinker') {
+            if (this.config.broker == 'blinker') {
                 mqttLog('broker:blinker')
                 this.initBroker_Blinker()
             }
             await this.connectBroker()
-            this.addWidget(this.builtinSwitch)
+            // this.addWidget(this.builtinSwitch)
             this.getShareInfo()
             this.initLocalService()
             // 加载暂存数据  
@@ -168,16 +165,6 @@ export class BlinkerDevice {
             }
             this.sharedUserList = resp.data.detail.users
         })
-    }
-
-    exasubTopic;
-    exapubTopic;
-    initBroker_Aliyun() {
-        this.subTopic = `/${this.config.productKey}/${this.config.deviceName}/r`;
-        this.pubTopic = `/${this.config.productKey}/${this.config.deviceName}/s`;
-        this.exasubTopic = `/sys/${this.config.productKey}/${this.config.deviceName}/rrpc/request/+`
-        this.exapubTopic = `/sys/${this.config.productKey}/${this.config.deviceName}/rrpc/response/`
-        this.targetDevice = this.config.uuid;
     }
 
     initBroker_Blinker() {
@@ -629,68 +616,6 @@ export class BlinkerDevice {
             return { countdown: this.tempData['countdown'] }
     }
 
-    // 气象数据获取  
-    getWeather(cityCode = null) {
-        let params = {
-            device: this.config.deviceName,
-            key: this.config.iotToken
-        }
-        if (cityCode != null) {
-            params['code'] = cityCode
-        }
-        return axios.get(API.WEATHER, {
-            params: params
-        }).then((resp) => {
-            if (resp.data.message == 1000)
-                return resp.data.detail
-            else {
-                error('getWeather 超出限制')
-                return
-            }
-        })
-    }
-
-    getWeatherForecast(cityCode = null) {
-        let params = {
-            device: this.config.deviceName,
-            key: this.config.iotToken
-        }
-        if (cityCode != null) {
-            params['code'] = cityCode
-        }
-        return axios.get(API.WEATHER_FORECAST, {
-            params: params
-        }).then((resp) => {
-            if (resp.data.message == 1000)
-                return resp.data.detail
-            else {
-                error('getWeatherForecast 超出限制')
-                return
-            }
-        })
-    }
-
-    getAir(cityCode = null) {
-        let params = {
-            device: this.config.deviceName,
-            key: this.config.iotToken
-        }
-        if (cityCode != null) {
-            params['code'] = cityCode
-        }
-        return axios.get(API.AIR, {
-            params: params
-        }
-        ).then((resp) => {
-            if (resp.data.message == 1000)
-                return resp.data.detail
-            else {
-                error('getAir 超出限制')
-                return
-            }
-        })
-    }
-
     log(logString) {
         return axios.post(API.LOG, {
             token: this.config.iotToken,
@@ -729,23 +654,24 @@ export class BlinkerDevice {
 }
 
 // 内置开关
-export class BuiltinSwitch {
-    key = 'switch';
-    state = '';
-    change = new Subject<Message>();
+// 1.0.5后不再提供，直接替换为ButtonWidget
+// export class BuiltinSwitch {
+//     key = 'switch';
+//     state = '';
+//     change = new Subject<Message>();
 
-    setState(state) {
-        this.state = state
-        return this
-    }
+//     setState(state) {
+//         this.state = state
+//         return this
+//     }
 
-    update() {
-        let message = {}
-        message[this.key] = this.state
-        this.device.sendMessage(message)
-    }
-    device: BlinkerDevice;
-}
+//     update() {
+//         let message = {}
+//         message[this.key] = this.state
+//         this.device.sendMessage(message)
+//     }
+//     device: BlinkerDevice;
+// }
 
 function formatMess2Device(deviceId, toDevice, data) {
     // 兼容阿里broker保留deviceType和fromDevice  
