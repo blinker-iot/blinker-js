@@ -35,21 +35,21 @@ jobs:
           json: '{"img": "assets/sdk/nodejs.png", "text": "NodeJs (TypeScript)", "update": "${{ steps.current-time.outputs.formattedTime}}", "version": "${{steps.version.outputs.prop}}", "github": "https://github.com/blinker-iot/blinker-js", "document": "https://diandeng.tech/doc/javascript-support", "download": "sdk/blinker-js-typescript-${{steps.version.outputs.prop}}.zip" }'
 
       - name: upload zip
-        uses: garygrossgarten/github-action-scp@v0.5.3
+        uses: garygrossgarten/github-action-scp@release
         with:
           local: blinker-js-typescript-${{steps.version.outputs.prop}}.zip
           remote: ${{ secrets.REMOTE_PATH }}/blinker-js-typescript-${{steps.version.outputs.prop}}.zip
           host: ${{ secrets.SERVER_IP }}
           username: ubuntu
-          privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.SERVER_PASSWD }}
           recursive: true
       
       - name: upload json
-        uses: garygrossgarten/github-action-scp@v0.5.3
+        uses: garygrossgarten/github-action-scp@release
         with:
           local: nodejs.json
           remote: ${{ secrets.REMOTE_PATH }}/nodejs.json
           host: ${{ secrets.SERVER_IP }}
           username: ubuntu
-          privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
+          password: ${{ secrets.SERVER_PASSWD }}
           recursive: true
