@@ -1,7 +1,7 @@
 import { BlinkerDevice } from '../lib/blinker';
 import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget, ImageWidget } from '../lib/widget';
 
-let device = new BlinkerDevice('', // 设备authkey
+let device = new BlinkerDevice('4f01f46276be', // 设备authkey
     {
         protocol: 'mqtts', // 默认mqtts加密通信，可选配置mqtt\mqtts
         webSocket: true,   // 默认开启websocket，会占用81端口，使用false可关闭
@@ -27,20 +27,13 @@ device.ready().then(() => {
 
     device.heartbeat.subscribe(message => {
         console.log('heartbeat:', message);
-        device.builtinSwitch.setState(getSwitchState()).update();
+        // device.builtinSwitch.setState(getSwitchState()).update();
         range1.value(randomNumber()).color(randomColor()).update();
         number1.value(randomNumber()).unit('米').text('长度').color(randomColor()).update();
         button2.color(randomColor()).update();
         button1.color(randomColor()).update();
         colorPicker1.color(randomColor()).brightness(randomNumber(0, 255)).update()
         device.vibrate();
-    })
-
-    device.builtinSwitch.change.subscribe(message => {
-        console.log('builtinSwitch:', message);
-        let state = turnSwitch()
-        device.builtinSwitch.setState(state).update();
-        device.notice('blinker state:' + state)
     })
 
     button1.listen().subscribe(message => {
@@ -57,7 +50,7 @@ device.ready().then(() => {
 
     button2.listen().subscribe(message => {
         console.log('button2:', message);
-        device.sms('短信功能测试');
+        // device.sms('短信功能测试');
         text1.text('button2的动作').text1(message.data).update();
     })
 
@@ -94,35 +87,6 @@ device.ready().then(() => {
         });
     }, 5000)
 
-    // 云存储文本数据、云存储对象数据  仅限blinker broker
-    setTimeout(() => {
-        device.saveTextData('text');
-        device.saveObjectData({
-            config: 111,
-            test: 'text'
-        });
-    }, 60000);
-
-    // 空气、天气、天气预报 获取
-    setTimeout(async () => {
-        console.log("获取天气数据：");
-        console.log(await device.getAir(510100));
-        console.log(await device.getWeather(510100));
-        console.log(await device.getWeatherForecast(510100));
-    }, 10000);
-
-    setTimeout(() => {
-        device.wechat('设备测试', '启动', new Date().toString())
-        device.push('设备测试：启动')
-        setInterval(() => {
-            device.wechat('设备测试', '正常运行', new Date().toString())
-            device.push('设备测试：正常运行')
-        }, 86400000)
-        device.sms('短信功能测试');
-    }, 10000);
-
-
-
 })
 
 
@@ -147,9 +111,6 @@ function randomColor() {
 }
 
 // 开关切换
-function getSwitchState() {
-    return switchState ? 'on' : 'off'
-}
 let switchState = false
 function turnSwitch() {
     switchState = !switchState

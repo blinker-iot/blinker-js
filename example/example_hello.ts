@@ -26,4 +26,6 @@ device.ready().then(() => {
         // 其他控制代码
     })
 
+    device.sms('功能测试');
+
 })
