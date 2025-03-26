@@ -1,7 +1,7 @@
 import { BlinkerDevice } from '../lib/blinker';
 import { ButtonWidget, TextWidget, RangeWidget, NumberWidget, RGBWidget, JoystickWidget, ChartWidget, ImageWidget } from '../lib/widget';
 
-let device = new BlinkerDevice('4f01f46276be', // 设备authkey
+let device = new BlinkerDevice(/*您申请到的Secret Key*/, // 设备authkey
     {
         protocol: 'mqtts', // 默认mqtts加密通信，可选配置mqtt\mqtts
         webSocket: true,   // 默认开启websocket，会占用81端口，使用false可关闭
